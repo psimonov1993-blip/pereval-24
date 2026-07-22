@@ -74,8 +74,10 @@
   .hero::before{
     content:"";position:absolute;inset:0;z-index:0;
     background:
-      radial-gradient(720px 420px at 82% -8%,rgba(255,138,30,.16),transparent 60%),
-      radial-gradient(560px 380px at 6% 12%,rgba(55,211,153,.07),transparent 60%);
+      linear-gradient(102deg,rgba(11,14,18,.96) 0%,rgba(12,15,20,.82) 42%,rgba(12,15,20,.5) 100%),
+      radial-gradient(720px 420px at 84% -6%,rgba(255,138,30,.22),transparent 62%),
+      url("img/hero.jpg");
+    background-size:cover;background-position:center right;
     pointer-events:none;
   }
   .hero .wrap{position:relative;z-index:1}
@@ -146,6 +148,24 @@
   .why-item h3{font-size:17.5px;font-weight:700;margin-bottom:6px}
   .why-item p{font-size:14.5px;color:var(--muted);line-height:1.5}
 
+  /* Gallery */
+  .gallery{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:200px;gap:14px}
+  .gph{
+    position:relative;overflow:hidden;border-radius:var(--radius);border:1px solid var(--line);
+    background:var(--bg-2);
+  }
+  .gph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+  .gph:hover img{transform:scale(1.05)}
+  .gph .cap{
+    position:absolute;left:0;right:0;bottom:0;padding:26px 16px 13px;
+    font-size:13.5px;font-weight:600;color:#fff;
+    background:linear-gradient(transparent,rgba(9,11,15,.85));
+  }
+  .gph.big{grid-column:span 3;grid-row:span 2}
+  .gph.wide{grid-column:span 3}
+  .gph.tall{grid-column:span 2;grid-row:span 2}
+  .gph.sq{grid-column:span 2}
+
   /* Pricing */
   .price-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
   .price-block + .price-block{border-top:1px solid var(--line)}
@@ -201,6 +221,11 @@
     .cards{grid-template-columns:repeat(2,1fr)}
     .why-grid{grid-template-columns:1fr}
     .cta-box{grid-template-columns:1fr;gap:28px}
+    .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:160px}
+    .gph.big{grid-column:span 2;grid-row:span 2}
+    .gph.wide{grid-column:span 2;grid-row:span 1}
+    .gph.tall{grid-column:span 1;grid-row:span 2}
+    .gph.sq{grid-column:span 1;grid-row:span 1}
   }
   @media(max-width:560px){
     body{font-size:16px}
@@ -295,6 +320,25 @@
       <div class="why-item"><div class="why-ic">🏗️</div><div><h3>Своя техника и грузчики</h3><p>Погрузчики до 5 тонн и штатные грузчики. Не нужно ждать бригаду со стороны - работаем сразу.</p></div></div>
       <div class="why-item"><div class="why-ic">🚚</div><div><h3>Свой грузовой автопарк</h3><p>Шторные полуприцепы для доставки груза борт-в-борт по Москве и области. У складов-конкурентов этого нет.</p></div></div>
       <div class="why-item"><div class="why-ic">📄</div><div><h3>Договор и акт на груз</h3><p>Работаем официально, с договором оказания услуг и актом приёма-передачи. За груз на площадке отвечаем.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="ploshadka">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Площадка и техника</div>
+      <h2>Всё своё - площадка, склад, техника</h2>
+      <p>Крытый склад-ангар, открытая охраняемая площадка, эстакада для перегрузки фур и своя погрузочная техника в Подольске.</p>
+    </div>
+    <div class="gallery">
+      <figure class="gph big"><img src="img/p1-angar.jpg" alt="Крытый склад-ангар с воротами под фуру" loading="lazy"><figcaption class="cap">Крытый склад-ангар, ворота под фуру</figcaption></figure>
+      <figure class="gph wide"><img src="img/p2-estakada.jpg" alt="Мобильная эстакада для перегрузки и разгрузки фур" loading="lazy"><figcaption class="cap">Эстакада для разгрузки и перегрузки фур</figcaption></figure>
+      <figure class="gph wide"><img src="img/p3-vnutri.jpg" alt="Погрузчик и паллеты внутри склада" loading="lazy"><figcaption class="cap">Погрузчик и паллеты внутри склада</figcaption></figure>
+      <figure class="gph sq"><img src="img/p4-tehnika.jpg" alt="Своя погрузочная техника на площадке" loading="lazy"><figcaption class="cap">Своя погрузочная техника</figcaption></figure>
+      <figure class="gph sq"><img src="img/p5-vorota.jpg" alt="Раздвижные ворота склада, выезд на площадку" loading="lazy"><figcaption class="cap">Раздвижные ворота, выезд на площадку</figcaption></figure>
+      <figure class="gph sq"><img src="img/p6-ploshadka.jpg" alt="Открытая охраняемая площадка, заезд для фур" loading="lazy"><figcaption class="cap">Охраняемая площадка, заезд 24 часа</figcaption></figure>
     </div>
   </div>
 </section>
