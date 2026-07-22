@@ -149,7 +149,7 @@
   .why-item p{font-size:14.5px;color:var(--muted);line-height:1.5}
 
   /* Gallery */
-  .gallery{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:200px;gap:14px}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:220px;gap:14px}
   .gph{
     position:relative;overflow:hidden;border-radius:var(--radius);border:1px solid var(--line);
     background:var(--bg-2);
@@ -161,10 +161,7 @@
     font-size:13.5px;font-weight:600;color:#fff;
     background:linear-gradient(transparent,rgba(9,11,15,.85));
   }
-  .gph.big{grid-column:span 3;grid-row:span 2}
-  .gph.wide{grid-column:span 3}
-  .gph.tall{grid-column:span 2;grid-row:span 2}
-  .gph.sq{grid-column:span 2}
+  .gph.big{grid-column:span 2;grid-row:span 2}
 
   /* Pricing */
   .price-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
@@ -221,11 +218,8 @@
     .cards{grid-template-columns:repeat(2,1fr)}
     .why-grid{grid-template-columns:1fr}
     .cta-box{grid-template-columns:1fr;gap:28px}
-    .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:160px}
+    .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
     .gph.big{grid-column:span 2;grid-row:span 2}
-    .gph.wide{grid-column:span 2;grid-row:span 1}
-    .gph.tall{grid-column:span 1;grid-row:span 2}
-    .gph.sq{grid-column:span 1;grid-row:span 1}
   }
   @media(max-width:560px){
     body{font-size:16px}
@@ -333,12 +327,15 @@
       <p>Крытый склад-ангар, открытая охраняемая площадка, эстакада для перегрузки фур и своя погрузочная техника в Подольске.</p>
     </div>
     <div class="gallery">
-      <figure class="gph big"><img src="img/p1-angar.jpg" alt="Крытый склад-ангар с воротами под фуру" loading="lazy"><figcaption class="cap">Крытый склад-ангар, ворота под фуру</figcaption></figure>
-      <figure class="gph wide"><img src="img/p2-estakada.jpg" alt="Мобильная эстакада для перегрузки и разгрузки фур" loading="lazy"><figcaption class="cap">Эстакада для разгрузки и перегрузки фур</figcaption></figure>
-      <figure class="gph wide"><img src="img/p3-vnutri.jpg" alt="Погрузчик и паллеты внутри склада" loading="lazy"><figcaption class="cap">Погрузчик и паллеты внутри склада</figcaption></figure>
-      <figure class="gph sq"><img src="img/p4-tehnika.jpg" alt="Своя погрузочная техника на площадке" loading="lazy"><figcaption class="cap">Своя погрузочная техника</figcaption></figure>
-      <figure class="gph sq"><img src="img/p5-vorota.jpg" alt="Раздвижные ворота склада, выезд на площадку" loading="lazy"><figcaption class="cap">Раздвижные ворота, выезд на площадку</figcaption></figure>
-      <figure class="gph sq"><img src="img/p6-ploshadka.jpg" alt="Открытая охраняемая площадка, заезд для фур" loading="lazy"><figcaption class="cap">Охраняемая площадка, заезд 24 часа</figcaption></figure>
+      <figure class="gph big"><img src="img/forklift-nariman.jpg" alt="Дизельный погрузчик на площадке" loading="lazy"><figcaption class="cap">Свой дизельный вилочный погрузчик</figcaption></figure>
+      <figure class="gph"><img src="img/forklift-tcm.jpg" alt="Вилочный погрузчик TCM в работе" loading="lazy"><figcaption class="cap">Погрузчик TCM, грузоподъёмность до 3 т</figcaption></figure>
+      <figure class="gph"><img src="img/p2-estakada.jpg" alt="Мобильная эстакада для перегрузки и разгрузки фур" loading="lazy"><figcaption class="cap">Эстакада для разгрузки фур</figcaption></figure>
+      <figure class="gph"><img src="img/p1-angar.jpg" alt="Крытый склад-ангар с воротами под фуру" loading="lazy"><figcaption class="cap">Крытый склад-ангар</figcaption></figure>
+      <figure class="gph"><img src="img/p3-vnutri.jpg" alt="Погрузчик и паллеты внутри склада" loading="lazy"><figcaption class="cap">Погрузчик и паллеты внутри склада</figcaption></figure>
+      <figure class="gph"><img src="img/p4-tehnika.jpg" alt="Складская техника - рохли и погрузчики" loading="lazy"><figcaption class="cap">Гидравлические тележки и погрузчики</figcaption></figure>
+      <figure class="gph"><img src="img/p5-vorota.jpg" alt="Раздвижные ворота склада, выезд на площадку" loading="lazy"><figcaption class="cap">Раздвижные ворота, выезд на площадку</figcaption></figure>
+      <figure class="gph"><img src="img/p6-ploshadka.jpg" alt="Открытая охраняемая площадка, заезд для фур" loading="lazy"><figcaption class="cap">Охраняемая площадка, фуры на разгрузке</figcaption></figure>
+      <figure class="gph"><img src="img/zaezd.jpg" alt="Заезд на площадку для грузового транспорта" loading="lazy"><figcaption class="cap">Удобный заезд, работаем 24 часа</figcaption></figure>
     </div>
   </div>
 </section>
@@ -393,7 +390,7 @@
         <input type="tel" name="phone" placeholder="Телефон для связи" autocomplete="tel" required>
         <input type="text" name="cargo" placeholder="Что за груз и откуда/куда (по желанию)">
         <button type="submit" class="btn">Рассчитать стоимость</button>
-        <p class="form-legal">Нажимая кнопку, вы соглашаетесь с <a href="#">политикой обработки персональных данных</a>.</p>
+        <p class="form-legal">Нажимая кнопку, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
       </form>
     </div>
   </div>
@@ -417,9 +414,158 @@
         Круглосуточно, без выходных
       </div>
     </div>
-    <div class="copyright">© 2026 Перевал 24 · Кросс-докинг и складская перевалка, Подольск</div>
+    <div class="copyright">© 2026 Перевал 24 · Кросс-докинг и складская перевалка, Подольск · <a href="privacy.html" style="color:var(--muted);text-decoration:underline">Политика конфиденциальности</a></div>
   </div>
 </footer>
+
+<!-- CHAT WIDGET -->
+<style>
+  #chatFab{
+    position:fixed;right:20px;bottom:20px;z-index:80;width:60px;height:60px;border-radius:50%;
+    background:var(--amber);border:0;cursor:pointer;display:grid;place-items:center;
+    box-shadow:0 10px 30px rgba(255,138,30,.45);transition:transform .2s ease;
+  }
+  #chatFab:hover{transform:scale(1.07)}
+  #chatFab svg{width:28px;height:28px;fill:#0e1116}
+  #chatFab .pulse{position:absolute;inset:0;border-radius:50%;background:var(--amber);opacity:.5;animation:pulse 2.4s ease-out infinite;z-index:-1}
+  @keyframes pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+  #chatPanel{
+    position:fixed;right:20px;bottom:92px;z-index:81;width:370px;max-width:calc(100vw - 32px);
+    height:540px;max-height:calc(100vh - 120px);background:var(--panel);border:1px solid var(--line);
+    border-radius:18px;display:none;flex-direction:column;overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+  }
+  #chatPanel.open{display:flex}
+  .chat-head{background:var(--bg-2);border-bottom:1px solid var(--line);padding:15px 18px;display:flex;align-items:center;gap:12px}
+  .chat-head .av{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--amber),#e0680a);display:grid;place-items:center;color:#0e1116;font-weight:900;flex:none}
+  .chat-head b{font-size:15px;display:block}
+  .chat-head span{font-size:12px;color:var(--green)}
+  .chat-head .x{margin-left:auto;background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:4px}
+  .chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:82%;padding:10px 13px;border-radius:13px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+  .msg.bot{background:var(--bg-2);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+  .msg.me{background:var(--amber);color:#0e1116;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+  .msg.typing{color:var(--muted);font-style:italic}
+  .chat-foot{border-top:1px solid var(--line);padding:10px;background:var(--bg-2)}
+  .chat-mgr{width:100%;text-align:center;background:none;border:0;color:var(--amber);font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 0 8px}
+  .chat-mgr:hover{text-decoration:underline}
+  .chat-input{display:flex;gap:8px}
+  .chat-input input{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 13px;font-family:var(--font);font-size:14.5px}
+  .chat-input input:focus{outline:none;border-color:var(--amber)}
+  .chat-input button{flex:none;background:var(--amber);border:0;border-radius:10px;width:44px;cursor:pointer;display:grid;place-items:center}
+  .chat-input button svg{width:20px;height:20px;fill:#0e1116}
+  .chat-input button:disabled{opacity:.5;cursor:default}
+  .form-done{background:rgba(55,211,153,.1);border:1px solid rgba(55,211,153,.4);color:#bff3df;border-radius:12px;padding:16px;font-size:15px;text-align:center;line-height:1.5}
+  @media(max-width:560px){
+    #chatPanel{right:12px;left:12px;width:auto;bottom:86px;height:70vh}
+    #chatFab{right:16px;bottom:16px}
+  }
+</style>
+
+<button id="chatFab" aria-label="Открыть чат"><span class="pulse"></span>
+  <svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.9 2 11.7c0 2.4 1.1 4.6 2.9 6.1L4 21.5l3.9-1.5c1.3.4 2.7.6 4.1.6 5.5 0 10-3.9 10-8.9S17.5 3 12 3z"/></svg>
+</button>
+
+<div id="chatPanel" role="dialog" aria-label="Чат с консультантом">
+  <div class="chat-head">
+    <div class="av">П</div>
+    <div><b>Консультант Перевал 24</b><span>● Онлайн, отвечаем сразу</span></div>
+    <button class="x" id="chatClose" aria-label="Закрыть">×</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-foot">
+    <button class="chat-mgr" id="chatMgr">Связаться с живым менеджером</button>
+    <div class="chat-input">
+      <input type="text" id="chatText" placeholder="Напишите вопрос..." autocomplete="off">
+      <button id="chatSend" aria-label="Отправить"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ⚙️ ЗАМЕНИ на Production URL из n8n после импорта (домен без пути вебхука)
+  var N8N_BASE = "https://terminator.pw/webhook";
+  var LEAD_URL = N8N_BASE + "/pereval24-lead";
+  var CHAT_URL = N8N_BASE + "/pereval24-chat";
+
+  /* ---------- Форма заявки ---------- */
+  var form = document.getElementById('lead');
+  if(form){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var btn = form.querySelector('button[type=submit]');
+      var f = form.elements;
+      var data = {
+        name: (f['name'] && f['name'].value || '').trim(),
+        phone: (f['phone'] && f['phone'].value || '').trim(),
+        cargo: (f['cargo'] && f['cargo'].value || '').trim()
+      };
+      if(!data.phone){ f['phone'].focus(); return; }
+      btn.disabled = true; btn.textContent = 'Отправляем...';
+      fetch(LEAD_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+        .then(function(r){ if(!r.ok) throw 0; return r; })
+        .then(function(){
+          form.innerHTML = '<div class="form-done">Заявка принята. Перезвоним и рассчитаем стоимость. Спасибо!</div>';
+        })
+        .catch(function(){
+          btn.disabled = false; btn.textContent = 'Рассчитать стоимость';
+          alert('Не удалось отправить. Позвоните нам: +7 968 441-88-85');
+        });
+    });
+  }
+
+  /* ---------- Чат ---------- */
+  var fab=document.getElementById('chatFab'), panel=document.getElementById('chatPanel'),
+      body=document.getElementById('chatBody'), input=document.getElementById('chatText'),
+      sendBtn=document.getElementById('chatSend'), mgrBtn=document.getElementById('chatMgr'),
+      closeBtn=document.getElementById('chatClose');
+  var history=[], greeted=false, busy=false;
+
+  function add(role, text){
+    var d=document.createElement('div');
+    d.className='msg '+(role==='me'?'me':'bot');
+    d.textContent=text; body.appendChild(d); body.scrollTop=body.scrollHeight;
+    return d;
+  }
+  function openChat(){
+    panel.classList.add('open');
+    if(!greeted){
+      add('bot','Здравствуйте! Я консультант «Перевал 24». Подскажу по кросс-докингу, перегрузке и ценам. Что за груз нужно перевалить?');
+      greeted=true;
+    }
+    input.focus();
+  }
+  fab.addEventListener('click', function(){ panel.classList.contains('open')?panel.classList.remove('open'):openChat(); });
+  closeBtn.addEventListener('click', function(){ panel.classList.remove('open'); });
+
+  function send(action){
+    if(busy) return;
+    var text = input.value.trim();
+    if(action!=='manager' && !text) return;
+    if(text){ add('me', text); history.push({role:'user', content:text}); }
+    input.value='';
+    busy=true; sendBtn.disabled=true;
+    var typing=add('bot',''); typing.className='msg bot typing'; typing.textContent='печатает...';
+    fetch(CHAT_URL, {method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:text||'Клиент просит менеджера', history:history.slice(-8), action:action||'chat'})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        typing.remove();
+        var reply=(d&&d.reply)||'Спасибо! Оставьте телефон в форме заявки — менеджер перезвонит.';
+        add('bot', reply); history.push({role:'assistant', content:reply});
+      })
+      .catch(function(){
+        typing.remove();
+        add('bot','Связь прервалась. Позвоните нам: +7 968 441-88-85 или +7 999 104-02-20');
+      })
+      .finally(function(){ busy=false; sendBtn.disabled=false; input.focus(); });
+  }
+  sendBtn.addEventListener('click', function(){ send('chat'); });
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); send('chat'); } });
+  mgrBtn.addEventListener('click', function(){ if(!greeted) openChat(); send('manager'); });
+})();
+</script>
 
 </body>
 </html>
