@@ -497,6 +497,12 @@
   var LEAD_URL = N8N_BASE + "/pereval24-lead";
   var CHAT_URL = N8N_BASE + "/pereval24-chat";
 
+  // Идентификатор сессии посетителя (для привязки диалога к теме менеджера)
+  var SID = localStorage.getItem('pv24_sid');
+  if(!SID){ SID = 'w'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); localStorage.setItem('pv24_sid', SID); }
+  function getTID(){ return localStorage.getItem('pv24_tid')||''; }
+  function setTID(t){ if(t){ localStorage.setItem('pv24_tid', String(t)); } }
+
   /* ---------- Форма заявки ---------- */
   var form = document.getElementById('lead');
   if(form){
@@ -507,7 +513,9 @@
       var data = {
         name: (f['name'] && f['name'].value || '').trim(),
         phone: (f['phone'] && f['phone'].value || '').trim(),
-        cargo: (f['cargo'] && f['cargo'].value || '').trim()
+        cargo: (f['cargo'] && f['cargo'].value || '').trim(),
+        source: 'Форма на сайте',
+        session: SID
       };
       if(!data.phone){ f['phone'].focus(); return; }
       btn.disabled = true; btn.textContent = 'Отправляем...';
@@ -528,7 +536,7 @@
       body=document.getElementById('chatBody'), input=document.getElementById('chatText'),
       sendBtn=document.getElementById('chatSend'), leadBtn=document.getElementById('chatLead'),
       closeBtn=document.getElementById('chatClose');
-  var history=[], greeted=false, busy=false, lastQuestion='', formShown=false;
+  var history=[], greeted=false, busy=false, lastQuestion='', leadCard=null;
 
   function add(role, text){
     var d=document.createElement('div');
@@ -547,16 +555,19 @@
   fab.addEventListener('click', function(){ panel.classList.contains('open')?panel.classList.remove('open'):openChat(); });
   closeBtn.addEventListener('click', function(){ panel.classList.remove('open'); });
 
+  function removeLeadForm(){ if(leadCard&&leadCard.parentNode){ leadCard.parentNode.removeChild(leadCard); } leadCard=null; }
+
   // Встроенная форма заявки внутри чата (обязательные: имя + телефон)
-  function showLeadForm(){
-    if(formShown) return; formShown=true;
-    var card=document.createElement('div'); card.className='lead-card';
-    card.innerHTML='<b>Оставьте контакты — рассчитаем стоимость</b>'
+  function showLeadForm(mode){
+    if(leadCard) return; // уже открыта
+    var manager = (mode==='manager');
+    var card=document.createElement('div'); card.className='lead-card'; leadCard=card;
+    card.innerHTML='<b>'+(manager?'Передадим ваш вопрос менеджеру':'Оставьте контакты — рассчитаем стоимость')+'</b>'
       +'<input type="text" class="req" id="lfName" placeholder="Ваше имя *" autocomplete="name">'
       +'<input type="tel" class="req" id="lfPhone" placeholder="Телефон *" autocomplete="tel">'
-      +'<input type="text" id="lfQ" placeholder="Что нужно перевалить / вопрос">'
+      +'<input type="text" id="lfQ" placeholder="Ваш вопрос / что нужно перевалить">'
       +'<div class="err" id="lfErr"></div>'
-      +'<button type="button" id="lfSend">Отправить заявку</button>';
+      +'<button type="button" id="lfSend">Отправить</button>';
     body.appendChild(card); body.scrollTop=body.scrollHeight;
     var q=card.querySelector('#lfQ'); if(lastQuestion) q.value=lastQuestion;
     var errEl=card.querySelector('#lfErr'), btn=card.querySelector('#lfSend');
@@ -564,22 +575,28 @@
       var nm=card.querySelector('#lfName').value.trim();
       var ph=card.querySelector('#lfPhone').value.trim();
       var qq=q.value.trim();
-      if(!nm){ errEl.textContent='Укажите имя'; return; }
-      if(ph.replace(/\D/g,'').length<7){ errEl.textContent='Укажите корректный телефон'; return; }
+      if(!nm){ errEl.textContent='Пожалуйста, укажите имя'; return; }
+      if(ph.replace(/\D/g,'').length<7){ errEl.textContent='Пожалуйста, укажите корректный телефон'; return; }
       errEl.textContent=''; btn.disabled=true; btn.textContent='Отправляем...';
       fetch(LEAD_URL, {method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name:nm, phone:ph, question:qq, source:'Онлайн-чат'})})
+        body:JSON.stringify({name:nm, phone:ph, question:qq, source:(manager?'Онлайн-чат (нужен менеджер)':'Онлайн-чат'), session:SID})})
         .then(function(r){ if(!r.ok) throw 0; return r; })
         .then(function(){
-          card.innerHTML='<b>Заявка принята ✓</b><div style="font-size:13.5px;color:var(--muted)">Спасибо, '+nm+'! Менеджер перезвонит и рассчитает стоимость.</div>';
+          removeLeadForm();
+          add('bot','Спасибо, '+nm+'! Передал вашу заявку менеджеру - он свяжется с вами в ближайшее время и всё подробно подскажет. Хорошего дня!');
         })
         .catch(function(){
-          btn.disabled=false; btn.textContent='Отправить заявку';
-          errEl.textContent='Не удалось отправить. Позвоните: +7 968 441-88-85';
+          btn.disabled=false; btn.textContent='Отправить';
+          errEl.textContent='Не получилось отправить. Позвоните, пожалуйста: +7 968 441-88-85';
         });
     });
   }
-  leadBtn.addEventListener('click', function(){ if(!greeted) openChat(); formShown=false; showLeadForm(); });
+
+  // Кнопка внизу чата: переключатель формы (показать/скрыть)
+  leadBtn.addEventListener('click', function(){
+    if(!greeted) openChat();
+    if(leadCard){ removeLeadForm(); } else { showLeadForm('manual'); }
+  });
 
   function send(){
     if(busy) return;
@@ -591,19 +608,22 @@
     busy=true; sendBtn.disabled=true;
     var typing=add('bot',''); typing.className='msg bot typing'; typing.textContent='печатает...';
     fetch(CHAT_URL, {method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:text, history:history.slice(-8), action:'chat'})})
+      body:JSON.stringify({message:text, history:history.slice(-8), session:SID, thread_id:getTID()})})
       .then(function(r){ return r.json(); })
       .then(function(d){
         typing.remove();
-        var reply=(d&&d.reply)||'Спасибо! Оставьте имя и телефон — менеджер перезвонит.';
+        if(d&&d.thread_id) setTID(d.thread_id);
+        var reply=(d&&d.reply)||'Спасибо! Оставьте, пожалуйста, имя и телефон — менеджер перезвонит.';
+        var wantManager=reply.indexOf('[[MANAGER]]')>-1;
         var wantForm=reply.indexOf('[[FORM]]')>-1;
-        reply=reply.replace(/\[\[FORM\]\]/g,'').trim();
+        reply=reply.replace(/\[\[FORM\]\]/g,'').replace(/\[\[MANAGER\]\]/g,'').trim();
         if(reply) { add('bot', reply); history.push({role:'assistant', content:reply}); }
-        if(wantForm) showLeadForm();
+        if(wantManager) showLeadForm('manager');
+        else if(wantForm) showLeadForm('form');
       })
       .catch(function(){
         typing.remove();
-        add('bot','Связь прервалась. Позвоните нам: +7 968 441-88-85 или +7 999 104-02-20');
+        add('bot','Связь прервалась. Позвоните нам, пожалуйста: +7 968 441-88-85 или +7 999 104-02-20');
       })
       .finally(function(){ busy=false; sendBtn.disabled=false; input.focus(); });
   }
