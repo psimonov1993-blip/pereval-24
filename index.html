@@ -414,7 +414,7 @@
         Круглосуточно, без выходных
       </div>
     </div>
-    <div class="copyright">© 2026 Перевал 24 · Кросс-докинг и складская перевалка, Подольск · <a href="privacy.html" style="color:var(--muted);text-decoration:underline">Политика конфиденциальности</a></div>
+    <div class="copyright">© 2026 Перевал 24 · Кросс-докинг и складская перевалка, Подольск · <a href="privacy.html" style="color:var(--muted);text-decoration:underline">Политика конфиденциальности</a><br>ИП Рамазанов Нариман Джафарович · ИНН 151000641307 · ОГРНИП 316774600494322</div>
   </div>
 </footer>
 
@@ -456,6 +456,14 @@
   .chat-input button svg{width:20px;height:20px;fill:#0e1116}
   .chat-input button:disabled{opacity:.5;cursor:default}
   .form-done{background:rgba(55,211,153,.1);border:1px solid rgba(55,211,153,.4);color:#bff3df;border-radius:12px;padding:16px;font-size:15px;text-align:center;line-height:1.5}
+  .lead-card{background:var(--bg-2);border:1px solid var(--amber);border-radius:13px;padding:14px;align-self:stretch;display:flex;flex-direction:column;gap:8px}
+  .lead-card b{font-size:14px}
+  .lead-card input{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px 12px;font-family:var(--font);font-size:14px;width:100%}
+  .lead-card input:focus{outline:none;border-color:var(--amber)}
+  .lead-card .req{border-color:#4a3a2a}
+  .lead-card button{background:var(--amber);color:#0e1116;border:0;border-radius:9px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font)}
+  .lead-card button:disabled{opacity:.6;cursor:default}
+  .lead-card .err{color:#ff9a9a;font-size:12px;min-height:1px}
   @media(max-width:560px){
     #chatPanel{right:12px;left:12px;width:auto;bottom:86px;height:70vh}
     #chatFab{right:16px;bottom:16px}
@@ -474,7 +482,7 @@
   </div>
   <div class="chat-body" id="chatBody"></div>
   <div class="chat-foot">
-    <button class="chat-mgr" id="chatMgr">Связаться с живым менеджером</button>
+    <button class="chat-mgr" id="chatLead">📋 Оставить заявку — рассчитаем стоимость</button>
     <div class="chat-input">
       <input type="text" id="chatText" placeholder="Напишите вопрос..." autocomplete="off">
       <button id="chatSend" aria-label="Отправить"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
@@ -518,9 +526,9 @@
   /* ---------- Чат ---------- */
   var fab=document.getElementById('chatFab'), panel=document.getElementById('chatPanel'),
       body=document.getElementById('chatBody'), input=document.getElementById('chatText'),
-      sendBtn=document.getElementById('chatSend'), mgrBtn=document.getElementById('chatMgr'),
+      sendBtn=document.getElementById('chatSend'), leadBtn=document.getElementById('chatLead'),
       closeBtn=document.getElementById('chatClose');
-  var history=[], greeted=false, busy=false;
+  var history=[], greeted=false, busy=false, lastQuestion='', formShown=false;
 
   function add(role, text){
     var d=document.createElement('div');
@@ -531,7 +539,7 @@
   function openChat(){
     panel.classList.add('open');
     if(!greeted){
-      add('bot','Здравствуйте! Я консультант «Перевал 24». Подскажу по кросс-докингу, перегрузке и ценам. Что за груз нужно перевалить?');
+      add('bot','Здравствуйте! Я Ирина, консультант «Перевал 24». Подскажу по кросс-докингу, перегрузке, хранению и ценам. Что за груз нужно перевалить?');
       greeted=true;
     }
     input.focus();
@@ -539,21 +547,59 @@
   fab.addEventListener('click', function(){ panel.classList.contains('open')?panel.classList.remove('open'):openChat(); });
   closeBtn.addEventListener('click', function(){ panel.classList.remove('open'); });
 
-  function send(action){
+  // Встроенная форма заявки внутри чата (обязательные: имя + телефон)
+  function showLeadForm(){
+    if(formShown) return; formShown=true;
+    var card=document.createElement('div'); card.className='lead-card';
+    card.innerHTML='<b>Оставьте контакты — рассчитаем стоимость</b>'
+      +'<input type="text" class="req" id="lfName" placeholder="Ваше имя *" autocomplete="name">'
+      +'<input type="tel" class="req" id="lfPhone" placeholder="Телефон *" autocomplete="tel">'
+      +'<input type="text" id="lfQ" placeholder="Что нужно перевалить / вопрос">'
+      +'<div class="err" id="lfErr"></div>'
+      +'<button type="button" id="lfSend">Отправить заявку</button>';
+    body.appendChild(card); body.scrollTop=body.scrollHeight;
+    var q=card.querySelector('#lfQ'); if(lastQuestion) q.value=lastQuestion;
+    var errEl=card.querySelector('#lfErr'), btn=card.querySelector('#lfSend');
+    btn.addEventListener('click', function(){
+      var nm=card.querySelector('#lfName').value.trim();
+      var ph=card.querySelector('#lfPhone').value.trim();
+      var qq=q.value.trim();
+      if(!nm){ errEl.textContent='Укажите имя'; return; }
+      if(ph.replace(/\D/g,'').length<7){ errEl.textContent='Укажите корректный телефон'; return; }
+      errEl.textContent=''; btn.disabled=true; btn.textContent='Отправляем...';
+      fetch(LEAD_URL, {method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name:nm, phone:ph, question:qq, source:'Онлайн-чат'})})
+        .then(function(r){ if(!r.ok) throw 0; return r; })
+        .then(function(){
+          card.innerHTML='<b>Заявка принята ✓</b><div style="font-size:13.5px;color:var(--muted)">Спасибо, '+nm+'! Менеджер перезвонит и рассчитает стоимость.</div>';
+        })
+        .catch(function(){
+          btn.disabled=false; btn.textContent='Отправить заявку';
+          errEl.textContent='Не удалось отправить. Позвоните: +7 968 441-88-85';
+        });
+    });
+  }
+  leadBtn.addEventListener('click', function(){ if(!greeted) openChat(); formShown=false; showLeadForm(); });
+
+  function send(){
     if(busy) return;
     var text = input.value.trim();
-    if(action!=='manager' && !text) return;
-    if(text){ add('me', text); history.push({role:'user', content:text}); }
+    if(!text) return;
+    lastQuestion=text;
+    add('me', text); history.push({role:'user', content:text});
     input.value='';
     busy=true; sendBtn.disabled=true;
     var typing=add('bot',''); typing.className='msg bot typing'; typing.textContent='печатает...';
     fetch(CHAT_URL, {method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:text||'Клиент просит менеджера', history:history.slice(-8), action:action||'chat'})})
+      body:JSON.stringify({message:text, history:history.slice(-8), action:'chat'})})
       .then(function(r){ return r.json(); })
       .then(function(d){
         typing.remove();
-        var reply=(d&&d.reply)||'Спасибо! Оставьте телефон в форме заявки — менеджер перезвонит.';
-        add('bot', reply); history.push({role:'assistant', content:reply});
+        var reply=(d&&d.reply)||'Спасибо! Оставьте имя и телефон — менеджер перезвонит.';
+        var wantForm=reply.indexOf('[[FORM]]')>-1;
+        reply=reply.replace(/\[\[FORM\]\]/g,'').trim();
+        if(reply) { add('bot', reply); history.push({role:'assistant', content:reply}); }
+        if(wantForm) showLeadForm();
       })
       .catch(function(){
         typing.remove();
@@ -561,9 +607,8 @@
       })
       .finally(function(){ busy=false; sendBtn.disabled=false; input.focus(); });
   }
-  sendBtn.addEventListener('click', function(){ send('chat'); });
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); send('chat'); } });
-  mgrBtn.addEventListener('click', function(){ if(!greeted) openChat(); send('manager'); });
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } });
 })();
 </script>
 
