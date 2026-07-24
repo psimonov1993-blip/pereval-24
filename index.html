@@ -14,6 +14,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111004046', 'ym');
+
+    ym(111004046, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/111004046" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 <style>
   :root{
     --bg:#0e1116;
@@ -532,6 +545,7 @@
       fetch(LEAD_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
         .then(function(r){ if(!r.ok) throw 0; return r; })
         .then(function(){
+          window.ym && ym(111004046,'reachGoal','lead');
           form.innerHTML = '<div class="form-done">Заявка принята. Перезвоним и рассчитаем стоимость. Спасибо!</div>';
         })
         .catch(function(){
@@ -556,6 +570,7 @@
   }
   function openChat(){
     panel.classList.add('open');
+    window.ym && ym(111004046,'reachGoal','chat_open');
     if(!greeted){
       add('bot','Здравствуйте! Я Ирина, консультант «Перевал 24». Подскажу по кросс-докингу, перегрузке, хранению и ценам. Что за груз нужно перевалить?');
       greeted=true;
@@ -592,6 +607,7 @@
         body:JSON.stringify({name:nm, phone:ph, question:qq, source:(manager?'Онлайн-чат (нужен менеджер)':'Онлайн-чат'), session:SID})})
         .then(function(r){ if(!r.ok) throw 0; return r; })
         .then(function(){
+          window.ym && ym(111004046,'reachGoal','lead');
           removeLeadForm();
           add('bot','Спасибо, '+nm+'! Передал вашу заявку менеджеру - он свяжется с вами в ближайшее время и всё подробно подскажет. Хорошего дня!');
         })
