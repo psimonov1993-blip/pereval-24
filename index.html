@@ -234,6 +234,178 @@
   .foot-contacts .lbl{color:var(--muted);font-weight:400;font-size:13px}
   .copyright{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 
+
+  /* ==== РЕДИЗАЙН: статус-бар ==== */
+  .statusbar{background:var(--bg-2);border-bottom:1px solid var(--line);position:sticky;top:66px;z-index:45}
+  .statusbar .wrap{display:flex;align-items:center;gap:20px;padding-top:13px;padding-bottom:13px;flex-wrap:wrap}
+  .sb-live{display:flex;align-items:center;gap:11px;min-width:0;flex-wrap:wrap}
+  .sb-dot{position:relative;width:9px;height:9px;flex:none;border-radius:50%;background:var(--green)}
+  .sb-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--green);animation:sbp 2.4s ease-out infinite}
+  @keyframes sbp{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.2);opacity:0}}
+  .sb-strong{font-size:15.5px;font-weight:700}
+  .sb-soft{font-size:14.5px;color:var(--muted)}
+  .sb-act{display:flex;align-items:center;gap:10px;margin-left:auto;flex-wrap:wrap}
+  .sb-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);font-weight:600;font-size:14.5px;padding:9px 16px;border-radius:11px}
+  .sb-btn.primary{background:var(--amber);color:#0e1116;font-weight:700;border-color:var(--amber)}
+  .sb-btn svg{width:16px;height:16px}
+
+  /* ==== РЕДИЗАЙН: калькулятор ==== */
+  .calc{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .calc-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:22px;align-items:start}
+  .calc-col{display:flex;flex-direction:column;gap:18px;min-width:0}
+  .calc-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .calc-label{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-bottom:14px}
+  .calc-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .calc-head .calc-label{margin:0}
+  .calc-hint{font-size:13.5px;color:var(--muted)}
+  .kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .kind{text-align:left;padding:15px 16px;border-radius:13px;cursor:pointer;background:var(--bg);border:1px solid var(--line);color:var(--ink);font-family:var(--font);min-width:0}
+  .kind b{display:block;font-size:16px;font-weight:700;margin-bottom:3px}
+  .kind span{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+  .kind.is-on{border-color:var(--amber);background:rgba(255,138,30,.10)}
+  .qty{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .qty button{width:46px;height:46px;flex:none;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:22px;font-weight:700;cursor:pointer;display:grid;place-items:center}
+  .qty button:hover{border-color:var(--amber);color:var(--amber)}
+  .qty-val{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 18px;display:flex;align-items:baseline;gap:10px;min-width:0}
+  .qty-val b{font-size:30px;font-weight:800;letter-spacing:-.02em}
+  .qty-val span{font-size:15px;color:var(--muted)}
+  .chipsrow{display:flex;flex-wrap:wrap;gap:10px}
+  .pill{padding:9px 16px;border-radius:10px;font-size:14.5px;font-weight:600;cursor:pointer;background:var(--bg);border:1px solid var(--line);color:var(--muted);font-family:var(--font)}
+  .pill.is-on{background:var(--amber);border-color:var(--amber);color:#0e1116}
+  .opts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .opt{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:14px 15px;border-radius:13px;cursor:pointer;background:var(--bg);border:1px solid var(--line);color:var(--ink);font-family:var(--font);min-width:0}
+  .opt.is-on{border-color:var(--amber);background:rgba(255,138,30,.08)}
+  .opt i{width:22px;height:22px;flex:none;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;margin-top:1px}
+  .opt.is-on i{background:var(--amber);border-color:var(--amber)}
+  .opt i svg{width:14px;height:14px;opacity:0}
+  .opt.is-on i svg{opacity:1}
+  .opt b{display:block;font-size:15px;font-weight:600}
+  .opt span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+  .days{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .days>span{font-size:15px;color:var(--muted)}
+  .total{background:linear-gradient(135deg,#1c242f,#141922);border:1px solid var(--line);border-radius:20px;padding:28px 26px 26px;position:relative;overflow:hidden;min-width:0}
+  .total::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px 260px at 90% -10%,rgba(255,138,30,.15),transparent 62%)}
+  .total>*{position:relative}
+  .total .kicker{margin-bottom:16px}
+  .total-sub{font-size:15px;color:var(--muted);margin-bottom:6px}
+  .total-sum{font-size:38px;font-weight:900;letter-spacing:-.03em;line-height:1.05;margin-bottom:4px}
+  .total-note{font-size:13.5px;color:var(--muted);margin-bottom:22px}
+  .total-lines{background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:14px;padding:4px 16px;margin-bottom:20px}
+  .total-lines div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-bottom:1px solid rgba(38,48,61,.7);font-size:14.5px}
+  .total-lines div:last-child{border-bottom:0}
+  .total-lines b{font-weight:700;white-space:nowrap}
+  .total-lines .soft b{color:var(--muted);font-weight:600}
+  .total .btn{width:100%;padding:16px;margin-bottom:10px}
+  .total-call{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15.5px;font-weight:700}
+  .total-call svg{width:18px;height:18px}
+  .total p{font-size:13px;color:var(--muted);line-height:1.5;margin-top:16px}
+
+  /* ==== РЕДИЗАЙН: сегменты ==== */
+  .seg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .seg-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px 22px;display:flex;flex-direction:column;min-width:0;transition:border-color .18s ease,transform .18s ease}
+  .seg-card:hover{border-color:rgba(255,138,30,.45);transform:translateY(-3px)}
+  .seg-ic{width:44px;height:44px;border-radius:12px;background:rgba(255,138,30,.12);display:grid;place-items:center;margin-bottom:16px}
+  .seg-ic svg{width:23px;height:23px}
+  .seg-card h3{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:7px}
+  .seg-card>p{font-size:14.5px;color:var(--muted);line-height:1.5;margin-bottom:16px}
+  .seg-list{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+  .seg-list span{display:flex;gap:9px;align-items:flex-start;font-size:14px}
+  .seg-list svg{width:15px;height:15px;flex:none;margin-top:3px}
+  .seg-go{margin-top:auto;font-size:14.5px;font-weight:700;color:var(--amber-2);display:inline-flex;align-items:center;gap:7px}
+  .seg-go svg{width:15px;height:15px}
+
+  /* ==== РЕДИЗАЙН: иконки «почему мы» ==== */
+  .why-ic svg{width:22px;height:22px}
+
+  /* ==== РЕДИЗАЙН: прайс с табами ==== */
+  .ptabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+  .ptab{display:flex;flex-direction:column;gap:2px;text-align:left;padding:13px 20px;border-radius:13px;cursor:pointer;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--font)}
+  .ptab b{font-size:15px;font-weight:700}
+  .ptab span{font-size:13px;color:#6f7d8d}
+  .ptab.is-on{border-color:var(--amber);background:rgba(255,138,30,.10);color:var(--ink)}
+  .ptab.is-on span{color:var(--amber-2)}
+  .pbody{display:none}
+  .pbody.is-on{display:block}
+  .price-head{padding:16px 24px;background:var(--bg-2);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px}
+  .price-head b{font-size:15px;font-weight:700;color:var(--amber-2)}
+  .price-head span{font-size:13.5px;color:var(--muted)}
+  .ptag{flex:none;font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--amber-2);background:rgba(255,138,30,.10);border:1px solid rgba(255,138,30,.28);padding:4px 9px;border-radius:99px;margin-left:10px}
+  .pnotes{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap}
+  .pnote{flex:1;min-width:280px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:flex;gap:13px;align-items:flex-start;font-size:14.5px;color:var(--muted);line-height:1.5}
+  .pnote svg{width:20px;height:20px;flex:none;margin-top:2px}
+
+  /* ==== РЕДИЗАЙН: заезд на площадку ==== */
+  .drive-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:22px;align-items:start}
+  .drive-map{background:var(--bg-2);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-width:0}
+  .drive-map svg{display:block;width:100%;height:auto;background:#111721}
+  .drive-links{display:flex;gap:10px;padding:16px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .drive-side{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .drive-item{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:flex;gap:14px;align-items:flex-start}
+  .drive-item svg{width:22px;height:22px;flex:none;margin-top:2px}
+  .drive-item b{font-size:16px;font-weight:700;display:block;margin-bottom:4px}
+  .drive-item p{font-size:14.5px;color:var(--muted);line-height:1.5}
+  .drive-call{background:rgba(255,138,30,.07);border:1px solid rgba(255,138,30,.28);border-radius:var(--radius);padding:20px 22px}
+  .drive-call b{font-size:15.5px;font-weight:700;display:block;margin-bottom:6px}
+  .drive-call p{font-size:14.5px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .drive-call a{display:inline-flex;align-items:center;gap:9px;font-size:16px;font-weight:700;color:var(--amber-2)}
+  .drive-call svg{width:17px;height:17px}
+
+  /* ==== РЕДИЗАЙН: форма-конфигуратор ==== */
+  .form-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+  .form-step{display:flex;gap:13px;align-items:flex-start}
+  .form-step i{width:26px;height:26px;flex:none;border-radius:8px;background:rgba(255,138,30,.14);color:var(--amber);display:grid;place-items:center;font-size:13px;font-weight:800;font-style:normal}
+  .form-step b{font-size:15.5px;font-weight:700;display:block}
+  .form-step span{display:block;font-size:14px;color:var(--muted);margin-top:2px}
+  .form-alt{border-top:1px solid var(--line);padding-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+  .form-alt a{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-size:15px;font-weight:700}
+  .form-alt svg{width:17px;height:17px}
+  .form-box{background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:18px;padding:26px;min-width:0}
+  .form-box .calc-label{margin-bottom:12px}
+  .form-box .chipsrow{margin-bottom:22px}
+  .form-trust{display:flex;align-items:flex-start;gap:8px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45}
+  .form-trust svg{width:15px;height:15px;flex:none;margin-top:2px}
+
+  /* ==== РЕДИЗАЙН: мобильная панель действий ==== */
+  .mbar{display:none}
+
+
+  @media(max-width:900px){
+    .calc-grid{grid-template-columns:1fr}
+    .kinds{grid-template-columns:1fr}
+    .seg{grid-template-columns:repeat(2,1fr)}
+    .drive-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .statusbar{position:static}
+    .statusbar .wrap{gap:12px}
+    .sb-act{margin-left:0;width:100%}
+    .sb-btn{flex:1;justify-content:center}
+    .sb-soft{width:100%}
+    .seg{grid-template-columns:1fr}
+    .opts{grid-template-columns:1fr}
+    .ptab{flex:1;min-width:calc(50% - 5px)}
+    .total-sum{font-size:32px}
+    body{padding-bottom:84px}
+    .nav{height:58px}
+    .brand{font-size:16px;gap:8px;white-space:nowrap}
+    .logo{width:30px;height:30px;font-size:15px;border-radius:9px}
+    .nav .btn{display:none}
+    .nav-phone{font-size:14.5px;font-weight:700;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+    .statusbar .wrap{padding-top:11px;padding-bottom:11px}
+    .sb-strong{font-size:14.5px}
+    .sb-soft{font-size:13px}
+    .sb-btn.tg{display:none}
+    .mbar a.ch{display:none}
+    .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:70;gap:10px;padding:12px 14px 16px;background:rgba(14,17,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
+    .mbar a{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:13px;border:1px solid var(--line);font-size:14.5px;font-weight:600;color:var(--ink)}
+    .mbar a.call{flex:1.4;background:var(--amber);color:#0e1116;font-weight:700;font-size:15.5px;border-color:var(--amber)}
+    .mbar a.wa{flex:1}
+    .mbar a.ch{flex:none;width:52px}
+    .mbar svg{width:19px;height:19px}
+    #chatFab{bottom:88px}
+    #chatPanel{bottom:152px;height:64vh}
+  }
+
   @media(max-width:900px){
     .chips{grid-template-columns:repeat(2,1fr)}
     .steps{grid-template-columns:repeat(2,1fr)}
@@ -247,7 +419,8 @@
     body{font-size:16px}
     section{padding:56px 0}
     .hero{padding:52px 0 44px}
-    .nav-phone{display:none}
+    .nav-phone{font-size:14px}
+    .nav-phone span{display:none}
     .cards{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr}
     .chips{grid-template-columns:1fr 1fr}
@@ -269,6 +442,22 @@
     </div>
   </div>
 </header>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="wrap">
+    <div class="sb-live">
+      <span class="sb-dot"></span>
+      <span class="sb-strong">Площадка принимает машины прямо сейчас</span>
+      <span class="sb-soft"><span id="mskClock">--:--</span> МСК · круглосуточно, без выходных</span>
+    </div>
+    <div class="sb-act">
+      <a href="tel:+79684418885" class="sb-btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>Позвонить</a>
+      <a href="https://wa.me/79684418885" class="sb-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>WhatsApp</a>
+      <a href="#zayavka" class="sb-btn tg"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg>Написать</a>
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -312,14 +501,10 @@
   <div class="wrap">
     <div class="sec-head">
       <div class="kicker">Кому подходит</div>
-      <h2>Забираем на себя всю перевалку груза</h2>
-      <p>От поставщиков маркетплейсов до транспортных компаний - если груз нужно быстро перекинуть с машины на машину, это к нам.</p>
+      <h2>Выберите свой случай - покажем, что делаем и почём</h2>
+      <p>Вместо четырёх одинаковых плашек - конкретный набор работ под ваш тип отправок, с ценами из прайса.</p>
     </div>
-    <div class="cards">
-      <div class="card"><div class="ic">📦</div><h3>Поставщики WB и Ozon</h3><p>Перегрузка, маркировка, паллетирование под требования маркетплейсов и отправка на их склады.</p></div>
-      <div class="card"><div class="ic">🏭</div><h3>Оптовики и дистрибьюторы</h3><p>Консолидация и деконсолидация партий, перевалка между поставщиком и региональными получателями.</p></div>
-      <div class="card"><div class="ic">🚛</div><h3>Транспортные компании</h3><p>Перегрузка сборных грузов, разгрузка фуры и распределение по малым машинам, буфер между рейсами.</p></div>
-      <div class="card"><div class="ic">🛒</div><h3>Магазины и производители</h3><p>Транзит без своего склада, когда нужно быстро перекинуть товар с одной машины на другую.</p></div>
+    <div class="seg"><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="M3.5 7.5L12 11.5l8.5-4M12 11.5v9"/></svg></div><h3>Поставщики WB и Ozon</h3><p>Приняли товар от производителя, подготовили под требования площадки, отправили на склад маркетплейса</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Маркировка, 15-30 ₽ / шт</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Паллетирование, 300 ₽ / паллета</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Отправка на склад площадки</span></div><a href="#calc" class="seg-go">Посчитать отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l6-3.5V9l6-3.5V9l6-3.5V20z"/><path d="M8 20v-4.5h3V20"/></svg></div><h3>Оптовики и дистрибьюторы</h3><p>Собрали партию от нескольких поставщиков и разбросали по региональным получателям без своего склада</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Консолидация партии</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Разбор фуры по машинам</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Буфер, от 38 ₽ место / сутки</span></div><a href="#calc" class="seg-go">Посчитать партию<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18.4" r="1.7"/><circle cx="17" cy="18.4" r="1.7"/></svg></div><h3>Транспортные компании</h3><p>Нужна точка перецепки под Москвой, куда машина встанет ночью и уйдёт дальше по расписанию</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Ночной заезд без ожидания</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Перегрузка 10-33 паллеты</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Договор и акт на груз</span></div><a href="#calc" class="seg-go">Обсудить регулярный поток<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8h15l-1.2 11.5H5.7z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg></div><h3>Производители и магазины</h3><p>Разовая или сезонная отправка, когда держать свой склад и грузчиков в штате невыгодно</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Партия 1-4 паллеты, 1 100 ₽</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Грузчики, от 4 000 ₽ / час</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Доставка своим автопарком</span></div><a href="#calc" class="seg-go">Посчитать разовую отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div></div>
     </div>
   </div>
 </section>
@@ -333,10 +518,10 @@
       <p>У большинства складов на объявлениях площадка и грузчики - это субподряд. У нас - собственные активы, поэтому и цена честная, и за груз отвечаем сами.</p>
     </div>
     <div class="why-grid">
-      <div class="why-item"><div class="why-ic">🛡️</div><div><h3>Охраняемая площадка 24 часа</h3><p>Своя территория в самом Подольске, не в 20-30 км. Принимаем и отгружаем машины круглосуточно, что важно для ночной логистики.</p></div></div>
-      <div class="why-item"><div class="why-ic">🏗️</div><div><h3>Своя техника и грузчики</h3><p>Погрузчики до 5 тонн и штатные грузчики. Не нужно ждать бригаду со стороны - работаем сразу.</p></div></div>
-      <div class="why-item"><div class="why-ic">🚚</div><div><h3>Свой грузовой автопарк</h3><p>Шторные полуприцепы для доставки груза борт-в-борт по Москве и области. У складов-конкурентов этого нет.</p></div></div>
-      <div class="why-item"><div class="why-ic">📄</div><div><h3>Договор и акт на груз</h3><p>Работаем официально, с договором оказания услуг и актом приёма-передачи. За груз на площадке отвечаем.</p></div></div>
+      <div class="why-item"><div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7.2-7 9-4-1.8-7-5-7-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></div><div><h3>Охраняемая площадка 24 часа</h3><p>Своя территория в самом Подольске, не в 20-30 км. Принимаем и отгружаем машины круглосуточно, что важно для ночной логистики.</p></div></div>
+      <div class="why-item"><div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5V7h8v9.5"/><path d="M12 16.5h3.5L19 11v5.5"/><circle cx="7" cy="19" r="1.6"/><circle cx="16.5" cy="19" r="1.6"/></svg></div><div><h3>Своя техника и грузчики</h3><p>Погрузчики до 5 тонн и штатные грузчики. Не нужно ждать бригаду со стороны - работаем сразу.</p></div></div>
+      <div class="why-item"><div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18.4" r="1.6"/><circle cx="17" cy="18.4" r="1.6"/></svg></div><div><h3>Свой грузовой автопарк</h3><p>Шторные полуприцепы для доставки груза борт-в-борт по Москве и области. У складов-конкурентов этого нет.</p></div></div>
+      <div class="why-item"><div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/></svg></div><div><h3>Договор и акт на груз</h3><p>Работаем официально, с договором оказания услуг и актом приёма-передачи. За груз на площадке отвечаем.</p></div></div>
     </div>
   </div>
 </section>
@@ -363,40 +548,184 @@
   </div>
 </section>
 
+
+<!-- CALCULATOR -->
+<section class="calc" id="calc">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Расчёт за 15 секунд</div>
+      <h2>Посчитайте перевалку сами, без звонка</h2>
+      <p>Соберите свою партию - покажем вилку по действующему прайсу. Точную цену подтвердит менеджер, но порядок суммы вы увидите прямо сейчас.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="calc-col">
+        <div class="calc-card">
+          <div class="calc-label">1 · Что перегружаем</div>
+          <div class="kinds" id="kinds">
+            <button type="button" class="kind is-on" data-kind="pallet"><b>Паллеты</b><span>europallet, готовая паллета</span></button>
+            <button type="button" class="kind" data-kind="box"><b>Короба</b><span>коробки, россыпь по коробам</span></button>
+            <button type="button" class="kind" data-kind="bulk"><b>Сборный / навал</b><span>фура целиком, 80 м²</span></button>
+          </div>
+        </div>
+        <div class="calc-card">
+          <div class="calc-head">
+            <div class="calc-label">2 · Сколько</div>
+            <div class="calc-hint" id="qtyHint"></div>
+          </div>
+          <div class="qty">
+            <button type="button" id="qtyMinus" aria-label="Меньше">−</button>
+            <div class="qty-val"><b id="qtyVal">8</b><span id="qtyUnit">паллет</span></div>
+            <button type="button" id="qtyPlus" aria-label="Больше">+</button>
+          </div>
+          <div class="chipsrow" id="presets"></div>
+        </div>
+        <div class="calc-card">
+          <div class="calc-label">3 · Что ещё нужно с грузом</div>
+          <div class="opts" id="opts">
+            <button type="button" class="opt" data-opt="palletize"><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg></i><span style="min-width:0"><b>Паллетирование стрейчем</b><span>300 ₽ за паллету</span></span></button>
+            <button type="button" class="opt" data-opt="marking"><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg></i><span style="min-width:0"><b>Маркировка под WB / Ozon</b><span>15-30 ₽ за штуку</span></span></button>
+            <button type="button" class="opt" data-opt="storage"><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg></i><span style="min-width:0"><b>Буферное хранение</b><span>от 38 ₽ место / сутки</span></span></button>
+            <button type="button" class="opt" data-opt="delivery"><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg></i><span style="min-width:0"><b>Доставка своим автопарком</b><span>договорная, Москва и МО</span></span></button>
+          </div>
+          <div class="days" id="days" style="display:none">
+            <span>Буферное хранение:</span>
+            <div class="chipsrow" id="dayPresets"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="total">
+        <div class="kicker">Предварительно</div>
+        <div class="total-sub" id="totalSub">Ваша партия: 8 паллет</div>
+        <div class="total-sum" id="totalSum">6 000 - 10 000 ₽</div>
+        <div class="total-note">по действующему прайсу, без НДС</div>
+        <div class="total-lines" id="totalLines"></div>
+        <button type="button" class="btn" id="calcSend">Отправить расчёт менеджеру</button>
+        <a href="tel:+79684418885" class="total-call"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 968 441-88-85</a>
+        <p>Вилка построена на ступенях действующего прайса. Финальную цену менеджер подтверждает по типу груза и фактическому объёму - расчёт уходит ему вместе с заявкой.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section id="price">
   <div class="wrap">
-    <div class="sec-head">
-      <div class="kicker">Прайс</div>
-      <h2>Тарифы на перевалку и хранение</h2>
-      <p>Ставки без НДС. Финальная цена зависит от вида груза, объёма и типа обработки - посчитаем под вашу партию.</p>
+    <div class="sec-head" style="max-width:none;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap">
+      <div style="max-width:640px;min-width:0">
+        <div class="kicker">Прайс</div>
+        <h2>Тарифы открыто, без «уточняйте по телефону»</h2>
+        <p>Ставки без НДС. Ниже - те же цифры, что менеджер называет в трубку. Точная сумма зависит от вида груза и объёма.</p>
+      </div>
+      <a href="#calc" class="btn" style="white-space:nowrap">Посчитать свою партию</a>
     </div>
+
+    <div class="ptabs" id="ptabs">
+      <button type="button" class="ptab is-on" data-tab="0"><b>Кросс-докинг</b><span>от 40 ₽ за короб</span></button>
+      <button type="button" class="ptab" data-tab="1"><b>Хранение</b><span>от 38 ₽ место / сутки</span></button>
+      <button type="button" class="ptab" data-tab="2"><b>Техника и подготовка</b><span>грузчики, маркировка, доставка</span></button>
+    </div>
+
     <div class="price-wrap">
-      <div class="price-block">
-        <h3>Кросс-докинг (перевалка борт-в-борт)</h3>
-        <div class="prow"><div class="name">Кросс-докинг короба</div><div class="val">от <b>40 ₽</b> / короб</div></div>
-        <div class="prow"><div class="name">Кросс-докинг паллеты</div><div class="val">от <b>200 ₽</b> / паллета</div></div>
-        <div class="prow"><div class="name">Перегрузка партии 1-4 паллеты</div><div class="val"><b>1 100 ₽</b></div></div>
-        <div class="prow"><div class="name">Перегрузка 5-9 паллет</div><div class="val">6 000-10 000 ₽</div></div>
-        <div class="prow"><div class="name">Перегрузка 10-33 паллеты</div><div class="val">12 000-14 000 ₽</div></div>
-        <div class="prow"><div class="name">Перегрузка сборного груза / навала<small>фура 80 м²</small></div><div class="val">от 35 000 ₽</div></div>
+      <div class="pbody is-on" data-body="0">
+        <div class="price-head"><b>Перевалка борт-в-борт</b><span>Фура паллет перегружается за 40-60 минут</span></div>
+        <div class="prow"><div class="name">Кросс-докинг короба<small>приём, перегрузка, отправка дальше</small></div><div class="val">от <b>40 ₽</b> / короб</div></div>
+        <div class="prow"><div class="name">Кросс-докинг паллеты<small>готовая паллета, без переборки</small></div><div class="val">от <b>200 ₽</b> / паллета</div></div>
+        <div class="prow"><div class="name">Перегрузка партии 1-4 паллеты<small>малая партия, разовый заезд</small></div><div class="val"><b>1 100 ₽</b></div></div>
+        <div class="prow"><div class="name">Перегрузка 5-9 паллет<small>средняя партия</small></div><div class="val">6 000-10 000 ₽</div></div>
+        <div class="prow"><div class="name">Перегрузка 10-33 паллеты<small>фура целиком, паллетированный груз</small></div><div class="val">12 000-14 000 ₽</div></div>
+        <div class="prow"><div class="name">Перегрузка сборного груза / навала<small>фура 80 м², ручная переборка</small></div><div class="val">от 35 000 ₽</div></div>
       </div>
-      <div class="price-block">
-        <h3>Ответственное хранение (буфер)</h3>
-        <div class="prow"><div class="name">Открытая охраняемая площадка</div><div class="val">от <b>38 ₽</b> / место / сутки</div></div>
-        <div class="prow"><div class="name">Сухой склад (стандартный груз)</div><div class="val">48-58 ₽ / место / сутки</div></div>
-        <div class="prow"><div class="name">Помесячно</div><div class="val">от 1 000 ₽ / место / мес</div></div>
+
+      <div class="pbody" data-body="1">
+        <div class="price-head"><b>Буферное хранение</b><span>Не склад-хранилище, а буфер между рейсами</span></div>
+        <div class="prow"><div class="name">Открытая охраняемая площадка<small>техника, негабарит, тара</small></div><div class="val">от <b>38 ₽</b> / место / сутки</div></div>
+        <div class="prow"><div class="name">Сухой склад<small>стандартный паллетированный груз</small></div><div class="val">48-58 ₽ / место / сутки</div></div>
+        <div class="prow"><div class="name">Помесячное размещение<small>для регулярных отправок</small></div><div class="val">от 1 000 ₽ / место / мес</div></div>
       </div>
-      <div class="price-block">
-        <h3>Техника, грузчики, подготовка</h3>
+
+      <div class="pbody" data-body="2">
+        <div class="price-head"><b>Техника, грузчики, подготовка груза</b><span>Свои погрузчики и штатная бригада</span></div>
         <div class="prow"><div class="name">Погрузчик 1,5-5 т<small>смена 4 часа</small></div><div class="val">22 000-32 000 ₽</div></div>
-        <div class="prow"><div class="name">Грузчики (2 чел)<small>час / смена</small></div><div class="val">от 4 000 ₽ / час</div></div>
-        <div class="prow"><div class="name">Паллетирование стрейч-плёнкой</div><div class="val">300 ₽ / паллета</div></div>
-        <div class="prow"><div class="name">Маркировка товара (WB, Ozon)</div><div class="val">15-30 ₽ / шт</div></div>
-        <div class="prow"><div class="name">Доставка своим автопарком по МО</div><div class="val"><b>договорная</b></div></div>
+        <div class="prow"><div class="name">Грузчики, 2 человека<small>час или смена</small></div><div class="val">от 4 000 ₽ / час</div></div>
+        <div class="prow"><div class="name">Паллетирование стрейч-плёнкой<small>формирование и обмотка паллеты</small><span class="ptag">WB / Ozon</span></div><div class="val">300 ₽ / паллета</div></div>
+        <div class="prow"><div class="name">Маркировка товара<small>этикетки по требованиям площадки</small><span class="ptag">WB / Ozon</span></div><div class="val">15-30 ₽ / шт</div></div>
+        <div class="prow"><div class="name">Доставка своим автопарком<small>шторные полуприцепы, Москва и МО</small></div><div class="val"><b>договорная</b></div></div>
       </div>
     </div>
-    <p class="price-note">Точную стоимость считаем под ваш объём и тип груза. Оставьте заявку - перезвоним и посчитаем.</p>
+
+    <div class="pnotes">
+      <div class="pnote">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8.2v.2M12 11.5v4.3"/></svg>
+        <span>Ставка «от» - это реальная нижняя граница, а не приманка. Разброс закрываем на расчёте: тип груза, объём, нужна ли сортировка и маркировка.</span>
+      </div>
+      <div class="pnote">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7.2-7 9-4-1.8-7-5-7-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>
+        <span>Всё своё - площадка, техника, грузчики, автопарк. В цене нет наценки посредника и согласований с третьими руками.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПРОЕЗД -->
+<section class="how" id="proezd">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Заезд на площадку</div>
+      <h2>Как заехать фурой и куда вставать под разгрузку</h2>
+      <p>Подольск, деревня Сергеево, улица Деловая, 4. Координаты для навигатора: 55.381700, 37.519701. Работаем круглосуточно, водителю отправляем точку и голосом доводим до ворот.</p>
+    </div>
+    <div class="drive-grid">
+      <div class="drive-map">
+        <svg viewBox="0 0 720 400" role="img" aria-label="Схема проезда на площадку">
+          <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0v40" fill="none" stroke="#1b2331" stroke-width="1"/></pattern></defs>
+          <rect width="720" height="400" fill="url(#grid)"/>
+          <path d="M-10 96 C 160 84, 300 150, 470 140 S 660 116, 730 128" fill="none" stroke="#2b3646" stroke-width="26" stroke-linecap="round"/>
+          <path d="M-10 96 C 160 84, 300 150, 470 140 S 660 116, 730 128" fill="none" stroke="#3c4a5e" stroke-width="2" stroke-dasharray="14 12"/>
+          <text x="52" y="72" fill="#9aa7b6" font-size="14" font-weight="600">М2 «Крым», Симферопольское шоссе</text>
+          <text x="52" y="132" fill="#6f7d8d" font-size="13">со стороны Москвы</text>
+          <text x="596" y="106" fill="#6f7d8d" font-size="13">на Серпухов</text>
+          <path d="M352 146 C 352 210, 300 232, 300 292" fill="none" stroke="#2b3646" stroke-width="16" stroke-linecap="round"/>
+          <text x="196" y="214" fill="#9aa7b6" font-size="13.5" font-weight="600">съезд на ул. Деловая</text>
+          <rect x="212" y="288" width="330" height="86" rx="14" fill="#161d28" stroke="#ff8a1e" stroke-width="1.6"/>
+          <rect x="228" y="304" width="86" height="54" rx="8" fill="#1f2836" stroke="#2f3b4c"/>
+          <text x="271" y="336" fill="#9aa7b6" font-size="12" text-anchor="middle">ангар</text>
+          <rect x="326" y="304" width="60" height="54" rx="8" fill="#1f2836" stroke="#2f3b4c"/>
+          <text x="356" y="336" fill="#9aa7b6" font-size="12" text-anchor="middle">эстакада</text>
+          <text x="470" y="330" fill="#9aa7b6" font-size="12.5" text-anchor="middle">открытая</text>
+          <text x="470" y="348" fill="#9aa7b6" font-size="12.5" text-anchor="middle">площадка</text>
+          <circle cx="300" cy="292" r="9" fill="#ff8a1e"/>
+          <circle cx="300" cy="292" r="17" fill="none" stroke="#ff8a1e" stroke-width="1.4" opacity=".45"/>
+          <text x="322" y="284" fill="#eef2f7" font-size="14.5" font-weight="700">Ворота, пост охраны</text>
+          <path d="M556 300 h120" stroke="#37d399" stroke-width="2" stroke-dasharray="7 7"/>
+          <text x="560" y="290" fill="#37d399" font-size="12.5" font-weight="600">разворот фуры</text>
+        </svg>
+        <div class="drive-links">
+          <a href="https://yandex.ru/maps/1/moscow-and-moscow-oblast/house/delovaya_ulitsa_4/Z04YcwZpTkUGQFtvfX95cHtjZA==/?ll=37.519701%2C55.381700&amp;z=17.23" target="_blank" rel="noopener" class="btn">Открыть в Яндекс.Картах</a>
+          <a href="https://2gis.ru/geo/37.519701%2C55.381700" target="_blank" rel="noopener" class="btn ghost">2ГИС</a>
+          <button type="button" class="btn ghost" id="copyAddr">Скопировать адрес для водителя</button>
+        </div>
+      </div>
+      <div class="drive-side">
+        <div class="drive-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18.4" r="1.6"/><circle cx="17" cy="18.4" r="1.6"/></svg>
+          <div><b>Фура 20 т заезжает и разворачивается</b><p>Территория позволяет встать под разгрузку без манёвров по улице и ожидания на обочине</p></div>
+        </div>
+        <div class="drive-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+          <div><b>Приём машин в любое время суток</b><p>Ночной заезд - обычный режим, ворота и охрана работают круглосуточно, без выходных</p></div>
+        </div>
+        <div class="drive-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M5 18V9.5L12 5l7 4.5V18"/><path d="M9.5 18v-4.5h5V18"/></svg>
+          <div><b>Ангар, эстакада и открытая площадка</b><p>Крытая разгрузка в непогоду, эстакада для фур, открытое хранение для негабарита</p></div>
+        </div>
+        <div class="drive-call">
+          <b>Водитель заблудился?</b>
+          <p>Диспетчер на линии круглосуточно и доводит машину голосом до ворот</p>
+          <a href="tel:+79991040220"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 999 104-02-20</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -405,15 +734,45 @@
   <div class="wrap">
     <div class="cta-box">
       <div class="l">
-        <h2>Посчитаем стоимость перевалки под ваш груз</h2>
-        <p>Оставьте телефон - перезвоним, уточним объём и тип груза, назовём точную цену. Работаем круглосуточно, Подольск.</p>
+        <div class="kicker">Заявка</div>
+        <h2>Ответим ценой, а не «здравствуйте, уточните объём»</h2>
+        <p style="margin-bottom:28px">Три касания вместо пустых полей: отметьте груз и срок - менеджер перезвонит уже с готовой вилкой по вашей партии.</p>
+        <div class="form-steps">
+          <div class="form-step"><i>1</i><span><b>Перезваниваем и считаем по вашей партии</b><span>Круглосуточно - ночная логистика для нас нормальный режим</span></span></div>
+          <div class="form-step"><i>2</i><span><b>Называем точную цену и окно заезда</b><span>По типу груза, объёму и тому, нужна ли подготовка под маркетплейс</span></span></div>
+          <div class="form-step"><i>3</i><span><b>Договор и акт приёма-передачи</b><span>Работаем официально, за груз на площадке отвечаем</span></span></div>
+        </div>
+        <div class="form-alt">
+          <a href="tel:+79684418885"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 968 441-88-85</a>
+          <a href="https://wa.me/79684418885" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>Написать в WhatsApp</a>
+        </div>
       </div>
+
       <form id="lead" onsubmit="return false;">
-        <input type="text" name="name" placeholder="Как вас зовут" autocomplete="name">
-        <input type="tel" name="phone" placeholder="Телефон для связи" autocomplete="tel" required>
-        <input type="text" name="cargo" placeholder="Что за груз и откуда/куда (по желанию)">
-        <button type="submit" class="btn">Рассчитать стоимость</button>
-        <p class="form-legal">Нажимая кнопку, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
+        <div class="form-box">
+          <div class="calc-label">Что за груз</div>
+          <div class="chipsrow" id="cargoChips">
+            <button type="button" class="pill is-on" data-cargo="Паллеты">Паллеты</button>
+            <button type="button" class="pill" data-cargo="Короба">Короба</button>
+            <button type="button" class="pill" data-cargo="Сборный / навал">Сборный / навал</button>
+            <button type="button" class="pill" data-cargo="Под WB / Ozon">Под WB / Ozon</button>
+          </div>
+          <div class="calc-label">Когда нужна перевалка</div>
+          <div class="chipsrow" id="whenChips">
+            <button type="button" class="pill is-on" data-when="Сегодня">Сегодня</button>
+            <button type="button" class="pill" data-when="Завтра">Завтра</button>
+            <button type="button" class="pill" data-when="На этой неделе">На этой неделе</button>
+            <button type="button" class="pill" data-when="Регулярно">Регулярно</button>
+          </div>
+          <input type="text" name="name" placeholder="Как вас зовут" autocomplete="name">
+          <input type="tel" name="phone" placeholder="Телефон для связи" autocomplete="tel" required style="border-color:var(--amber)">
+          <input type="hidden" name="cargo" value="Паллеты">
+          <button type="submit" class="btn" id="leadBtn">Нужно сегодня - перезвоните</button>
+          <div class="form-trust">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7.2-7 9-4-1.8-7-5-7-9V6z"/></svg>
+            <span>Телефон уходит только менеджеру. Нажимая кнопку, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a></span>
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -440,6 +799,14 @@
     <div class="copyright">© 2026 Перевал 24 · Кросс-докинг и складская перевалка, Подольск · <a href="privacy.html" style="color:var(--muted);text-decoration:underline">Политика конфиденциальности</a><br>ИП Рамазанов Нариман Джафарович · ИНН 151000641307 · ОГРНИП 316774600494322</div>
   </div>
 </footer>
+
+
+<!-- MOBILE ACTION BAR -->
+<div class="mbar">
+  <a href="tel:+79684418885" class="call"><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>Позвонить</a>
+  <a href="https://wa.me/79684418885" class="wa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>WhatsApp</a>
+  <a href="#calc" class="ch" aria-label="Калькулятор"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7.5h8M8 12h3M8 16h3M15 12v4.5"/></svg></a>
+</div>
 
 <!-- CHAT WIDGET -->
 <style>
@@ -488,8 +855,8 @@
   .lead-card button:disabled{opacity:.6;cursor:default}
   .lead-card .err{color:#ff9a9a;font-size:12px;min-height:1px}
   @media(max-width:560px){
-    #chatPanel{right:12px;left:12px;width:auto;bottom:86px;height:70vh}
-    #chatFab{right:16px;bottom:16px}
+    #chatPanel{right:12px;left:12px;width:auto;bottom:160px;height:58vh}
+    #chatFab{right:14px;bottom:96px;width:52px;height:52px}
   }
 </style>
 
@@ -655,6 +1022,182 @@
   }
   sendBtn.addEventListener('click', send);
   input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } });
+})();
+</script>
+
+<script>
+/* ==== часы МСК в статус-баре ==== */
+(function(){
+  var el = document.getElementById('mskClock');
+  if(!el) return;
+  function tick(){
+    try { el.textContent = new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'}).format(new Date()); }
+    catch(e){ el.textContent = '--:--'; }
+  }
+  tick(); setInterval(tick, 20000);
+})();
+
+/* ==== калькулятор перевалки ==== */
+(function(){
+  var CFG = {
+    pallet:{unit:'паллет', min:1, max:33, step:1, presets:[4,10,20,33]},
+    box:   {unit:'коробов', min:10, max:1000, step:10, presets:[50,100,300,600]},
+    bulk:  {unit:'фур', min:1, max:5, step:1, presets:[1,2,3]}
+  };
+  var st = {kind:'pallet', qty:8, days:1, opts:{}};
+  var $ = function(id){ return document.getElementById(id); };
+  if(!$('kinds')) return;
+
+  function fmt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+
+  function base(){
+    var q = st.qty;
+    if(st.kind==='pallet'){
+      if(q<=4) return {min:1100, max:1100, note:'ступень прайса: 1-4 паллеты'};
+      if(q<=9) return {min:6000, max:10000, note:'ступень прайса: 5-9 паллет'};
+      return {min:12000, max:14000, note:'ступень прайса: 10-33 паллеты'};
+    }
+    if(st.kind==='box') return {min:q*40, max:q*40, note:'кросс-докинг короба, от 40 ₽ за штуку'};
+    return {min:q*35000, max:q*35000, note:'сборный груз и навал, от 35 000 ₽ за фуру 80 м²'};
+  }
+
+  function renderPresets(){
+    var c = CFG[st.kind], box = $('presets');
+    box.innerHTML = '';
+    c.presets.forEach(function(v){
+      var b = document.createElement('button');
+      b.type='button'; b.className='pill'+(st.qty===v?' is-on':'');
+      b.textContent = v+' '+c.unit;
+      b.onclick = function(){ st.qty = v; render(); };
+      box.appendChild(b);
+    });
+    var dbox = $('dayPresets');
+    dbox.innerHTML = '';
+    [1,2,3,7].forEach(function(d){
+      var b = document.createElement('button');
+      b.type='button'; b.className='pill'+(st.days===d?' is-on':'');
+      b.textContent = d+(d===1?' сутки':' суток');
+      b.onclick = function(){ st.days = d; render(); };
+      dbox.appendChild(b);
+    });
+  }
+
+  function render(){
+    var c = CFG[st.kind], b = base(), min = b.min, max = b.max, lines = [];
+    lines.push({n:'Перевалка борт-в-борт', v:(b.min===b.max?'от '+fmt(b.min):fmt(b.min)+' - '+fmt(b.max))+' ₽'});
+
+    if(st.opts.palletize && st.kind==='pallet'){
+      var p = st.qty*300; min+=p; max+=p;
+      lines.push({n:'Паллетирование, '+st.qty+' шт', v:fmt(p)+' ₽'});
+    }
+    if(st.opts.storage){
+      var places = st.kind==='pallet' ? st.qty : Math.max(1, Math.ceil(st.qty/40));
+      var s = places*38*st.days; min+=s; max+=s;
+      lines.push({n:'Хранение, '+places+' мест × '+st.days+' сут', v:'от '+fmt(s)+' ₽'});
+    }
+    if(st.opts.marking) lines.push({n:'Маркировка WB / Ozon', v:'по числу единиц', soft:true});
+    if(st.opts.delivery) lines.push({n:'Доставка по Москве и МО', v:'договорная', soft:true});
+
+    $('qtyVal').textContent = st.qty;
+    $('qtyUnit').textContent = c.unit;
+    $('qtyHint').textContent = b.note;
+    $('totalSub').textContent = 'Ваша партия: '+st.qty+' '+c.unit;
+    $('totalSum').textContent = (min===max ? 'от '+fmt(min)+' ₽' : fmt(min)+' - '+fmt(max)+' ₽');
+    $('totalLines').innerHTML = lines.map(function(l){
+      return '<div'+(l.soft?' class="soft"':'')+'><span>'+l.n+'</span><b>'+l.v+'</b></div>';
+    }).join('');
+    $('days').style.display = st.opts.storage ? 'flex' : 'none';
+
+    Array.prototype.forEach.call(document.querySelectorAll('#kinds .kind'), function(el){
+      el.classList.toggle('is-on', el.getAttribute('data-kind')===st.kind);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#opts .opt'), function(el){
+      el.classList.toggle('is-on', !!st.opts[el.getAttribute('data-opt')]);
+    });
+    renderPresets();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#kinds .kind'), function(el){
+    el.onclick = function(){
+      st.kind = el.getAttribute('data-kind');
+      st.qty = CFG[st.kind].presets[0];
+      render();
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#opts .opt'), function(el){
+    el.onclick = function(){
+      var k = el.getAttribute('data-opt');
+      st.opts[k] = !st.opts[k];
+      render();
+    };
+  });
+  $('qtyPlus').onclick = function(){ var c=CFG[st.kind]; st.qty = Math.min(c.max, st.qty+c.step); render(); };
+  $('qtyMinus').onclick = function(){ var c=CFG[st.kind]; st.qty = Math.max(c.min, st.qty-c.step); render(); };
+  $('calcSend').onclick = function(){
+    window.ym && ym(111004046,'reachGoal','calc_send');
+    var f = document.getElementById('lead');
+    if(f){
+      var hidden = f.elements['cargo'];
+      if(hidden) hidden.value = 'Расчёт: '+$('totalSub').textContent+', '+$('totalSum').textContent;
+      document.getElementById('zayavka').scrollIntoView({behavior:'smooth'});
+      setTimeout(function(){ var ph=f.elements['phone']; if(ph) ph.focus(); }, 600);
+    }
+  };
+  render();
+})();
+
+/* ==== табы прайса ==== */
+(function(){
+  var tabs = document.querySelectorAll('#ptabs .ptab');
+  if(!tabs.length) return;
+  Array.prototype.forEach.call(tabs, function(t){
+    t.onclick = function(){
+      var i = t.getAttribute('data-tab');
+      Array.prototype.forEach.call(tabs, function(x){ x.classList.toggle('is-on', x===t); });
+      Array.prototype.forEach.call(document.querySelectorAll('.pbody'), function(b){
+        b.classList.toggle('is-on', b.getAttribute('data-body')===i);
+      });
+    };
+  });
+})();
+
+/* ==== чипы в форме заявки ==== */
+(function(){
+  var form = document.getElementById('lead');
+  if(!form) return;
+  var cargo = 'Паллеты', when = 'Сегодня';
+  function group(sel, attr, cb){
+    var els = document.querySelectorAll(sel+' .pill');
+    Array.prototype.forEach.call(els, function(el){
+      el.onclick = function(){
+        Array.prototype.forEach.call(els, function(x){ x.classList.toggle('is-on', x===el); });
+        cb(el.getAttribute(attr));
+      };
+    });
+  }
+  function syncHidden(){
+    var h = form.elements['cargo'];
+    if(h && h.value.indexOf('Расчёт:')!==0) h.value = cargo+', '+when;
+  }
+  group('#cargoChips', 'data-cargo', function(v){ cargo = v; syncHidden(); });
+  group('#whenChips', 'data-when', function(v){
+    when = v; syncHidden();
+    var b = document.getElementById('leadBtn');
+    if(b) b.textContent = (v==='Сегодня') ? 'Нужно сегодня - перезвоните' : 'Получить цену по моей партии';
+  });
+  syncHidden();
+})();
+
+/* ==== копирование адреса для водителя ==== */
+(function(){
+  var b = document.getElementById('copyAddr');
+  if(!b) return;
+  b.onclick = function(){
+    var addr = 'Перевал 24, Подольск, д. Сергеево, ул. Деловая, 4. Координаты 55.381700, 37.519701. Круглосуточно, тел. +7 968 441-88-85';
+    var done = function(){ var t=b.textContent; b.textContent='Адрес скопирован'; setTimeout(function(){ b.textContent=t; },1800); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(addr).then(done, done); }
+    else { done(); }
+  };
 })();
 </script>
 
