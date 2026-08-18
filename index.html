@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Перевал 24 — кросс-докинг и перевалка грузов в Подольске</title>
-<meta name="description" content="Кросс-докинг и перегрузка груза борт-в-борт на своей охраняемой площадке 24ч в Подольске. Своя техника, грузчики, автопарк. Перегрузка фуры за 40-60 минут. Прайс от 40 ₽.">
+<title>Кросс-докинг и перевалка грузов в Подольске 24 часа - Перевал 24</title>
+<meta name="description" content="Кросс-докинг и перевалка груза борт-в-борт на своей охраняемой площадке в Подольске, круглосуточно. Своя техника, штатные грузчики и автопарк, поэтому без наценки посредника. Перегрузка фуры за 40-60 минут, кросс-докинг короба от 40 ₽, паллеты от 200 ₽. Работаем по договору с актом.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://pereval24.ru/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://pereval24.ru/">
@@ -365,6 +366,33 @@
   .form-trust{display:flex;align-items:flex-start;gap:8px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45}
   .form-trust svg{width:15px;height:15px;flex:none;margin-top:2px}
 
+  /* ==== дескриптор и меню в шапке ==== */
+  .brand-txt{display:flex;flex-direction:column;line-height:1.1}
+  .brand .descr{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em;text-transform:none}
+  .nav-menu{display:flex;gap:22px;margin-left:34px;margin-right:auto}
+  .nav-menu a{font-size:15px;font-weight:600;color:var(--muted);transition:color .15s ease}
+  .nav-menu a:hover{color:var(--amber)}
+
+  /* ==== интерактивная карта ==== */
+  .map-embed{border-top:1px solid var(--line)}
+  .map-embed iframe{display:block;width:100%;height:320px;border:0;filter:grayscale(.25) contrast(1.05)}
+
+  /* ==== кнопка наверх ==== */
+  #toTop{
+    position:fixed;left:20px;bottom:20px;z-index:75;width:48px;height:48px;border-radius:50%;
+    background:var(--panel);border:1px solid var(--line);color:var(--ink);cursor:pointer;
+    display:none;place-items:center;box-shadow:0 10px 26px rgba(0,0,0,.4);
+  }
+  #toTop.show{display:grid}
+  #toTop:hover{border-color:var(--amber);color:var(--amber)}
+  #toTop svg{width:20px;height:20px}
+
+  /* ==== хлебные крошки ==== */
+  .crumbs{font-size:14px;color:var(--muted);padding:18px 0 0}
+  .crumbs a{color:var(--amber-2)}
+  .crumbs a:hover{text-decoration:underline}
+  .crumbs span{margin:0 8px;color:var(--line)}
+
   /* ==== запасной канал заявки ==== */
   .fallback{background:rgba(255,138,30,.07);border:1px solid rgba(255,138,30,.35);border-radius:14px;padding:18px}
   .fallback b{display:block;font-size:15.5px;font-weight:700;margin-bottom:6px}
@@ -381,6 +409,9 @@
   .mbar{display:none}
 
 
+  @media(max-width:1080px){
+    .nav-menu{display:none}
+  }
   @media(max-width:900px){
     .calc-grid{grid-template-columns:1fr}
     .kinds{grid-template-columns:1fr}
@@ -408,6 +439,8 @@
     .sb-soft{font-size:13px}
     .sb-btn.tg{display:none}
     .mbar a.tg{flex:none;width:52px}
+    .brand .descr{display:none}
+    #toTop{left:14px;bottom:96px;width:44px;height:44px}
     .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:70;gap:10px;padding:12px 14px 16px;background:rgba(14,17,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
     .mbar a{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:13px;border:1px solid var(--line);font-size:14.5px;font-weight:600;color:var(--ink)}
     .mbar a.call{flex:1.4;background:var(--amber);color:#0e1116;font-weight:700;font-size:15.5px;border-color:var(--amber)}
@@ -442,12 +475,46 @@
   }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MovingCompany",
+  "name": "Перевал 24",
+  "description": "Кросс-докинг и перевалка грузов борт-в-борт на своей охраняемой площадке в Подольске, круглосуточно",
+  "url": "https://pereval24.ru/",
+  "telephone": ["+7 968 441-88-85", "+7 999 104-02-20"],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Подольск",
+    "addressRegion": "Московская область",
+    "streetAddress": "деревня Сергеево, улица Деловая, 4",
+    "addressCountry": "RU"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": 55.381700, "longitude": 37.519701 },
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    "opens": "00:00", "closes": "23:59"
+  },
+  "areaServed": ["Подольск", "Москва", "Московская область"],
+  "priceRange": "от 40 ₽"
+}
+</script>
 </head>
 <body>
 
 <header>
   <div class="wrap nav">
-    <div class="brand"><span class="logo">П</span>Перевал 24</div>
+    <a href="/" class="brand" aria-label="Перевал 24 - на главную"><span class="logo">П</span>
+      <span class="brand-txt">Перевал 24<span class="descr">кросс-докинг и перевалка грузов</span></span>
+    </a>
+    <nav class="nav-menu">
+      <a href="#calc">Расчёт</a>
+      <a href="#price">Прайс</a>
+      <a href="#uslugi">Услуги</a>
+      <a href="#proezd">Как проехать</a>
+      <a href="/stati/">Статьи</a>
+    </nav>
     <div class="nav-right">
       <a href="tel:+79684418885" class="nav-phone">+7 968 441-88-85<span>Подольск · круглосуточно</span></a>
       <a href="#zayavka" class="btn">Рассчитать</a>
@@ -516,7 +583,7 @@
       <h2>Выберите свой случай - покажем, что делаем и почём</h2>
       <p>Вместо четырёх одинаковых плашек - конкретный набор работ под ваш тип отправок, с ценами из прайса.</p>
     </div>
-    <div class="seg"><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="M3.5 7.5L12 11.5l8.5-4M12 11.5v9"/></svg></div><h3>Поставщики WB и Ozon</h3><p>Приняли товар от производителя, подготовили под требования площадки, отправили на склад маркетплейса</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Маркировка, 15-30 ₽ / шт</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Паллетирование, 300 ₽ / паллета</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Отправка на склад площадки</span></div><a href="#calc" class="seg-go">Посчитать отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l6-3.5V9l6-3.5V9l6-3.5V20z"/><path d="M8 20v-4.5h3V20"/></svg></div><h3>Оптовики и дистрибьюторы</h3><p>Собрали партию от нескольких поставщиков и разбросали по региональным получателям без своего склада</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Консолидация партии</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Разбор фуры по машинам</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Буфер, от 38 ₽ место / сутки</span></div><a href="#calc" class="seg-go">Посчитать партию<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18.4" r="1.7"/><circle cx="17" cy="18.4" r="1.7"/></svg></div><h3>Транспортные компании</h3><p>Нужна точка перецепки под Москвой, куда машина встанет ночью и уйдёт дальше по расписанию</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Ночной заезд без ожидания</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Перегрузка 10-33 паллеты</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Договор и акт на груз</span></div><a href="#calc" class="seg-go">Обсудить регулярный поток<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8h15l-1.2 11.5H5.7z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg></div><h3>Производители и магазины</h3><p>Разовая или сезонная отправка, когда держать свой склад и грузчиков в штате невыгодно</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Партия 1-4 паллеты, 1 100 ₽</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Грузчики, от 4 000 ₽ / час</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Доставка своим автопарком</span></div><a href="#calc" class="seg-go">Посчитать разовую отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div></div>
+    <div class="seg"><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="M3.5 7.5L12 11.5l8.5-4M12 11.5v9"/></svg></div><h3>Поставщики WB и Ozon</h3><p>Приняли товар от производителя, подготовили под требования площадки, отправили на склад маркетплейса</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Маркировка, 15-30 ₽ / шт</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Паллетирование, 300 ₽ / паллета</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Отправка на склад площадки</span></div><a href="/uslugi/wb-ozon/" class="seg-go">Посчитать отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l6-3.5V9l6-3.5V9l6-3.5V20z"/><path d="M8 20v-4.5h3V20"/></svg></div><h3>Оптовики и дистрибьюторы</h3><p>Собрали партию от нескольких поставщиков и разбросали по региональным получателям без своего склада</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Консолидация партии</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Разбор фуры по машинам</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Буфер, от 38 ₽ место / сутки</span></div><a href="/uslugi/kross-doking/" class="seg-go">Посчитать партию<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18.4" r="1.7"/><circle cx="17" cy="18.4" r="1.7"/></svg></div><h3>Транспортные компании</h3><p>Нужна точка перецепки под Москвой, куда машина встанет ночью и уйдёт дальше по расписанию</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Ночной заезд без ожидания</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Перегрузка 10-33 паллеты</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Договор и акт на груз</span></div><a href="/uslugi/peregruzka-fur/" class="seg-go">Обсудить регулярный поток<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div><div class="seg-card"><div class="seg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8h15l-1.2 11.5H5.7z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg></div><h3>Производители и магазины</h3><p>Разовая или сезонная отправка, когда держать свой склад и грузчиков в штате невыгодно</p><div class="seg-list"><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Партия 1-4 паллеты, 1 100 ₽</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Грузчики, от 4 000 ₽ / час</span><span><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 7"/></svg>Доставка своим автопарком</span></div><a href="/uslugi/otvetstvennoe-hranenie/" class="seg-go">Посчитать разовую отправку<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6.5l5.5 5.5L13 17.5"/></svg></a></div></div>
     </div>
   </div>
 </section>
@@ -547,15 +614,15 @@
       <p>Крытый склад-ангар, открытая охраняемая площадка, эстакада для перегрузки фур и своя погрузочная техника в Подольске.</p>
     </div>
     <div class="gallery">
-      <figure class="gph big"><img src="img/forklift-nariman.jpg" alt="Дизельный погрузчик на площадке" loading="lazy"><figcaption class="cap">Свой дизельный вилочный погрузчик</figcaption></figure>
-      <figure class="gph"><img src="img/forklift-tcm.jpg" alt="Вилочный погрузчик TCM в работе" loading="lazy"><figcaption class="cap">Погрузчик TCM, грузоподъёмность до 3 т</figcaption></figure>
-      <figure class="gph"><img src="img/p2-estakada.jpg" alt="Мобильная эстакада для перегрузки и разгрузки фур" loading="lazy"><figcaption class="cap">Эстакада для разгрузки фур</figcaption></figure>
-      <figure class="gph"><img src="img/p1-angar.jpg" alt="Крытый склад-ангар с воротами под фуру" loading="lazy"><figcaption class="cap">Крытый склад-ангар</figcaption></figure>
-      <figure class="gph"><img src="img/p3-vnutri.jpg" alt="Погрузчик и паллеты внутри склада" loading="lazy"><figcaption class="cap">Погрузчик и паллеты внутри склада</figcaption></figure>
-      <figure class="gph"><img src="img/p4-tehnika.jpg" alt="Складская техника - рохли и погрузчики" loading="lazy"><figcaption class="cap">Гидравлические тележки и погрузчики</figcaption></figure>
-      <figure class="gph"><img src="img/p5-vorota.jpg" alt="Раздвижные ворота склада, выезд на площадку" loading="lazy"><figcaption class="cap">Раздвижные ворота, выезд на площадку</figcaption></figure>
-      <figure class="gph"><img src="img/p6-ploshadka.jpg" alt="Открытая охраняемая площадка, заезд для фур" loading="lazy"><figcaption class="cap">Охраняемая площадка, фуры на разгрузке</figcaption></figure>
-      <figure class="gph"><img src="img/zaezd.jpg" alt="Заезд на площадку для грузового транспорта" loading="lazy"><figcaption class="cap">Удобный заезд, работаем 24 часа</figcaption></figure>
+      <figure class="gph big"><img fetchpriority="high" src="img/forklift-nariman.jpg" width="825" height="1100" alt="Дизельный погрузчик на площадке" loading="lazy"><figcaption class="cap">Свой дизельный вилочный погрузчик</figcaption></figure>
+      <figure class="gph"><img src="img/forklift-tcm.jpg" width="825" height="1100" alt="Вилочный погрузчик TCM в работе" loading="lazy"><figcaption class="cap">Погрузчик TCM, грузоподъёмность до 3 т</figcaption></figure>
+      <figure class="gph"><img src="img/p2-estakada.jpg" width="1100" height="825" alt="Мобильная эстакада для перегрузки и разгрузки фур" loading="lazy"><figcaption class="cap">Эстакада для разгрузки фур</figcaption></figure>
+      <figure class="gph"><img src="img/p1-angar.jpg" width="825" height="1100" alt="Крытый склад-ангар с воротами под фуру" loading="lazy"><figcaption class="cap">Крытый склад-ангар</figcaption></figure>
+      <figure class="gph"><img src="img/p3-vnutri.jpg" width="825" height="1100" alt="Погрузчик и паллеты внутри склада" loading="lazy"><figcaption class="cap">Погрузчик и паллеты внутри склада</figcaption></figure>
+      <figure class="gph"><img src="img/p4-tehnika.jpg" width="1100" height="825" alt="Складская техника - рохли и погрузчики" loading="lazy"><figcaption class="cap">Гидравлические тележки и погрузчики</figcaption></figure>
+      <figure class="gph"><img src="img/p5-vorota.jpg" width="825" height="1100" alt="Раздвижные ворота склада, выезд на площадку" loading="lazy"><figcaption class="cap">Раздвижные ворота, выезд на площадку</figcaption></figure>
+      <figure class="gph"><img src="img/p6-ploshadka.jpg" width="1100" height="619" alt="Открытая охраняемая площадка, заезд для фур" loading="lazy"><figcaption class="cap">Охраняемая площадка, фуры на разгрузке</figcaption></figure>
+      <figure class="gph"><img src="img/zaezd.jpg" width="1100" height="619" alt="Заезд на площадку для грузового транспорта" loading="lazy"><figcaption class="cap">Удобный заезд, работаем 24 часа</figcaption></figure>
     </div>
   </div>
 </section>
@@ -713,7 +780,11 @@
           <path d="M556 300 h120" stroke="#37d399" stroke-width="2" stroke-dasharray="7 7"/>
           <text x="560" y="290" fill="#37d399" font-size="12.5" font-weight="600">разворот фуры</text>
         </svg>
+        <div class="map-embed">
+          <iframe src="https://yandex.ru/map-widget/v1/?ll=37.519701%2C55.381700&amp;z=17&amp;pt=37.519701,55.381700,pm2rdm" title="Карта проезда: Подольск, деревня Сергеево, улица Деловая, 4" loading="lazy" allowfullscreen></iframe>
+        </div>
         <div class="drive-links">
+          <a href="https://yandex.ru/maps/?rtext=~55.381700%2C37.519701&amp;rtt=auto" target="_blank" rel="noopener" class="btn">Проложить маршрут</a>
           <a href="https://yandex.ru/maps/1/moscow-and-moscow-oblast/house/delovaya_ulitsa_4/Z04YcwZpTkUGQFtvfX95cHtjZA==/?ll=37.519701%2C55.381700&amp;z=17.23" target="_blank" rel="noopener" class="btn">Открыть в Яндекс.Картах</a>
           <a href="https://2gis.ru/geo/37.519701%2C55.381700" target="_blank" rel="noopener" class="btn ghost">2ГИС</a>
           <button type="button" class="btn ghost" id="copyAddr">Скопировать адрес для водителя</button>
@@ -738,6 +809,34 @@
           <a href="tel:+79991040220"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 999 104-02-20</a>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- СТАТЬИ -->
+<section id="stati">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Материалы</div>
+      <h2>Разбираемся, как устроена перевалка</h2>
+      <p>Пишем по своей практике на площадке: как считать деньги, что спрашивать у склада и почему цена-приманка в объявлении ничего не значит.</p>
+    </div>
+    <div class="seg" style="grid-template-columns:repeat(3,1fr)">
+      <a class="seg-card" href="/stati/chto-takoe-kross-doking/">
+        <b style="font-size:18px;font-weight:700;display:block;margin-bottom:7px">Что такое кросс-докинг и когда он выгоднее склада</b>
+        <p style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-bottom:16px">Схема работы, арифметика на партии 10 паллет и чек-лист вопросов площадке перед заказом</p>
+        <span class="seg-go">Читать статью</span>
+      </a>
+      <a class="seg-card" href="/stati/skolko-stoit-perevalka/">
+        <b style="font-size:18px;font-weight:700;display:block;margin-bottom:7px">Сколько стоит перевалка груза в Подольске</b>
+        <p style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-bottom:16px">Действующие ставки, три примера расчёта и разбор объявлений с ценой «от 15 ₽»</p>
+        <span class="seg-go">Читать статью</span>
+      </a>
+      <a class="seg-card" href="/uslugi/">
+        <b style="font-size:18px;font-weight:700;display:block;margin-bottom:7px">Все услуги площадки</b>
+        <p style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-bottom:16px">Кросс-докинг, перегрузка фур, ответственное хранение и подготовка под маркетплейсы</p>
+        <span class="seg-go">Открыть каталог</span>
+      </a>
     </div>
   </div>
 </section>
@@ -797,8 +896,9 @@
   <div class="wrap">
     <div class="foot">
       <div>
-        <div class="brand"><span class="logo">П</span>Перевал 24</div>
+        <a href="/" class="brand"><span class="logo">П</span>Перевал 24</a>
         <p>Кросс-докинг и перевалка грузов борт-в-борт на своей охраняемой площадке 24 часа в Подольске. Своя техника, грузчики и автопарк.</p>
+        <p style="margin-top:14px;font-size:14px"><a href="/uslugi/kross-doking/" style="color:var(--amber-2)">Кросс-докинг</a> · <a href="/uslugi/peregruzka-fur/" style="color:var(--amber-2)">Перегрузка фур</a> · <a href="/uslugi/otvetstvennoe-hranenie/" style="color:var(--amber-2)">Хранение</a> · <a href="/uslugi/wb-ozon/" style="color:var(--amber-2)">WB и Ozon</a> · <a href="/stati/" style="color:var(--amber-2)">Статьи</a></p>
       </div>
       <div class="foot-contacts">
         <div class="lbl">Телефоны</div>
@@ -815,6 +915,10 @@
   </div>
 </footer>
 
+
+<button type="button" id="toTop" aria-label="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+</button>
 
 <!-- MOBILE ACTION BAR -->
 <div class="mbar">
@@ -1209,6 +1313,16 @@
     if(b) b.textContent = (v==='Сегодня') ? 'Нужно сегодня - перезвоните' : 'Получить цену по моей партии';
   });
   syncHidden();
+})();
+
+/* ==== быстрая прокрутка наверх ==== */
+(function(){
+  var b = document.getElementById('toTop');
+  if(!b) return;
+  b.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  var onScroll = function(){ b.classList.toggle('show', window.pageYOffset > 700); };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
 })();
 
 /* ==== общий тост ==== */

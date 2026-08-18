@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /_check.html
+
+Sitemap: https://pereval24.ru/sitemap.xml
+Host: https://pereval24.ru
