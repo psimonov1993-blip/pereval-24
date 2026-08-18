@@ -365,6 +365,18 @@
   .form-trust{display:flex;align-items:flex-start;gap:8px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45}
   .form-trust svg{width:15px;height:15px;flex:none;margin-top:2px}
 
+  /* ==== запасной канал заявки ==== */
+  .fallback{background:rgba(255,138,30,.07);border:1px solid rgba(255,138,30,.35);border-radius:14px;padding:18px}
+  .fallback b{display:block;font-size:15.5px;font-weight:700;margin-bottom:6px}
+  .fallback p{font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .fallback .row{display:flex;gap:10px;flex-wrap:wrap}
+  .fallback a{flex:1;min-width:130px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:11px;font-size:14.5px;font-weight:700;border:1px solid var(--line);color:var(--ink)}
+  .fallback a.wa{background:#37d399;color:#0e1116;border-color:#37d399}
+  .fallback a.tg{background:var(--amber);color:#0e1116;border-color:var(--amber)}
+  .fallback svg{width:17px;height:17px}
+  .form-box.flash{border-color:var(--amber);box-shadow:0 0 0 4px rgba(255,138,30,.16);transition:box-shadow .3s ease,border-color .3s ease}
+  .copied{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:120;background:var(--panel);border:1px solid var(--amber);color:var(--ink);padding:12px 20px;border-radius:12px;font-size:14.5px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.45)}
+
   /* ==== РЕДИЗАЙН: мобильная панель действий ==== */
   .mbar{display:none}
 
@@ -395,12 +407,12 @@
     .sb-strong{font-size:14.5px}
     .sb-soft{font-size:13px}
     .sb-btn.tg{display:none}
-    .mbar a.ch{display:none}
+    .mbar a.tg{flex:none;width:52px}
     .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:70;gap:10px;padding:12px 14px 16px;background:rgba(14,17,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
     .mbar a{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:13px;border:1px solid var(--line);font-size:14.5px;font-weight:600;color:var(--ink)}
     .mbar a.call{flex:1.4;background:var(--amber);color:#0e1116;font-weight:700;font-size:15.5px;border-color:var(--amber)}
     .mbar a.wa{flex:1}
-    .mbar a.ch{flex:none;width:52px}
+    .mbar a.tg{flex:none;width:52px}
     .mbar svg{width:19px;height:19px}
     #chatFab{bottom:88px}
     #chatPanel{bottom:152px;height:64vh}
@@ -454,7 +466,7 @@
     <div class="sb-act">
       <a href="tel:+79684418885" class="sb-btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>Позвонить</a>
       <a href="https://wa.me/79684418885" class="sb-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>WhatsApp</a>
-      <a href="#zayavka" class="sb-btn tg"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg>Написать</a>
+      <a href="https://t.me/NarimanRam" target="_blank" rel="noopener" class="sb-btn tg"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg>Telegram</a>
     </div>
   </div>
 </div>
@@ -600,7 +612,8 @@
         <div class="total-sum" id="totalSum">6 000 - 10 000 ₽</div>
         <div class="total-note">по действующему прайсу, без НДС</div>
         <div class="total-lines" id="totalLines"></div>
-        <button type="button" class="btn" id="calcSend">Отправить расчёт менеджеру</button>
+        <button type="button" class="btn" id="calcSend">Перенести расчёт в заявку</button>
+        <a href="https://t.me/NarimanRam" target="_blank" rel="noopener" class="total-call" id="calcTg" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg>Отправить расчёт в Telegram</a>
         <a href="tel:+79684418885" class="total-call"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 968 441-88-85</a>
         <p>Вилка построена на ступенях действующего прайса. Финальную цену менеджер подтверждает по типу груза и фактическому объёму - расчёт уходит ему вместе с заявкой.</p>
       </div>
@@ -744,7 +757,8 @@
         </div>
         <div class="form-alt">
           <a href="tel:+79684418885"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a1e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>+7 968 441-88-85</a>
-          <a href="https://wa.me/79684418885" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>Написать в WhatsApp</a>
+          <a href="https://wa.me/79684418885" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>WhatsApp</a>
+          <a href="https://t.me/NarimanRam" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg>Telegram</a>
         </div>
       </div>
 
@@ -790,6 +804,7 @@
         <div class="lbl">Телефоны</div>
         <a href="tel:+79684418885">+7 968 441-88-85</a><br>
         <a href="tel:+79991040220">+7 999 104-02-20</a><br>
+        <a href="https://t.me/NarimanRam" target="_blank" rel="noopener">Telegram: @NarimanRam</a><br>
         <div class="lbl" style="margin-top:10px">Адрес площадки</div>
         Подольск, д. Сергеево, ул. Деловая, 4<br>
         <div class="lbl" style="margin-top:10px">Режим работы</div>
@@ -805,7 +820,7 @@
 <div class="mbar">
   <a href="tel:+79684418885" class="call"><svg viewBox="0 0 24 24" fill="none" stroke="#0e1116" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.5h3l1.6 4-2 1.4a12.5 12.5 0 006.3 6.3l1.4-2 4 1.6v3a2 2 0 01-2.2 2A17.5 17.5 0 014.2 5.7a2 2 0 012-2.2z"/></svg>Позвонить</a>
   <a href="https://wa.me/79684418885" class="wa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#37d399" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.4-4.2A8.2 8.2 0 1112 20.3a8.4 8.4 0 01-4-1L3.5 20.5z"/></svg>WhatsApp</a>
-  <a href="#calc" class="ch" aria-label="Калькулятор"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7.5h8M8 12h3M8 16h3M15 12v4.5"/></svg></a>
+  <a href="https://t.me/NarimanRam" class="tg" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa7b6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4.5L3.6 11.2l4.9 1.6L19 6.4l-8.1 8v4.4l2.6-3.4 4.3 3.1z"/></svg></a>
 </div>
 
 <!-- CHAT WIDGET -->
@@ -916,8 +931,7 @@
           form.innerHTML = '<div class="form-done">Заявка принята. Перезвоним и рассчитаем стоимость. Спасибо!</div>';
         })
         .catch(function(){
-          btn.disabled = false; btn.textContent = 'Рассчитать стоимость';
-          alert('Не удалось отправить. Позвоните нам: +7 968 441-88-85');
+          window.pvFallback(form, 'Автоматическая отправка сейчас недоступна. Нажмите кнопку - заявка уйдёт менеджеру напрямую.');
         });
     });
   }
@@ -980,7 +994,7 @@
         })
         .catch(function(){
           btn.disabled=false; btn.textContent='Отправить';
-          errEl.textContent='Не получилось отправить. Позвоните, пожалуйста: +7 968 441-88-85';
+          errEl.innerHTML='Не отправилось. Напишите в <a href="https://t.me/NarimanRam" target="_blank" rel="noopener" style="color:#ffb75e;text-decoration:underline">Telegram</a> или позвоните: +7 968 441-88-85';
         });
     });
   }
@@ -1140,9 +1154,18 @@
       var hidden = f.elements['cargo'];
       if(hidden) hidden.value = 'Расчёт: '+$('totalSub').textContent+', '+$('totalSum').textContent;
       document.getElementById('zayavka').scrollIntoView({behavior:'smooth'});
-      setTimeout(function(){ var ph=f.elements['phone']; if(ph) ph.focus(); }, 600);
+      setTimeout(function(){
+        var box = document.querySelector('.form-box');
+        if(box){ box.classList.add('flash'); setTimeout(function(){ box.classList.remove('flash'); }, 2200); }
+        var ph = f.elements['phone']; if(ph) ph.focus();
+        window.pvToast('Расчёт добавлен в заявку - оставьте телефон');
+      }, 650);
     }
   };
+  document.getElementById('calcTg').addEventListener('click', function(){
+    window.ym && ym(111004046,'reachGoal','calc_send');
+    window.pvCopy('Заявка с сайта pereval24.ru. Расчёт: '+$('totalSub').textContent+', '+$('totalSum').textContent, 'Расчёт скопирован - вставьте в чат');
+  });
   render();
 })();
 
@@ -1186,6 +1209,64 @@
     if(b) b.textContent = (v==='Сегодня') ? 'Нужно сегодня - перезвоните' : 'Получить цену по моей партии';
   });
   syncHidden();
+})();
+
+/* ==== общий тост ==== */
+window.pvToast = function(text){
+  var t = document.createElement('div');
+  t.className = 'copied'; t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 2600);
+};
+window.pvCopy = function(text, msg){
+  var done = function(){ window.pvToast(msg); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, done); }
+  else {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta); done();
+  }
+};
+
+/* ==== заявка одним касанием, если форма не ушла ==== */
+window.pvLeadText = function(){
+  var f = document.getElementById('lead');
+  if(!f) return 'Заявка с сайта pereval24.ru';
+  var nm = (f.elements['name'] && f.elements['name'].value || '').trim();
+  var ph = (f.elements['phone'] && f.elements['phone'].value || '').trim();
+  var cg = (f.elements['cargo'] && f.elements['cargo'].value || '').trim();
+  var t = 'Заявка с сайта pereval24.ru';
+  if(nm) t += '. Имя: ' + nm;
+  if(ph) t += '. Телефон: ' + ph;
+  if(cg) t += '. ' + cg;
+  return t;
+};
+window.pvFallback = function(container, note){
+  var text = window.pvLeadText();
+  container.innerHTML =
+    '<div class="fallback"><b>Отправьте заявку в один клик</b>'
+    + '<p>' + note + '</p>'
+    + '<div class="row">'
+    + '<a class="tg" href="https://t.me/NarimanRam" target="_blank" rel="noopener" id="fbTg">Telegram</a>'
+    + '<a class="wa" href="https://wa.me/79684418885?text=' + encodeURIComponent(text) + '" target="_blank" rel="noopener">WhatsApp</a>'
+    + '<a href="tel:+79684418885">Позвонить</a>'
+    + '</div></div>';
+  var tg = document.getElementById('fbTg');
+  if(tg) tg.addEventListener('click', function(){ window.pvCopy(text, 'Текст заявки скопирован - вставьте в чат'); });
+};
+
+/* ==== звонок с компьютера: копируем номер вместо tel: ==== */
+(function(){
+  var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  if(isTouch) return;
+  document.addEventListener('click', function(e){
+    var a = e.target && e.target.closest ? e.target.closest('a[href^="tel:"]') : null;
+    if(!a) return;
+    e.preventDefault();
+    var num = a.getAttribute('href').replace('tel:', '');
+    window.pvCopy(num, 'Номер ' + num + ' скопирован');
+  });
 })();
 
 /* ==== копирование адреса для водителя ==== */
