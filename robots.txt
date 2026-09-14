@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /_check.html
+Disallow: /ohotnik/
 
 Sitemap: https://pereval24.ru/sitemap.xml
 Host: https://pereval24.ru

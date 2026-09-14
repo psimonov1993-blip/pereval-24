@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Охотник: скрипт и объявления</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg:#f2efe8; --surface:#fffdf9; --surface-2:#ece7dc; --ink:#20242a; --ink-dim:#5c6169; --ink-faint:#8b8f95;
+    --border:#ddd5c4; --accent:#c1501f; --accent-ink:#ffffff; --ok:#3e7a4e; --warn:#a6791f;
+    --shadow: 0 1px 2px rgba(30,24,12,.06), 0 6px 16px -8px rgba(30,24,12,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171a; --surface:#1c1f23; --surface-2:#24272c; --ink:#ece9e2; --ink-dim:#a3a8ad; --ink-faint:#787d82;
+      --border:#33373d; --accent:#e2803f; --accent-ink:#181103; --ok:#5fb478; --warn:#d1a445;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 20px -10px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171a; --surface:#1c1f23; --surface-2:#24272c; --ink:#ece9e2; --ink-dim:#a3a8ad; --ink-faint:#787d82;
+    --border:#33373d; --accent:#e2803f; --accent-ink:#181103; --ok:#5fb478; --warn:#d1a445;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 20px -10px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.5;}
+  ::selection{background:var(--accent);color:var(--accent-ink);}
+
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 90px;}
+
+  header.top{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:30px;}
+  .brand-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 6px;}
+  .brand-eyebrow a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);}
+  h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(26px,4vw,36px);letter-spacing:.01em;margin:0;text-wrap:balance;}
+  .sub{color:var(--ink-dim);font-size:15px;margin:8px 0 0;max-width:64ch;}
+
+  section{margin-bottom:46px;}
+  h2{font-family:'Oswald',sans-serif;font-weight:600;font-size:19px;letter-spacing:.02em;text-transform:uppercase;margin:0 0 4px;}
+  .section-note{color:var(--ink-dim);font-size:13.5px;margin:0 0 18px;max-width:70ch;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:16px;}
+  .card h3{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:.02em;text-transform:uppercase;margin:0 0 10px;color:var(--accent);}
+  .card p{margin:0 0 10px;font-size:14.5px;}
+  .card p:last-child{margin-bottom:0;}
+  .card .stage{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);display:block;margin-bottom:4px;}
+
+  .quote{background:var(--surface-2);border-radius:8px;padding:12px 14px;font-size:14px;border-left:3px solid var(--accent);margin:8px 0;}
+
+  .objection{display:grid;grid-template-columns:1fr;gap:6px;padding:12px 0;border-top:1px dashed var(--border);}
+  .objection:first-of-type{border-top:none;padding-top:0;}
+  .objection dt{font-weight:600;font-size:13.5px;}
+  .objection dd{margin:0;color:var(--ink-dim);font-size:13.5px;}
+
+  .checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .checklist li{display:flex;gap:10px;align-items:flex-start;font-size:14px;}
+  .checklist li::before{content:'☐';color:var(--accent);flex:none;font-size:15px;line-height:1.4;}
+
+  .ad-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden;}
+  .ad-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--surface-2);border-bottom:1px solid var(--border);}
+  .ad-head h3{margin:0;font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:.03em;text-transform:uppercase;}
+  .copy-btn{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--ink);color:var(--bg);border:none;border-radius:99px;padding:6px 13px;cursor:pointer;}
+  .copy-btn:hover{opacity:.88;}
+  .copy-btn[data-copied="true"]{background:var(--ok);}
+  .ad-body{padding:16px 18px;}
+  .ad-title{font-weight:600;font-size:15px;margin:0 0 8px;}
+  .ad-text{white-space:pre-wrap;font-size:14px;color:var(--ink);margin:0;font-family:'IBM Plex Sans',sans-serif;}
+  .ad-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;}
+
+  footer{color:var(--ink-faint);font-size:11.5px;font-family:'IBM Plex Mono',monospace;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="brand-eyebrow"><a href="index.html">← карта клиентов</a></p>
+    <h1>Скрипт звонка и объявления</h1>
+    <p class="sub">Для колл-центра и для размещения на биржах и досках. Борт 13,6&nbsp;м / 20&nbsp;т с кониками, кран сверху, Москва и МО.</p>
+  </header>
+
+  <section id="script">
+    <h2>Скрипт звонка</h2>
+    <p class="section-note">Цель звонка: не продать с первого раза, а проверить контакт живьём (правило проекта «Охотник») и найти, кто в компании отвечает за наёмный транспорт. Работает по базе на карте клиентов, сегмент компании подставляется в скобки.</p>
+
+    <div class="card">
+      <span class="stage">1. Открытие (первые 15 секунд)</span>
+      <p>Представиться, назвать компанию, сразу сказать, зачем звонок, чтобы не приняли за спам.</p>
+      <div class="quote">Добрый день. Меня зовут [имя], я из компании «Перевал 24», работаем бортовым транспортом 13,6 метра по Москве и области. Подскажите, пожалуйста, у вас бывают отгрузки [металла / плит / кирпича / леса, по сегменту компании], под которые нужен наёмный транспорт с открытым бортом?</div>
+    </div>
+
+    <div class="card">
+      <span class="stage">2. Если да, квалификация</span>
+      <p>Задача, узнать объём, частоту и кто принимает решение, не продавать в лоб.</p>
+      <div class="quote">Как часто примерно бывает такая потребность, разово или на регулярной основе? Кто у вас обычно занимается подбором транспорта под такие отгрузки, к кому лучше обратиться напрямую?</div>
+      <p>Если называют имя и телефон ЛПР, зафиксировать сразу, это главный результат звонка.</p>
+    </div>
+
+    <div class="card">
+      <span class="stage">3. Питч</span>
+      <p>Коротко, без давления, с конкретными параметрами машины.</p>
+      <div class="quote">У нас открытый борт 13,6 метра, коники, грузоподъёмность до 20 тонн, действующий пропуск на въезд в Москву. Работаем с ИП, безналичный расчёт без НДС, наличный по согласованию. Можем взять и разовый рейс, и регулярные отгрузки. Дополнительно есть своя охраняемая площадка в Подольске для перевалки и краткосрочного хранения груза.</div>
+    </div>
+
+    <div class="card">
+      <span class="stage">4. Обработка типовых возражений</span>
+      <dl>
+        <div class="objection"><dt>«У нас свой транспорт»</dt><dd>Понимаю. На случай пиковой нагрузки или когда свой транспорт занят, можно оставить наш телефон как резервный вариант, ничего не обязывает.</dd></div>
+        <div class="objection"><dt>«Уже есть перевозчик»</dt><dd>Хорошо. Если вдруг у постоянного перевозчика не окажется машины под конкретный рейс, будет запасной вариант. Оставлю телефон отдела логистики?</dd></div>
+        <div class="objection"><dt>«Пришлите на почту»</dt><dd>Обязательно. Уточните, пожалуйста, на какой адрес и на чьё имя, чтобы письмо не потерялось среди спама.</dd></div>
+        <div class="objection"><dt>«Работаем только с НДС»</dt><dd>Зафиксировать условие, не спорить и не продолжать переговоры по цене, решение по НДС принимает автор.</dd></div>
+      </dl>
+    </div>
+
+    <div class="card">
+      <span class="stage">5. После звонка, что занести в карту клиентов</span>
+      <ul class="checklist">
+        <li>Имя и должность ЛПР (если удалось узнать)</li>
+        <li>Прямой телефон и email, если отличаются от общего</li>
+        <li>Примерная частота и объём отгрузок под длинномер</li>
+        <li>Статус: интересно / уже есть перевозчик / отказ / прислать письмо</li>
+        <li>Дата звонка, чтобы не звонить повторно раньше срока</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="ads">
+    <h2>Объявления</h2>
+    <p class="section-note">Готовые тексты для площадок. Копировать без изменений структуры, менять только контактный телефон, если для конкретной площадки заведён отдельный номер.</p>
+
+    <div class="ad-card">
+      <div class="ad-head">
+        <h3>ATI.su / Trans.ru: карточка перевозчика</h3>
+        <button class="copy-btn" data-copy="ad-ati">Скопировать</button>
+      </div>
+      <div class="ad-body">
+        <p class="ad-title">Борт 13,6 м, 20 т, коники. Москва и МО, регулярные рейсы</p>
+        <p class="ad-text" id="ad-ati">Открытый бортовой полуприцеп 13,6 м, коники, грузоподъёмность до 20 тонн. Погрузка краном сверху, подходит под металлопрокат, ЖБИ, трубу, пиломатериалы, кирпич, металлоконструкции.
+
+База в Подольске, работаем по Москве и Московской области, действующий пропуск на въезд в Москву. ИП без НДС, безналичный расчёт, наличный по согласованию.
+
+Берём разовые рейсы и постоянные догрузы. Дополнительно: охраняемая площадка 24 часа для перевалки и краткосрочного хранения груза.
+
+Звоните, обсудим маршрут и сроки.
+Перевал 24, pereval24.ru</p>
+        <p class="ad-meta">Раздел: доска объявлений перевозчика / грузовые авто, борт. Телефон и Telegram, см. карточку контактов ниже.</p>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <div class="ad-head">
+        <h3>Авито: «Грузоперевозки»</h3>
+        <button class="copy-btn" data-copy="ad-avito">Скопировать</button>
+      </div>
+      <div class="ad-body">
+        <p class="ad-title">Грузоперевозки бортом 13,6 м, 20 т, по Москве и области</p>
+        <p class="ad-text" id="ad-avito">Перевозка длинномерных и тяжёлых грузов открытым бортом: металлопрокат, арматура, труба, плиты ЖБИ, кирпич, пиломатериалы, металлоконструкции, сельхозгрузы.
+
+Параметры машины: борт 13,6 метра, коники, грузоподъёмность до 20 тонн, погрузка краном сверху. Действующий пропуск для въезда в Москву.
+
+Работаем с юрлицами и ИП, безналичный расчёт без НДС, возможен наличный расчёт по согласованию. Разовые рейсы и постоянное сотрудничество.
+
+Есть собственная охраняемая площадка в Подольске: можем принять груз, перегрузить на другую машину или временно сохранить.
+
+Цена договорная, зависит от маршрута и объёма, звоните и присылайте адрес погрузки, посчитаем.</p>
+        <p class="ad-meta">Категория: Услуги → Грузоперевозки. Цену не указывать фиксированной, только «звоните», чтобы не занижать себя на длинных плечах.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--ink);">Контакты для площадок</h3>
+      <p>Телефоны: +7 968 441-88-85, +7 999 104-02-20 · Telegram: t.me/NarimanRam · сайт: pereval24.ru</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.copy;
+    const text = document.getElementById(id).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.dataset.copied = 'true';
+      btn.textContent = 'Скопировано';
+      setTimeout(() => { btn.dataset.copied = 'false'; btn.textContent = 'Скопировать'; }, 1800);
+    } catch(e) {
+      btn.textContent = 'Выделите текст вручную';
+    }
+  });
+});
+</script>
+</body>
+</html>
