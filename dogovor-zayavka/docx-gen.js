@@ -24,6 +24,7 @@
   }
 
   function utf8(str) {
+    if (str instanceof Uint8Array) return str;                 // бинарная часть (картинка подписи)
     if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(str);
     return new Uint8Array(Buffer.from(str, 'utf8'));
   }
@@ -132,15 +133,30 @@
       '</w:tr>';
   }
 
-  var DEFAULT_TERMS = [
+  // Условия, когда МЫ ИСПОЛНИТЕЛЬ: пункт про полную ответственность за груз убран,
+  // простой считается по-нашему (2 часа на погрузку, 2 на выгрузку, дальше по часам)
+  var TERMS_EXECUTOR = [
+    'В соответствии с настоящей Договор-заявкой Исполнитель обязуется оказать Заказчику транспортно-экспедиционные услуги, связанные с перевозкой груза автомобильным транспортом по территории РФ, а Заказчик произвести оплату по оказанным услугам.',
+    'Исполнитель обязан подать под загрузку в установленное место и время технически исправное транспортное средство, соответствующее требованиям настоящей Договор-заявки и действующего законодательства РФ.',
+    'Погрузка, размещение и крепление груза в кузове производятся силами и за счёт Заказчика (грузоотправителя). Водитель вправе присутствовать при погрузочно-разгрузочных работах и сверять количество груза с документами. Исполнитель не отвечает за скрытые недостатки упаковки и за последствия способа погрузки, выбранного грузоотправителем.',
+    'Нормативное время на погрузку составляет 2 часа, на выгрузку 2 часа, при наличии соответствующих отметок в транспортной накладной. При превышении суммарного норматива в 4 часа Заказчик оплачивает Исполнителю простой из расчёта 1000 рублей за каждый час простоя сверх норматива.',
+    'В случае отмены заявки Заказчиком менее чем за сутки до подачи транспортного средства либо при неготовности груза к погрузке Заказчик оплачивает Исполнителю 20% стоимости услуг настоящей Договор-заявки.',
+    'Заказчик обязан обеспечить подъезд к местам погрузки и выгрузки, пригодный для транспортного средства указанного типа. Стоимость рассчитана исходя из заявленного маршрута; при изменении адресов, добавлении точек или изменении массы груза стоимость пересчитывается по соглашению сторон.',
+    'Грузоотправитель подтверждает, что в отправленном им грузе отсутствуют предметы, категорически запрещённые к перевозке, а именно: взрывчатые, самовозгорающиеся, легковоспламеняющиеся, отравляющие, ядовитые, едкие и зловонные вещества, сжатые или сжиженные газы, а также другие запрещённые к перевозке грузы.'
+  ];
+
+  // Условия, когда МЫ ЗАКАЗЧИК и нанимаем перевозчика: бланк из образца № 232
+  var TERMS_CUSTOMER = [
     'В соответствии с настоящей Договор-заявкой Исполнитель обязуется оказать Заказчику транспортно-экспедиционные услуги, связанные с перевозкой груза автомобильным транспортом по территории РФ, а Заказчик произвести оплату по оказанным услугам.',
     'Исполнитель обязан подать под загрузку в установленное место и время, технически исправное транспортное средство и соответствующее требованиям данной Договор-заявке и действующему законодательства РФ.',
     'Водитель ОБЯЗАН: контролировать погрузочно-разгрузочные работы (количество, объем, вес, размер груза, целостность упаковки, распределения груза по кузову) за неверное распределение груза по кузову несет ответственность грузоперевозчик, сверять количество загруженной продукции с документами.',
     'Исполнитель несет ответственность за повреждение и порчу груза в пути следования.',
     'В случае отказа от погрузки (менее чем за сутки) Исполнитель уплачивает штраф в размере 20% стоимости услуг настоящего Договора-заявки. За попытку прямого выхода на клиента штраф 50000 р.',
-    'Нормативное время на погрузке и (или) выгрузке составляет 12 часов, при наличии соответствующих отметок в ТН. В случае нарушения Заказчик оплачивает Исполнителю 1000 р. за каждые сутки простоя.',
+    'Нормативное время на погрузку составляет 2 часа, на выгрузку 2 часа, при наличии соответствующих отметок в транспортной накладной. При превышении суммарного норматива в 4 часа Заказчик оплачивает Исполнителю простой из расчёта 1000 рублей за каждый час простоя сверх норматива.',
     'Грузоотправитель подтверждает, что в отправленном им грузе отсутствуют предметы, категорически запрещённые к перевозке, а именно: взрывчатые, самовозгорающиеся, легковоспламеняющиеся, отравляющие, ядовитые, едкие и зловонные вещества, сжатые или сжиженные газы, а также другие запрещённые к перевозке грузы.'
   ];
+
+  var DEFAULT_TERMS = TERMS_EXECUTOR;
 
   function partyBlock(p) {
     var out = [];
@@ -159,6 +175,35 @@
     }
     if (!out.length) out.push(par('', { sz: 17 }));
     return out.join('');
+  }
+
+  // Картинка факсимиле внутри абзаца подписи: рисуется поверх строки, как живая роспись
+  function signatureRun(sig) {
+    if (!sig || !sig.widthEmu || !sig.heightEmu) return '';
+    return '<w:r><w:rPr><w:noProof/></w:rPr><w:drawing>' +
+      '<wp:inline distT="0" distB="0" distL="0" distR="0">' +
+      '<wp:extent cx="' + sig.widthEmu + '" cy="' + sig.heightEmu + '"/>' +
+      '<wp:docPr id="1" name="Подпись"/>' +
+      '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">' +
+      '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
+      '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
+      '<pic:nvPicPr><pic:cNvPr id="1" name="Подпись"/><pic:cNvPicPr/></pic:nvPicPr>' +
+      '<pic:blipFill><a:blip r:embed="rId10"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>' +
+      '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + sig.widthEmu + '" cy="' + sig.heightEmu + '"/></a:xfrm>' +
+      '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>' +
+      '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+  }
+
+  // Ячейка подписи: сверху факсимиле (если есть), под ним линия и расшифровка
+  function signCell(width, name, sig) {
+    var inner = '';
+    if (sig) {
+      inner += '<w:p><w:pPr><w:spacing w:before="40" w:after="0"/></w:pPr>' + signatureRun(sig) + '</w:p>';
+      inner += par('____________________  ' + shortName(name), { sz: 17, after: 60 });
+    } else {
+      inner = par('Подпись ____________________  ' + shortName(name), { sz: 17, before: 100, after: 100 });
+    }
+    return cell(width, inner);
   }
 
   function shortName(fullName) {
@@ -216,9 +261,11 @@
       cell(H_LEFT, partyBlock(d.customer || {}), { valign: 'top' }) +
       cell(H_RIGHT, partyBlock(d.executor || {}), { valign: 'top' }) +
       '</w:tr>');
+    var sig = d.signature && d.signature.widthEmu ? d.signature : null;
+    var sigSide = sig ? (sig.side || 'executor') : null;
     f.push('<w:tr>' +
-      cell(H_LEFT, par('Подпись ____________________  ' + shortName((d.customer || {}).name), { sz: 17, before: 100, after: 100 })) +
-      cell(H_RIGHT, par('Подпись ____________________  ' + shortName((d.executor || {}).name), { sz: 17, before: 100, after: 100 })) +
+      signCell(H_LEFT, (d.customer || {}).name, sigSide === 'customer' ? sig : null) +
+      signCell(H_RIGHT, (d.executor || {}).name, sigSide === 'executor' ? sig : null) +
       '</w:tr>');
     f.push('</w:tbl>');
     body.push(f.join(''));
@@ -228,7 +275,11 @@
       '</w:sectPr>';
 
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
-      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ' +
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ' +
+      'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" ' +
+      'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ' +
+      'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
       '<w:body>' + body.join('') + sect + '</w:body></w:document>';
   }
 
@@ -286,18 +337,41 @@
     '<Application>Perevalu 24 Dogovor-Zayavka</Application></Properties>';
 
   function buildDocx(data) {
+    var sig = data.signature && data.signature.bytes && data.signature.widthEmu ? data.signature : null;
+    var ext = sig ? (sig.ext || 'png') : 'png';
+
+    var types = CONTENT_TYPES;
+    var docRels = DOC_RELS;
+    var parts = [];
+
+    if (sig) {
+      types = types.replace('<Default Extension="xml"',
+        '<Default Extension="' + ext + '" ContentType="image/' + (ext === 'jpg' ? 'jpeg' : ext) + '"/>' +
+        '<Default Extension="xml"');
+      docRels = docRels.replace('</Relationships>',
+        '<Relationship Id="rId10" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" ' +
+        'Target="media/signature.' + ext + '"/></Relationships>');
+      parts.push({ name: 'word/media/signature.' + ext, content: sig.bytes });
+    }
+
     return zip([
-      { name: '[Content_Types].xml', content: CONTENT_TYPES },
+      { name: '[Content_Types].xml', content: types },
       { name: '_rels/.rels', content: RELS },
       { name: 'docProps/core.xml', content: coreXml(data) },
       { name: 'docProps/app.xml', content: APP_XML },
-      { name: 'word/_rels/document.xml.rels', content: DOC_RELS },
+      { name: 'word/_rels/document.xml.rels', content: docRels },
       { name: 'word/document.xml', content: buildDocumentXml(data) },
       { name: 'word/styles.xml', content: STYLES }
-    ]);
+    ].concat(parts));
   }
 
-  var api = { buildDocx: buildDocx, DEFAULT_TERMS: DEFAULT_TERMS, shortName: shortName };
+  var api = {
+    buildDocx: buildDocx,
+    DEFAULT_TERMS: DEFAULT_TERMS,
+    TERMS_EXECUTOR: TERMS_EXECUTOR,
+    TERMS_CUSTOMER: TERMS_CUSTOMER,
+    shortName: shortName
+  };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.DocxGen = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

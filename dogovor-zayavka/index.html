@@ -125,8 +125,40 @@
   <div class="card">
     <h2>Деньги</h2>
     <div class="grid two">
-      <div><label for="price">Стоимость перевозки</label><input id="price" class="req" placeholder="42000 без НДС"></div>
+      <div><label for="price">Стоимость перевозки (как попадёт в договор)</label><input id="price" class="req" placeholder="42 000 ₽ без НДС"></div>
       <div><label for="payment">Срок и форма оплаты</label><input id="payment" value="По скану ТН 5-7 банковских дней"></div>
+    </div>
+
+    <div class="calc" style="border-style:solid">
+      <strong style="font-size:14px">НДС</strong>
+      <div class="grid three" style="margin-top:10px">
+        <div><label for="sumBase">Сумма, ₽</label><input id="sumBase" inputmode="decimal" placeholder="42000"></div>
+        <div><label for="vatRate">Ставка НДС</label>
+          <select id="vatRate">
+            <option value="0">Без НДС</option>
+            <option value="5">НДС 5%</option>
+            <option value="7">НДС 7%</option>
+            <option value="10">НДС 10%</option>
+            <option value="20">НДС 20%</option>
+            <option value="22" selected>НДС 22%</option>
+          </select>
+        </div>
+        <div><label for="vatMode">Как считаем</label>
+          <select id="vatMode">
+            <option value="add">Начислить сверху на сумму</option>
+            <option value="in">Выделить из суммы (в том числе)</option>
+          </select>
+        </div>
+      </div>
+      <table>
+        <tr><td>Без НДС</td><td id="vNet">-</td></tr>
+        <tr><td>Сумма НДС</td><td id="vTax">-</td></tr>
+        <tr><td><strong>Итого к оплате</strong></td><td id="vTotal">-</td></tr>
+      </table>
+      <div class="row-btns">
+        <button type="button" id="btnVatApply">Записать цену в договор</button>
+      </div>
+      <p class="note" id="vatHint">В договор уйдёт строка с суммой и ставкой: «42 000 ₽, в том числе НДС 22% - 7 574 ₽»</p>
     </div>
     <details class="calc" open>
       <summary>Калькулятор цены по методу Перевал 24</summary>
@@ -141,8 +173,8 @@
         <tr><td>Цена с НДС 22%</td><td id="cVat">-</td></tr>
       </table>
       <div class="row-btns">
-        <button type="button" id="btnUseNet">Подставить цену без НДС</button>
-        <button type="button" id="btnUseVat">Подставить цену с НДС</button>
+        <button type="button" id="btnUseNet">Взять расчётную цену в блок НДС</button>
+        <button type="button" id="btnUseFloor">Взять нижний порог</button>
       </div>
       <p class="note">Формула из метода: 9 787 ₽ за день + 46,49 ₽ за км, наценка 25%, сверху УСН 6%. Километраж берите из Яндекс.Карт по правилам: свыше 20 т, без платных дорог, в Москву не глубже ТТК</p>
     </details>
@@ -166,7 +198,9 @@
     <div class="row-btns">
       <button type="button" id="btnSaveDriver">Сохранить в справочник</button>
       <button type="button" id="btnDelDriver">Удалить выбранного</button>
+      <button type="button" id="btnShareDriver">Отдать в общий справочник</button>
     </div>
+    <p class="note" id="driverBookInfo"></p>
   </div>
 
   <div class="card">
@@ -198,7 +232,9 @@
     <div class="row-btns">
       <button type="button" id="btnSaveParty">Сохранить в справочник</button>
       <button type="button" id="btnDelParty">Удалить выбранного</button>
+      <button type="button" id="btnShareParty">Отдать в общий справочник</button>
     </div>
+    <p class="note" id="partyBookInfo"></p>
   </div>
 
   <div class="card">
@@ -228,6 +264,26 @@
       </div>
       <div class="row-btns"><button type="button" id="btnResetOur">Вернуть реквизиты Перевал 24</button></div>
     </details>
+  </div>
+
+  <div class="card">
+    <h2>Факсимильная подпись</h2>
+    <p class="hint">Загрузите картинку росписи один раз - она встанет в документ над строкой подписи нашей стороны. Печать не нужна. Файл хранится в этом браузере и в общий справочник не уходит</p>
+    <div class="grid two">
+      <div>
+        <label for="sigFile">Файл подписи (PNG или JPG, лучше на прозрачном фоне)</label>
+        <input type="file" id="sigFile" accept="image/png,image/jpeg">
+        <div class="row-btns">
+          <button type="button" id="btnSigClear">Удалить подпись</button>
+        </div>
+      </div>
+      <div>
+        <label>Как встанет в документ</label>
+        <div id="sigPreview" style="border:1px dashed var(--line);border-radius:8px;padding:10px;background:#fff;min-height:74px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px">подпись не загружена</div>
+        <div style="margin-top:8px"><label for="sigWidth">Ширина подписи в документе, см</label>
+          <input id="sigWidth" inputmode="decimal" value="3.5"></div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -274,9 +330,15 @@
 
   var FIELDS = ['number','date','role','route','bodyType','loadAddress','loadDate','loadContact',
     'unloadAddress','unloadDate','unloadContact','cargo','note','price','payment','km','days',
+    'sumBase','vatRate','vatMode','sigWidth',
     'driverName','driverPhone','driverPassport','vehicle',
     'pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr',
     'oName','oInn','oOgrn','oAddress','oPhone','oEmail','oAccount','oBank','oBik','oCorr','terms'];
+
+  // Общий справочник на всех менеджеров лежит файлом рядом со страницей.
+  // Пока он только читается: автозапись включится, когда появится хранилище (см. README, блокер по ключу n8n)
+  var SHARED_URL = 'spravochnik.json';
+  var shared = { drivers: [], parties: [], updated: '' };
 
   var $ = function(id){ return document.getElementById(id); };
   var LS = {
@@ -336,12 +398,39 @@
     return {cost:cost,floor:floor,net:net,vat:vat};
   }
 
+  /* ---------- НДС ---------- */
+  function num(v){ return parseFloat(String(v||'').replace(/\s/g,'').replace(',','.'))||0; }
+  function rub(n){ return new Intl.NumberFormat('ru-RU').format(Math.round(n)); }
+
+  function vat(){
+    var base=num($('sumBase').value), rate=parseFloat($('vatRate').value)||0, mode=$('vatMode').value;
+    if(!base){ ['vNet','vTax','vTotal'].forEach(function(id){ $(id).textContent='-'; }); return null; }
+    var net, tax, total;
+    if(!rate){ net=base; tax=0; total=base; }
+    else if(mode==='add'){ net=base; tax=base*rate/100; total=net+tax; }
+    else { total=base; net=base/(1+rate/100); tax=total-net; }
+    $('vNet').textContent=rub(net)+' ₽';
+    $('vTax').textContent=rate? (rub(tax)+' ₽') : 'нет';
+    $('vTotal').textContent=rub(total)+' ₽';
+    var line = rate
+      ? rub(total)+' ₽, в том числе НДС '+rate+'% - '+rub(tax)+' ₽'
+      : rub(total)+' ₽ без НДС';
+    $('vatHint').textContent='В договор уйдёт строка: «'+line+'»';
+    return {net:net, tax:tax, total:total, rate:rate, line:line};
+  }
+
   /* ---------- роль ---------- */
   function syncRole(){
     var weExec=$('role').value==='executor';
     $('sideHint').textContent = weExec
       ? 'Реквизиты Заказчика, который оплачивает перевозку'
       : 'Реквизиты Исполнителя: перевозчика, которого вы нанимаете';
+    // условия тянутся за ролью, но только если их не правили руками
+    var cur=($('terms').value||'').trim();
+    var isDefault = cur==='' || cur===DocxGen.TERMS_EXECUTOR.join('\n') || cur===DocxGen.TERMS_CUSTOMER.join('\n');
+    if(isDefault){
+      $('terms').value=(weExec? DocxGen.TERMS_EXECUTOR : DocxGen.TERMS_CUSTOMER).join('\n');
+    }
   }
 
   /* ---------- справочники ---------- */
@@ -354,10 +443,45 @@
     });
     sel.value=cur;
   }
-  var drivers=LS.get('pv24_drivers',[]), parties=LS.get('pv24_parties',[]);
+  var myDrivers=LS.get('pv24_drivers',[]), myParties=LS.get('pv24_parties',[]);
+  var drivers=[], parties=[];
+
+  // общие записи идут первыми и помечаются, личные добавляются снизу
+  function mergeBooks(){
+    function merge(sharedList, mineList, key){
+      var out=(sharedList||[]).map(function(x){ var c=JSON.parse(JSON.stringify(x)); c.__shared=true; return c; });
+      (mineList||[]).forEach(function(m){
+        var i=out.findIndex(function(x){ return (x[key]||'').trim()===(m[key]||'').trim(); });
+        if(i>=0){ out[i]=Object.assign({}, out[i], m, {__shared:true, __edited:true}); }
+        else out.push(m);
+      });
+      return out;
+    }
+    drivers=merge(shared.drivers, myDrivers, 'driverName');
+    parties=merge(shared.parties, myParties, 'pName');
+  }
+
   function redrawBooks(){
-    refreshSelect($('driverPick'), drivers, function(d){ return d.driverName+(d.vehicle?' · '+d.vehicle.slice(0,24):''); });
-    refreshSelect($('partyPick'), parties, function(p){ return p.pName+(p.pInn?' · ИНН '+p.pInn:''); });
+    mergeBooks();
+    refreshSelect($('driverPick'), drivers, function(d){
+      return (d.__shared?'общий · ':'')+d.driverName+(d.vehicle?' · '+d.vehicle.slice(0,22):''); });
+    refreshSelect($('partyPick'), parties, function(p){
+      return (p.__shared?'общий · ':'')+p.pName+(p.pInn?' · ИНН '+p.pInn:''); });
+    var sh=shared.updated? (', обновлён '+shared.updated) : '';
+    $('driverBookInfo').textContent='В списке '+drivers.length+' водителей: общих '+(shared.drivers||[]).length+
+      ', ваших '+myDrivers.length+sh;
+    $('partyBookInfo').textContent='В списке '+parties.length+' контрагентов: общих '+(shared.parties||[]).length+
+      ', ваших '+myParties.length+sh;
+  }
+
+  function loadShared(){
+    return fetch(SHARED_URL, {cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('нет файла');
+      return r.json();
+    }).then(function(j){
+      shared={drivers:j.drivers||[], parties:j.parties||[], updated:j.updated||''};
+      redrawBooks();
+    }).catch(function(){ redrawBooks(); });
   }
 
   /* ---------- парсер текста ---------- */
@@ -402,6 +526,50 @@
     return got;
   }
 
+  /* ---------- факсимиле ---------- */
+  var signature=null;   // {dataUrl, ext, w, h}
+
+  function showSignature(){
+    var box=$('sigPreview');
+    if(!signature){ box.textContent='подпись не загружена'; return; }
+    box.innerHTML='';
+    var img=new Image();
+    img.src=signature.dataUrl;
+    img.style.maxWidth='100%'; img.style.maxHeight='90px';
+    box.appendChild(img);
+  }
+
+  function readSignature(file){
+    if(!file) return;
+    if(file.size>400*1024){ flash('Файл больше 400 КБ, возьмите картинку полегче'); return; }
+    var ext = /jpe?g$/i.test(file.name)||file.type==='image/jpeg' ? 'jpg' : 'png';
+    var fr=new FileReader();
+    fr.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        signature={dataUrl:fr.result, ext:ext, w:img.naturalWidth, h:img.naturalHeight};
+        LS.set('pv24_signature', signature);
+        showSignature();
+        flash('Подпись загружена, '+img.naturalWidth+'×'+img.naturalHeight+' точек');
+      };
+      img.onerror=function(){ flash('Не смог прочитать картинку'); };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+
+  function signatureForDoc(){
+    if(!signature) return null;
+    var bin=atob(String(signature.dataUrl).split(',')[1]);
+    var bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    var cm=Math.min(Math.max(num($('sigWidth').value)||3.5, 1), 8);
+    var widthEmu=Math.round(cm*360000);
+    var heightEmu=Math.round(widthEmu*(signature.h/signature.w));
+    return {bytes:bytes, ext:signature.ext, widthEmu:widthEmu, heightEmu:heightEmu,
+            side: $('role').value==='executor' ? 'executor' : 'customer'};
+  }
+
   /* ---------- сборка данных документа ---------- */
   function buildData(){
     var f=collect();
@@ -419,6 +587,7 @@
       driverPassport:f.driverPassport, vehicle:f.vehicle,
       customer: weExec ? other : our,
       executor: weExec ? our : other,
+      signature: signatureForDoc(),
       terms: String(f.terms||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean)
     };
   }
@@ -473,8 +642,21 @@
     });
   });
   ['km','days'].forEach(function(id){ $(id).addEventListener('input', calc); });
-  $('btnUseNet').addEventListener('click', function(){ var c=calc(); if(c){ $('price').value=money(c.net).replace(' ₽','')+' без НДС'; flash('Цена подставлена'); } });
-  $('btnUseVat').addEventListener('click', function(){ var c=calc(); if(c){ $('price').value=money(c.vat).replace(' ₽','')+' с НДС'; flash('Цена подставлена'); } });
+  ['sumBase','vatRate','vatMode'].forEach(function(id){ $(id).addEventListener('input', vat); $(id).addEventListener('change', vat); });
+  $('btnUseNet').addEventListener('click', function(){
+    var c=calc(); if(!c){ flash('Сначала впишите километраж'); return; }
+    $('sumBase').value=Math.round(c.net); $('vatMode').value='add'; vat();
+    flash('Расчётная цена без НДС перенесена, выберите ставку');
+  });
+  $('btnUseFloor').addEventListener('click', function(){
+    var c=calc(); if(!c){ flash('Сначала впишите километраж'); return; }
+    $('sumBase').value=Math.round(c.floor); $('vatMode').value='add'; vat();
+    flash('Это нижний порог: ниже него рейс убыточен');
+  });
+  $('btnVatApply').addEventListener('click', function(){
+    var v=vat(); if(!v){ flash('Впишите сумму в блоке НДС'); return; }
+    $('price').value=v.line; flash('Цена записана в договор');
+  });
   $('role').addEventListener('change', syncRole);
 
   $('driverPick').addEventListener('change', function(){
@@ -482,17 +664,38 @@
     ['driverName','driverPhone','driverPassport','vehicle'].forEach(function(k){ $(k).value=d[k]||''; });
     flash('Водитель подставлен');
   });
+  var DRIVER_KEYS=['driverName','driverPhone','driverPassport','vehicle'];
+  var PARTY_KEYS=['pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr'];
+
   $('btnSaveDriver').addEventListener('click', function(){
     if(!$('driverName').value.trim()){ flash('Сначала впишите ФИО водителя'); return; }
-    var rec={}; ['driverName','driverPhone','driverPassport','vehicle'].forEach(function(k){ rec[k]=$(k).value; });
-    var i=drivers.findIndex(function(x){ return x.driverName===rec.driverName; });
-    if(i>=0) drivers[i]=rec; else drivers.push(rec);
-    LS.set('pv24_drivers',drivers); redrawBooks(); flash('Водитель сохранён в этом браузере');
+    var rec={}; DRIVER_KEYS.forEach(function(k){ rec[k]=$(k).value; });
+    var i=myDrivers.findIndex(function(x){ return x.driverName===rec.driverName; });
+    if(i>=0) myDrivers[i]=rec; else myDrivers.push(rec);
+    LS.set('pv24_drivers',myDrivers); redrawBooks(); flash('Водитель сохранён в этом браузере');
   });
   $('btnDelDriver').addEventListener('click', function(){
-    var i=$('driverPick').value; if(i===''){ flash('Выберите водителя в списке'); return; }
-    drivers.splice(i,1); LS.set('pv24_drivers',drivers); redrawBooks(); flash('Удалён');
+    var d=drivers[$('driverPick').value];
+    if(!d){ flash('Выберите водителя в списке'); return; }
+    if(d.__shared && !d.__edited){ flash('Это запись общего справочника, её убирает администратор'); return; }
+    myDrivers=myDrivers.filter(function(x){ return x.driverName!==d.driverName; });
+    LS.set('pv24_drivers',myDrivers); redrawBooks(); flash('Удалён из вашего справочника');
   });
+  $('btnShareDriver').addEventListener('click', function(){
+    if(!$('driverName').value.trim()){ flash('Сначала впишите данные водителя'); return; }
+    var rec={}; DRIVER_KEYS.forEach(function(k){ rec[k]=$(k).value; });
+    shareRecord('водителя', rec);
+  });
+
+  // Пока общий справочник только читается, запись идёт через администратора:
+  // форма готовит строку, менеджер отправляет её одним сообщением
+  function shareRecord(what, rec){
+    var text=JSON.stringify(rec, null, 1);
+    var done=function(){ flash('Карточка '+what+' скопирована, отправьте её администратору'); };
+    if(navigator.clipboard && location.protocol!=='file:'){
+      navigator.clipboard.writeText(text).then(done, function(){ prompt('Скопируйте и отправьте администратору:', JSON.stringify(rec)); });
+    } else prompt('Скопируйте и отправьте администратору:', JSON.stringify(rec));
+  }
 
   $('partyPick').addEventListener('change', function(){
     var p=parties[this.value]; if(!p) return;
@@ -502,15 +705,22 @@
   });
   $('btnSaveParty').addEventListener('click', function(){
     if(!$('pName').value.trim()){ flash('Сначала впишите наименование'); return; }
-    var rec={}; ['pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr']
-      .forEach(function(k){ rec[k]=$(k).value; });
-    var i=parties.findIndex(function(x){ return x.pName===rec.pName; });
-    if(i>=0) parties[i]=rec; else parties.push(rec);
-    LS.set('pv24_parties',parties); redrawBooks(); flash('Контрагент сохранён в этом браузере');
+    var rec={}; PARTY_KEYS.forEach(function(k){ rec[k]=$(k).value; });
+    var i=myParties.findIndex(function(x){ return x.pName===rec.pName; });
+    if(i>=0) myParties[i]=rec; else myParties.push(rec);
+    LS.set('pv24_parties',myParties); redrawBooks(); flash('Контрагент сохранён в этом браузере');
   });
   $('btnDelParty').addEventListener('click', function(){
-    var i=$('partyPick').value; if(i===''){ flash('Выберите контрагента в списке'); return; }
-    parties.splice(i,1); LS.set('pv24_parties',parties); redrawBooks(); flash('Удалён');
+    var p=parties[$('partyPick').value];
+    if(!p){ flash('Выберите контрагента в списке'); return; }
+    if(p.__shared && !p.__edited){ flash('Это запись общего справочника, её убирает администратор'); return; }
+    myParties=myParties.filter(function(x){ return x.pName!==p.pName; });
+    LS.set('pv24_parties',myParties); redrawBooks(); flash('Удалён из вашего справочника');
+  });
+  $('btnShareParty').addEventListener('click', function(){
+    if(!$('pName').value.trim()){ flash('Сначала впишите наименование'); return; }
+    var rec={}; PARTY_KEYS.forEach(function(k){ rec[k]=$(k).value; });
+    shareRecord('контрагента', rec);
   });
 
   $('btnResetOur').addEventListener('click', function(){
@@ -520,8 +730,17 @@
     flash('Реквизиты Перевал 24 возвращены');
   });
   $('btnResetTerms').addEventListener('click', function(){
-    $('terms').value=DocxGen.DEFAULT_TERMS.join('\n'); flash('Условия возвращены');
+    var weExec=$('role').value==='executor';
+    $('terms').value=(weExec? DocxGen.TERMS_EXECUTOR : DocxGen.TERMS_CUSTOMER).join('\n');
+    flash(weExec? 'Вернул условия в нашу пользу' : 'Вернул условия бланка заказчика');
   });
+
+  $('sigFile').addEventListener('change', function(){ readSignature(this.files && this.files[0]); });
+  $('btnSigClear').addEventListener('click', function(){
+    signature=null; LS.set('pv24_signature', null); $('sigFile').value=''; showSignature();
+    flash('Подпись удалена из этого браузера');
+  });
+  $('sigWidth').addEventListener('input', function(){ if(signature) showSignature(); });
 
   $('btnLink').addEventListener('click', function(){
     // в ссылку не кладём то, что и так есть у каждого: стандартные условия и наши реквизиты
@@ -560,13 +779,16 @@
       var el=$('o'+k.charAt(0).toUpperCase()+k.slice(1));
       if(el && !el.value) el.value=our[k]||OUR_DEFAULT[k];
     });
-    if(!$('terms').value) $('terms').value=DocxGen.DEFAULT_TERMS.join('\n');
+    if(!$('terms').value) $('terms').value=DocxGen.TERMS_EXECUTOR.join('\n');
     if(!$('date').value) $('date').value=today();
+    signature=LS.get('pv24_signature', null);
+    showSignature();
+    loadShared();
     if(!$('number').value){
       var last=parseInt(LS.get('pv24_lastNumber','0'),10);
       if(last) $('number').value=String(last+1);
     }
-    redrawBooks(); syncRole(); calc(); fitBar();
+    redrawBooks(); syncRole(); calc(); vat(); fitBar();
     if(clean) return;
 
     var hash=location.hash||'';
