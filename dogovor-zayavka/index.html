@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Договор-заявка на перевозку · Перевал 24</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --ink:#15181d; --muted:#6a7280; --line:#dde1e6;
+    --accent:#c8102e; --accent-ink:#fff; --ok:#1c7c3c; --warn:#a05a00; --field:#fcfcfd;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  header{background:#15181d;color:#fff;padding:18px 16px}
+  header h1{margin:0;font-size:18px;letter-spacing:.2px}
+  header p{margin:6px 0 0;color:#a8b0ba;font-size:13px}
+  main{max-width:860px;margin:0 auto;padding:16px 16px 120px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+  .card h2{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.6px}
+  .card .hint{margin:0 0 12px;color:var(--muted);font-size:13px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:680px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:1fr 1fr 1fr}}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+  input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;
+    background:var(--field);color:var(--ink);font:inherit;font-size:15px}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;background:#fff}
+  textarea{resize:vertical;min-height:76px}
+  .req{border-left:3px solid var(--accent)}
+  .row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  button{font:inherit;font-size:14px;padding:10px 14px;border-radius:8px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer}
+  button:hover{border-color:#b9c0c8}
+  button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  button.primary:hover{background:#a50d26}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+    padding:10px 16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;z-index:20}
+  .bar .inner{max-width:860px;width:100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .calc{background:#f7f8fa;border:1px dashed var(--line);border-radius:8px;padding:12px;margin-top:12px}
+  .calc table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  .calc td{padding:4px 0}
+  .calc td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .calc .floor{color:var(--accent)}
+  details summary{cursor:pointer;font-size:14px;color:var(--muted);padding:4px 0}
+  .note{font-size:13px;color:var(--muted);margin-top:10px}
+  .flash{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--barH, 64px) + 14px);background:#15181d;color:#fff;
+    padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;z-index:30;pointer-events:none}
+  .flash.on{opacity:1}
+  .tag{display:inline-block;font-size:12px;color:var(--muted);border:1px solid var(--line);
+    border-radius:999px;padding:2px 9px;margin:0 6px 6px 0;cursor:pointer;background:#fff}
+  .tag:hover{border-color:var(--accent);color:var(--accent)}
+  .switch{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .switch button{border:0;border-radius:0;flex:1;background:#fff;color:var(--muted)}
+  .switch button[aria-pressed="true"]{background:#15181d;color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Договор-заявка на автомобильную перевозку</h1>
+  <p>Заполните поля и скачайте готовый файл Word. Всё считается прямо в браузере: данные никуда не отправляются и нигде не сохраняются, кроме вашего устройства</p>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Быстрый ввод</h2>
+    <p class="hint">Вставьте текст заявки из почты или мессенджера, форма попробует разобрать его по полям. Что не распознает - допишете руками</p>
+    <textarea id="parseSrc" placeholder="Например: Обнинск-Ерино, загрузка 23.09 к 8, Пяткинский проезд 13, Алексей 89965235712, выгрузка Щербинка Ерино 17, Владимир 89104190858, борт, 42000 с НДС, оплата по скану ТН 5-7 дней"></textarea>
+    <div class="row-btns">
+      <button type="button" id="btnParse">Разобрать текст</button>
+      <button type="button" id="btnSample">Заполнить примером</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Номер и дата</h2>
+    <div class="grid three">
+      <div><label for="number">Номер договора-заявки</label><input id="number" class="req" inputmode="numeric" placeholder="233"></div>
+      <div><label for="date">Дата документа</label><input id="date" class="req" placeholder="22.09.2026"></div>
+      <div><label for="role">Наша роль в сделке</label>
+        <select id="role">
+          <option value="executor">Мы Исполнитель (перевозим сами)</option>
+          <option value="customer">Мы Заказчик (нанимаем перевозчика)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Маршрут</h2>
+    <div class="grid two">
+      <div><label for="route">Маршрут следования</label><input id="route" class="req" placeholder="Обнинск-Ерино"></div>
+      <div><label for="bodyType">Тип кузова</label><input id="bodyType" value="Борт, верхняя погрузка/выгрузка"></div>
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div>
+        <label for="loadAddress">Адрес загрузки</label><input id="loadAddress" class="req">
+        <div style="margin-top:8px"><label for="loadDate">Дата и время загрузки</label><input id="loadDate" placeholder="23.09 к 8"></div>
+        <div style="margin-top:8px"><label for="loadContact">Контактное лицо на загрузке</label><input id="loadContact" placeholder="89965235712 Алексей"></div>
+      </div>
+      <div>
+        <label for="unloadAddress">Адрес разгрузки</label><input id="unloadAddress" class="req">
+        <div style="margin-top:8px"><label for="unloadDate">Дата и время разгрузки</label><input id="unloadDate" placeholder="23.09 с 8-20 без выходных"></div>
+        <div style="margin-top:8px"><label for="unloadContact">Контактное лицо на разгрузке</label><input id="unloadContact" placeholder="89104190858 Владимир"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Груз</h2>
+    <div><label for="cargo">Характер груза</label><input id="cargo" class="req" placeholder="плиты 2 п - 20 шт, 20 т"></div>
+    <div style="margin-top:12px">
+      <label for="note">Примечание</label>
+      <textarea id="note" placeholder="Каждое требование с новой строки"></textarea>
+      <div style="margin-top:8px">
+        <span class="tag" data-note="После погрузки сразу набрать на выгрузку и сориентировать по времени прибытия!">набрать на выгрузку</span>
+        <span class="tag" data-note="ТН после погрузки прислать на проверку не уезжая с объекта!">ТН на проверку</span>
+        <span class="tag" data-note="После выгрузки прислать фото ТН!">фото ТН</span>
+        <span class="tag" data-note="Крепление груза ремнями за счёт перевозчика.">крепление ремнями</span>
+        <span class="tag" data-note="Пропуск в Москву действует до ТТК включительно, внутрь ТТК заезд невозможен.">пропуск до ТТК</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Деньги</h2>
+    <div class="grid two">
+      <div><label for="price">Стоимость перевозки</label><input id="price" class="req" placeholder="42000 без НДС"></div>
+      <div><label for="payment">Срок и форма оплаты</label><input id="payment" value="По скану ТН 5-7 банковских дней"></div>
+    </div>
+    <details class="calc" open>
+      <summary>Калькулятор цены по методу Перевал 24</summary>
+      <div class="grid two" style="margin-top:10px">
+        <div><label for="km">Километраж рейса, км</label><input id="km" inputmode="decimal" placeholder="650"></div>
+        <div><label for="days">Дней в рейсе</label><input id="days" inputmode="numeric" value="1"></div>
+      </div>
+      <table>
+        <tr><td>Себестоимость рейса</td><td id="cCost">-</td></tr>
+        <tr><td class="floor">Нижний порог, ниже - в минус</td><td id="cFloor" class="floor">-</td></tr>
+        <tr><td>Цена без НДС (наценка 25%, УСН 6%)</td><td id="cNet">-</td></tr>
+        <tr><td>Цена с НДС 22%</td><td id="cVat">-</td></tr>
+      </table>
+      <div class="row-btns">
+        <button type="button" id="btnUseNet">Подставить цену без НДС</button>
+        <button type="button" id="btnUseVat">Подставить цену с НДС</button>
+      </div>
+      <p class="note">Формула из метода: 9 787 ₽ за день + 46,49 ₽ за км, наценка 25%, сверху УСН 6%. Километраж берите из Яндекс.Карт по правилам: свыше 20 т, без платных дорог, в Москву не глубже ТТК</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Водитель и транспорт</h2>
+    <p class="hint">Здесь персональные данные. Они не уходят с вашего устройства, а в справочник сохраняются только если вы нажмёте «Сохранить в справочник»</p>
+    <div class="grid two">
+      <div><label for="driverPick">Из справочника</label>
+        <select id="driverPick"><option value="">- выбрать сохранённого водителя -</option></select>
+      </div>
+      <div><label for="driverName">ФИО водителя</label><input id="driverName" class="req"></div>
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div><label for="driverPhone">Телефон водителя</label><input id="driverPhone" inputmode="tel"></div>
+      <div><label for="vehicle">Марка т/с, гос/номера</label><input id="vehicle" placeholder="Авто: Ford, номер а/м В 546 АВ (250); Тонар, номер п/п ЕУ 1801 (50)"></div>
+    </div>
+    <div style="margin-top:12px"><label for="driverPassport">Паспортные данные водителя</label>
+      <input id="driverPassport" placeholder="серия 00 00, номер 000 000, дата, кем выдан"></div>
+    <div class="row-btns">
+      <button type="button" id="btnSaveDriver">Сохранить в справочник</button>
+      <button type="button" id="btnDelDriver">Удалить выбранного</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Вторая сторона</h2>
+    <p class="hint" id="sideHint">Реквизиты Заказчика, который оплачивает перевозку</p>
+    <div class="grid two">
+      <div><label for="partyPick">Из справочника</label>
+        <select id="partyPick"><option value="">- выбрать сохранённого контрагента -</option></select>
+      </div>
+      <div><label for="pName">Наименование</label><input id="pName" class="req" placeholder="Индивидуальный предприниматель Иванов Иван Иванович"></div>
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div><label for="pInn">ИНН</label><input id="pInn" inputmode="numeric"></div>
+      <div><label for="pOgrn">ОГРН / ОГРНИП</label><input id="pOgrn" inputmode="numeric"></div>
+    </div>
+    <div style="margin-top:12px"><label for="pAddress">Юридический адрес</label><input id="pAddress"></div>
+    <div class="grid two" style="margin-top:12px">
+      <div><label for="pPhone">Телефон</label><input id="pPhone" inputmode="tel"></div>
+      <div><label for="pEmail">E-mail</label><input id="pEmail" inputmode="email"></div>
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div><label for="pAccount">Расчётный счёт</label><input id="pAccount" inputmode="numeric"></div>
+      <div><label for="pBank">Банк</label><input id="pBank"></div>
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div><label for="pBik">БИК</label><input id="pBik" inputmode="numeric"></div>
+      <div><label for="pCorr">Корр. счёт</label><input id="pCorr" inputmode="numeric"></div>
+    </div>
+    <div class="row-btns">
+      <button type="button" id="btnSaveParty">Сохранить в справочник</button>
+      <button type="button" id="btnDelParty">Удалить выбранного</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Наша сторона</h2>
+    <p class="hint">Подставляется в документ автоматически. Если оформляете от другого лица, впишите свои данные - они сохранятся в этом браузере</p>
+    <details>
+      <summary>Показать и изменить наши реквизиты</summary>
+      <div class="grid two" style="margin-top:12px">
+        <div><label for="oName">Наименование</label><input id="oName"></div>
+        <div><label for="oInn">ИНН</label><input id="oInn"></div>
+      </div>
+      <div class="grid two" style="margin-top:12px">
+        <div><label for="oOgrn">ОГРНИП</label><input id="oOgrn"></div>
+        <div><label for="oAddress">Юридический адрес</label><input id="oAddress"></div>
+      </div>
+      <div class="grid two" style="margin-top:12px">
+        <div><label for="oPhone">Телефон</label><input id="oPhone"></div>
+        <div><label for="oEmail">E-mail</label><input id="oEmail"></div>
+      </div>
+      <div class="grid two" style="margin-top:12px">
+        <div><label for="oAccount">Расчётный счёт</label><input id="oAccount"></div>
+        <div><label for="oBank">Банк</label><input id="oBank"></div>
+      </div>
+      <div class="grid two" style="margin-top:12px">
+        <div><label for="oBik">БИК</label><input id="oBik"></div>
+        <div><label for="oCorr">Корр. счёт</label><input id="oCorr"></div>
+      </div>
+      <div class="row-btns"><button type="button" id="btnResetOur">Вернуть реквизиты Перевал 24</button></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Условия договора</h2>
+    <p class="hint">Семь пунктов как в бланке. Один пункт - одна строка, нумерация проставляется сама. Правьте под себя: бланк написан в пользу Заказчика</p>
+    <details>
+      <summary>Показать и изменить условия</summary>
+      <textarea id="terms" style="min-height:220px;margin-top:10px"></textarea>
+      <div class="row-btns"><button type="button" id="btnResetTerms">Вернуть стандартные условия</button></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Передать заявку другому человеку</h2>
+    <p class="hint">Ссылка содержит всё заполненное. Кто её откроет - увидит заполненную форму и сам скачает Word. Сервера нет, данные живут только в самой ссылке, поэтому не отправляйте её в открытые чаты: внутри будут паспортные данные водителя</p>
+    <div class="row-btns">
+      <button type="button" id="btnLink">Скопировать ссылку с данными</button>
+      <button type="button" id="btnClear">Очистить форму</button>
+    </div>
+  </div>
+</main>
+
+<div class="bar"><div class="inner">
+  <button type="button" class="primary" id="btnDocx">Скачать договор-заявку в Word</button>
+  <button type="button" id="btnSaveDraft">Сохранить черновик</button>
+  <span class="note" id="status" style="margin:0"></span>
+</div></div>
+
+<div class="flash" id="flash"></div>
+
+<script src="docx-gen.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var OUR_DEFAULT = {
+    name:'Индивидуальный предприниматель Рамазанов Нариман Джафарович',
+    inn:'151000641307', ogrn:'316774600494322',
+    address:'117624, г. Москва, ул. Поляны, д. 5А, к. 2, кв. 774',
+    phone:'+7 968 441-88-85', email:'buhoffice@palletstandart.ru',
+    account:'40802810844100000509', bank:'Филиал «Центральный» Банка ВТБ (ПАО)',
+    bik:'044525411', corr:'30101810145250000411'
+  };
+
+  var FIELDS = ['number','date','role','route','bodyType','loadAddress','loadDate','loadContact',
+    'unloadAddress','unloadDate','unloadContact','cargo','note','price','payment','km','days',
+    'driverName','driverPhone','driverPassport','vehicle',
+    'pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr',
+    'oName','oInn','oOgrn','oAddress','oPhone','oEmail','oAccount','oBank','oBik','oCorr','terms'];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var LS = {
+    get:function(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+    set:function(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  };
+
+  function fitBar(){
+    var bar=document.querySelector('.bar');
+    if(bar) document.documentElement.style.setProperty('--barH', bar.offsetHeight+'px');
+  }
+  window.addEventListener('resize', fitBar);
+
+  function flash(msg){
+    var f=$('flash'); f.textContent=msg; f.classList.add('on'); fitBar();
+    clearTimeout(flash.t); flash.t=setTimeout(function(){ f.classList.remove('on'); },2200);
+  }
+
+  /* ---------- сбор и разлив данных ---------- */
+  function collect(){
+    var o={};
+    FIELDS.forEach(function(k){ var el=$(k); if(el) o[k]=el.value; });
+    return o;
+  }
+  function apply(o){
+    FIELDS.forEach(function(k){ if(o[k]!=null && $(k)) $(k).value=o[k]; });
+    syncRole(); calc();
+  }
+
+  /* ---------- ссылка с данными ---------- */
+  function encode(o){
+    var json=JSON.stringify(o);
+    var bytes=new TextEncoder().encode(json), bin='';
+    for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  function decode(s){
+    try{
+      s=s.replace(/-/g,'+').replace(/_/g,'/');
+      var bin=atob(s), bytes=new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }catch(e){ return null; }
+  }
+
+  /* ---------- калькулятор ---------- */
+  var DAY_RATE=9787, KM_RATE=46.49, MARKUP=1.25, USN=0.94;
+  function money(n){ return new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₽'; }
+  function calc(){
+    var km=parseFloat(String($('km').value).replace(',','.'))||0;
+    var days=parseInt($('days').value,10)||1;
+    if(!km){ ['cCost','cFloor','cNet','cVat'].forEach(function(id){ $(id).textContent='-'; }); return null; }
+    var cost=DAY_RATE*days+KM_RATE*km;
+    var floor=cost/USN, net=cost*MARKUP/USN, vat=net*1.22;
+    $('cCost').textContent=money(cost); $('cFloor').textContent=money(floor);
+    $('cNet').textContent=money(net); $('cVat').textContent=money(vat);
+    return {cost:cost,floor:floor,net:net,vat:vat};
+  }
+
+  /* ---------- роль ---------- */
+  function syncRole(){
+    var weExec=$('role').value==='executor';
+    $('sideHint').textContent = weExec
+      ? 'Реквизиты Заказчика, который оплачивает перевозку'
+      : 'Реквизиты Исполнителя: перевозчика, которого вы нанимаете';
+  }
+
+  /* ---------- справочники ---------- */
+  function refreshSelect(sel, list, labelFn){
+    var cur=sel.value;
+    sel.innerHTML='<option value="">'+sel.dataset.empty+'</option>';
+    list.forEach(function(item,i){
+      var op=document.createElement('option'); op.value=String(i); op.textContent=labelFn(item);
+      sel.appendChild(op);
+    });
+    sel.value=cur;
+  }
+  var drivers=LS.get('pv24_drivers',[]), parties=LS.get('pv24_parties',[]);
+  function redrawBooks(){
+    refreshSelect($('driverPick'), drivers, function(d){ return d.driverName+(d.vehicle?' · '+d.vehicle.slice(0,24):''); });
+    refreshSelect($('partyPick'), parties, function(p){ return p.pName+(p.pInn?' · ИНН '+p.pInn:''); });
+  }
+
+  /* ---------- парсер текста ---------- */
+  function parseText(src){
+    var got=0, t=' '+src.replace(/\s+/g,' ')+' ';
+    function set(id,val,force){
+      if(!val || !$(id)) return;
+      if($(id).value && !force) return;
+      $(id).value=String(val).replace(/^[\s:,;-]+|[\s:,;-]+$/g,'').trim(); got++;
+    }
+    var m, R = '[а-яё]*';                                  // кириллический хвост слова: \w его не ловит
+
+    // контакты: имя может стоять и до телефона, и после
+    var contacts=[];
+    var reC=new RegExp('(?:([А-ЯЁ][а-яё]{2,})\\s*,?\\s*)?((?:\\+7|8)[\\d\\s()-]{9,14}\\d)(?:\\s*,?\\s*([А-ЯЁ][а-яё]{2,}))?','g');
+    var c;
+    while((c=reC.exec(t))){
+      var phone=c[2].replace(/[\s()-]/g,''), who=c[1]||c[3]||'';
+      contacts.push((phone+' '+who).trim());
+    }
+    if(contacts[0]) set('loadContact', contacts[0]);
+    if(contacts[1]) set('unloadContact', contacts[1]);
+
+    var RE_ROUTE = new RegExp('([А-ЯЁ][а-яёА-ЯЁ-]+)\\s*[-' + String.fromCharCode(8211, 8212) + ']\\s*([А-ЯЁ][а-яёА-ЯЁ-]+)');
+    if((m=t.match(RE_ROUTE))) set('route', m[1]+'-'+m[2]);
+
+    if((m=t.match(new RegExp('загрузк'+R+'\\s*[:-]?\\s*([^,;]{5,90})','i')))) set('loadAddress', m[1]);
+    if((m=t.match(new RegExp('(?:выгрузк|разгрузк)'+R+'\\s*[:-]?\\s*([^,;]{5,90})','i')))) set('unloadAddress', m[1]);
+    if((m=t.match(/(\d{1,2}[.,]\d{1,2}(?:[.,]\d{2,4})?\s*(?:к|с|в|по)?\s*\d{1,2}(?:[:-]\d{2})?)/))) set('loadDate', m[1]);
+
+    // цену ищем в тексте БЕЗ телефонов, иначе ловится кусок номера
+    var noPhones=t.replace(/(?:\+7|8)[\d\s()-]{9,14}\d/g,' ').replace(/\d{10,}/g,' ');
+    var vatTail=/без\s*НДС/i.test(t) ? ' без НДС' : (/с\s*НДС/i.test(t) ? ' с НДС' : '');
+    var price=null;
+    if((m=noPhones.match(/(\d{4,7})\s*(?:руб|р\.|₽)/i))) price=m[1];
+    else if((m=noPhones.match(/(\d{4,7})\s*(?:с|без)\s*НДС/i))) price=m[1];
+    else if((m=noPhones.match(new RegExp('(?:цен'+R+'|ставк'+R+'|стоимост'+R+'|оплат'+R+')\\D{0,12}(\\d{4,7})','i')))) price=m[1];
+    if(price) set('price', price+vatTail);
+
+    if((m=t.match(new RegExp('оплат'+R+'\\s*[:-]?\\s*([^.;]{5,60})','i')))) set('payment', m[1], true);
+    if((m=t.match(new RegExp('(\\d{1,3}\\s*(?:т(?![а-яё])|тонн'+R+'))','i')))) set('cargo', m[1]);
+    return got;
+  }
+
+  /* ---------- сборка данных документа ---------- */
+  function buildData(){
+    var f=collect();
+    var our={name:f.oName,inn:f.oInn,ogrn:f.oOgrn,address:f.oAddress,phone:f.oPhone,
+             email:f.oEmail,account:f.oAccount,bank:f.oBank,bik:f.oBik,corr:f.oCorr};
+    var other={name:f.pName,inn:f.pInn,ogrn:f.pOgrn,address:f.pAddress,phone:f.pPhone,
+               email:f.pEmail,account:f.pAccount,bank:f.pBank,bik:f.pBik,corr:f.pCorr};
+    var weExec=f.role==='executor';
+    return {
+      number:f.number, date:f.date, route:f.route,
+      loadAddress:f.loadAddress, loadDate:f.loadDate, loadContact:f.loadContact,
+      unloadAddress:f.unloadAddress, unloadDate:f.unloadDate, unloadContact:f.unloadContact,
+      cargo:f.cargo, bodyType:f.bodyType, note:f.note, price:f.price, payment:f.payment,
+      driverName:f.driverName, driverPhone:f.driverPhone,
+      driverPassport:f.driverPassport, vehicle:f.vehicle,
+      customer: weExec ? other : our,
+      executor: weExec ? our : other,
+      terms: String(f.terms||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean)
+    };
+  }
+
+  function fileName(d){
+    var safe=function(s){ return String(s||'').replace(/[^\wА-Яа-яЁё0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''); };
+    return 'Договор-заявка-'+(d.number||'б-н')+'-'+safe(d.route)+'.docx';
+  }
+
+  function download(){
+    var d=buildData();
+    var miss=[];
+    if(!d.number) miss.push('номер');
+    if(!d.date) miss.push('дата');
+    if(!d.route) miss.push('маршрут');
+    if(!d.loadAddress) miss.push('адрес загрузки');
+    if(!d.unloadAddress) miss.push('адрес разгрузки');
+    if(!d.price) miss.push('стоимость');
+    if(!(d.customer.name||'').trim() || !(d.executor.name||'').trim()) miss.push('наименование второй стороны');
+    if(miss.length){ flash('Не заполнено: '+miss.join(', ')); return; }
+    var bytes=DocxGen.buildDocx(d);
+    var blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=fileName(d);
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    LS.set('pv24_lastNumber', d.number);
+    flash('Файл собран: '+a.download);
+  }
+
+  /* ---------- события ---------- */
+  $('btnDocx').addEventListener('click', download);
+  $('btnParse').addEventListener('click', function(){
+    var n=parseText($('parseSrc').value||'');
+    flash(n? ('Заполнено полей: '+n+'. Проверьте глазами') : 'Ничего не распозналось, заполните руками');
+  });
+  $('btnSample').addEventListener('click', function(){
+    apply({number:'233', date:today(), route:'Обнинск-Ерино',
+      loadAddress:'Обнинск, Калужская область, Пяткинский проезд, д. 13',
+      loadDate:'23.09 к 8', loadContact:'89965235712 Алексей',
+      unloadAddress:'Щербинка, поселок Ерино, дом 17',
+      unloadDate:'23.09 с 8-20 без выходных', unloadContact:'89104190858 Владимир',
+      cargo:'плиты 2 п - 20 шт', price:'42000 без НДС', km:'650',
+      note:'После погрузки сразу набрать на выгрузку и сориентировать по времени прибытия!\nТН после погрузки прислать на проверку не уезжая с объекта!\nПосле выгрузки прислать фото ТН!'});
+    flash('Пример заполнен');
+  });
+  document.querySelectorAll('.tag[data-note]').forEach(function(tag){
+    tag.addEventListener('click', function(){
+      var cur=$('note').value.trim(), add=tag.dataset.note;
+      if(cur.indexOf(add)>=0) return;
+      $('note').value = cur ? cur+'\n'+add : add;
+    });
+  });
+  ['km','days'].forEach(function(id){ $(id).addEventListener('input', calc); });
+  $('btnUseNet').addEventListener('click', function(){ var c=calc(); if(c){ $('price').value=money(c.net).replace(' ₽','')+' без НДС'; flash('Цена подставлена'); } });
+  $('btnUseVat').addEventListener('click', function(){ var c=calc(); if(c){ $('price').value=money(c.vat).replace(' ₽','')+' с НДС'; flash('Цена подставлена'); } });
+  $('role').addEventListener('change', syncRole);
+
+  $('driverPick').addEventListener('change', function(){
+    var d=drivers[this.value]; if(!d) return;
+    ['driverName','driverPhone','driverPassport','vehicle'].forEach(function(k){ $(k).value=d[k]||''; });
+    flash('Водитель подставлен');
+  });
+  $('btnSaveDriver').addEventListener('click', function(){
+    if(!$('driverName').value.trim()){ flash('Сначала впишите ФИО водителя'); return; }
+    var rec={}; ['driverName','driverPhone','driverPassport','vehicle'].forEach(function(k){ rec[k]=$(k).value; });
+    var i=drivers.findIndex(function(x){ return x.driverName===rec.driverName; });
+    if(i>=0) drivers[i]=rec; else drivers.push(rec);
+    LS.set('pv24_drivers',drivers); redrawBooks(); flash('Водитель сохранён в этом браузере');
+  });
+  $('btnDelDriver').addEventListener('click', function(){
+    var i=$('driverPick').value; if(i===''){ flash('Выберите водителя в списке'); return; }
+    drivers.splice(i,1); LS.set('pv24_drivers',drivers); redrawBooks(); flash('Удалён');
+  });
+
+  $('partyPick').addEventListener('change', function(){
+    var p=parties[this.value]; if(!p) return;
+    ['pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr']
+      .forEach(function(k){ $(k).value=p[k]||''; });
+    flash('Контрагент подставлен');
+  });
+  $('btnSaveParty').addEventListener('click', function(){
+    if(!$('pName').value.trim()){ flash('Сначала впишите наименование'); return; }
+    var rec={}; ['pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr']
+      .forEach(function(k){ rec[k]=$(k).value; });
+    var i=parties.findIndex(function(x){ return x.pName===rec.pName; });
+    if(i>=0) parties[i]=rec; else parties.push(rec);
+    LS.set('pv24_parties',parties); redrawBooks(); flash('Контрагент сохранён в этом браузере');
+  });
+  $('btnDelParty').addEventListener('click', function(){
+    var i=$('partyPick').value; if(i===''){ flash('Выберите контрагента в списке'); return; }
+    parties.splice(i,1); LS.set('pv24_parties',parties); redrawBooks(); flash('Удалён');
+  });
+
+  $('btnResetOur').addEventListener('click', function(){
+    Object.keys(OUR_DEFAULT).forEach(function(k){
+      $('o'+k.charAt(0).toUpperCase()+k.slice(1)).value=OUR_DEFAULT[k];
+    });
+    flash('Реквизиты Перевал 24 возвращены');
+  });
+  $('btnResetTerms').addEventListener('click', function(){
+    $('terms').value=DocxGen.DEFAULT_TERMS.join('\n'); flash('Условия возвращены');
+  });
+
+  $('btnLink').addEventListener('click', function(){
+    // в ссылку не кладём то, что и так есть у каждого: стандартные условия и наши реквизиты
+    var data=collect();
+    if((data.terms||'').trim()===DocxGen.DEFAULT_TERMS.join('\n')) delete data.terms;
+    Object.keys(OUR_DEFAULT).forEach(function(k){
+      var key='o'+k.charAt(0).toUpperCase()+k.slice(1);
+      if(data[key]===OUR_DEFAULT[k]) delete data[key];
+    });
+    Object.keys(data).forEach(function(k){ if(data[k]==='') delete data[k]; });
+    var url=location.origin+location.pathname+'#d='+encode(data);
+    var done=function(){ flash('Ссылка скопирована, длина '+url.length+' знаков'); };
+    if(navigator.clipboard && location.protocol!=='file:'){
+      navigator.clipboard.writeText(url).then(done, function(){ prompt('Скопируйте ссылку:', url); });
+    } else prompt('Скопируйте ссылку:', url);
+  });
+  $('btnSaveDraft').addEventListener('click', function(){
+    LS.set('pv24_draft', collect()); flash('Черновик сохранён в этом браузере');
+  });
+  $('btnClear').addEventListener('click', function(){
+    if(!confirm('Очистить все поля формы?')) return;
+    FIELDS.forEach(function(k){ if($(k) && k!=='role') $(k).value=''; });
+    $('parseSrc').value=''; boot(true); flash('Форма очищена');
+  });
+
+  /* ---------- старт ---------- */
+  function today(){
+    var d=new Date(), p=function(n){ return (n<10?'0':'')+n; };
+    return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear();
+  }
+  function boot(clean){
+    $('driverPick').dataset.empty='- выбрать сохранённого водителя -';
+    $('partyPick').dataset.empty='- выбрать сохранённого контрагента -';
+    var our=LS.get('pv24_our', OUR_DEFAULT);
+    Object.keys(OUR_DEFAULT).forEach(function(k){
+      var el=$('o'+k.charAt(0).toUpperCase()+k.slice(1));
+      if(el && !el.value) el.value=our[k]||OUR_DEFAULT[k];
+    });
+    if(!$('terms').value) $('terms').value=DocxGen.DEFAULT_TERMS.join('\n');
+    if(!$('date').value) $('date').value=today();
+    if(!$('number').value){
+      var last=parseInt(LS.get('pv24_lastNumber','0'),10);
+      if(last) $('number').value=String(last+1);
+    }
+    redrawBooks(); syncRole(); calc(); fitBar();
+    if(clean) return;
+
+    var hash=location.hash||'';
+    if(hash.indexOf('#d=')===0){
+      var data=decode(hash.slice(3));
+      if(data){ apply(data); $('status').textContent='Форма открыта по ссылке с данными'; flash('Данные из ссылки подставлены'); return; }
+      flash('Ссылка повреждена, данные не прочитались');
+    }
+    var draft=LS.get('pv24_draft',null);
+    if(draft && draft.route){ apply(draft); $('status').textContent='Восстановлен черновик'; }
+  }
+  window.addEventListener('beforeunload', function(){
+    var our={}; Object.keys(OUR_DEFAULT).forEach(function(k){
+      our[k]=$('o'+k.charAt(0).toUpperCase()+k.slice(1)).value;
+    });
+    LS.set('pv24_our', our);
+  });
+  boot(false);
+})();
+</script>
+</body>
+</html>
