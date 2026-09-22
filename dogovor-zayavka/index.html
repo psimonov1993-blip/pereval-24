@@ -169,9 +169,9 @@
       <table>
         <tr><td>Себестоимость рейса</td><td id="cCost">-</td></tr>
         <tr><td class="floor">Нижний порог, ниже - в минус</td><td id="cFloor" class="floor">-</td></tr>
-        <tr><td>Цена без НДС (наценка 25%, УСН 6%)</td><td id="cNet">-</td></tr>
-        <tr><td>Цена с НДС 22%</td><td id="cVat">-</td></tr>
+        <tr><td>Расчётная цена, без НДС</td><td id="cNet">-</td></tr>
       </table>
+      <p class="note" style="margin-top:6px">НДС считается ниже, по выбранной ставке</p>
       <div class="row-btns">
         <button type="button" id="btnUseNet">Взять расчётную цену в блок НДС</button>
         <button type="button" id="btnUseFloor">Взять нижний порог</button>
@@ -390,12 +390,12 @@
   function calc(){
     var km=parseFloat(String($('km').value).replace(',','.'))||0;
     var days=parseInt($('days').value,10)||1;
-    if(!km){ ['cCost','cFloor','cNet','cVat'].forEach(function(id){ $(id).textContent='-'; }); return null; }
+    if(!km){ ['cCost','cFloor','cNet'].forEach(function(id){ $(id).textContent='-'; }); return null; }
     var cost=DAY_RATE*days+KM_RATE*km;
-    var floor=cost/USN, net=cost*MARKUP/USN, vat=net*1.22;
+    var floor=cost/USN, net=cost*MARKUP/USN;
     $('cCost').textContent=money(cost); $('cFloor').textContent=money(floor);
-    $('cNet').textContent=money(net); $('cVat').textContent=money(vat);
-    return {cost:cost,floor:floor,net:net,vat:vat};
+    $('cNet').textContent=money(net);
+    return {cost:cost,floor:floor,net:net};
   }
 
   /* ---------- НДС ---------- */
