@@ -63,6 +63,20 @@
 
 <main>
   <div class="card">
+    <h2>Общая база справочников</h2>
+    <p class="hint">Контрагенты и машины хранятся на сервере Перевал 24 и видны всем менеджерам сразу. Введите ключ доступа один раз, он запомнится в этом браузере</p>
+    <div class="grid two">
+      <div><label for="bookKey">Ключ доступа</label><input id="bookKey" type="password" placeholder="выдаёт руководитель"></div>
+      <div><label for="bookAuthor">Ваше имя (кто внёс запись)</label><input id="bookAuthor" placeholder="Кристина"></div>
+    </div>
+    <div class="row-btns">
+      <button type="button" id="btnBookConnect">Подключиться</button>
+      <button type="button" id="btnBookRefresh">Обновить базу</button>
+    </div>
+    <p class="note" id="bookStatus">ключ не введён: работаете со своим списком</p>
+  </div>
+
+  <div class="card">
     <h2>Быстрый ввод</h2>
     <p class="hint">Вставьте текст заявки из почты или мессенджера, форма попробует разобрать его по полям. Что не распознает - допишете руками</p>
     <textarea id="parseSrc" placeholder="Например: Обнинск-Ерино, загрузка 23.09 к 8, Пяткинский проезд 13, Алексей 89965235712, выгрузка Щербинка Ерино 17, Владимир 89104190858, борт, 42000 с НДС, оплата по скану ТН 5-7 дней"></textarea>
@@ -182,7 +196,7 @@
 
   <div class="card">
     <h2>Водитель и транспорт</h2>
-    <p class="hint">Здесь персональные данные. Они не уходят с вашего устройства, а в справочник сохраняются только если вы нажмёте «Сохранить в справочник»</p>
+    <p class="hint">Пока вы не нажали «Сохранить в справочник», данные никуда не уходят. По этой кнопке карточка водителя попадёт в общую базу и станет видна другим менеджерам вместе с паспортными данными</p>
     <div class="grid two">
       <div><label for="driverPick">Из справочника</label>
         <select id="driverPick"><option value="">- выбрать сохранённого водителя -</option></select>
@@ -198,7 +212,6 @@
     <div class="row-btns">
       <button type="button" id="btnSaveDriver">Сохранить в справочник</button>
       <button type="button" id="btnDelDriver">Удалить выбранного</button>
-      <button type="button" id="btnShareDriver">Отдать в общий справочник</button>
     </div>
     <p class="note" id="driverBookInfo"></p>
   </div>
@@ -232,7 +245,6 @@
     <div class="row-btns">
       <button type="button" id="btnSaveParty">Сохранить в справочник</button>
       <button type="button" id="btnDelParty">Удалить выбранного</button>
-      <button type="button" id="btnShareParty">Отдать в общий справочник</button>
     </div>
     <p class="note" id="partyBookInfo"></p>
   </div>
@@ -335,10 +347,12 @@
     'pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr',
     'oName','oInn','oOgrn','oAddress','oPhone','oEmail','oAccount','oBank','oBik','oCorr','terms'];
 
-  // Общий справочник на всех менеджеров лежит файлом рядом со страницей.
-  // Пока он только читается: автозапись включится, когда появится хранилище (см. README, блокер по ключу n8n)
+  // Общая база на всех менеджеров живёт на сервере Перевал 24 (n8n).
+  // Файл spravochnik.json остаётся аварийной копией на случай, если сервер недоступен
+  var BOOK_URL = 'https://terminator.pw/webhook/pv24-spravochnik';
   var SHARED_URL = 'spravochnik.json';
   var shared = { drivers: [], parties: [], updated: '' };
+  var bookOnline = false;
 
   var $ = function(id){ return document.getElementById(id); };
   var LS = {
@@ -467,20 +481,59 @@
       return (d.__shared?'общий · ':'')+d.driverName+(d.vehicle?' · '+d.vehicle.slice(0,22):''); });
     refreshSelect($('partyPick'), parties, function(p){
       return (p.__shared?'общий · ':'')+p.pName+(p.pInn?' · ИНН '+p.pInn:''); });
-    var sh=shared.updated? (', обновлён '+shared.updated) : '';
-    $('driverBookInfo').textContent='В списке '+drivers.length+' водителей: общих '+(shared.drivers||[]).length+
-      ', ваших '+myDrivers.length+sh;
-    $('partyBookInfo').textContent='В списке '+parties.length+' контрагентов: общих '+(shared.parties||[]).length+
-      ', ваших '+myParties.length+sh;
+    var where=bookOnline? 'из общей базы' : 'из копии базы';
+    $('driverBookInfo').textContent='Водителей в списке '+drivers.length+': '+(shared.drivers||[]).length+' '+where+
+      ', '+myDrivers.length+' только у вас';
+    $('partyBookInfo').textContent='Контрагентов в списке '+parties.length+': '+(shared.parties||[]).length+' '+where+
+      ', '+myParties.length+' только у вас';
+  }
+
+  /* ---------- общая база ---------- */
+  function bookKey(){ return ($('bookKey').value||'').trim(); }
+
+  function bookStatus(text){ $('bookStatus').textContent=text; }
+
+  function bookCall(payload){
+    var body=Object.assign({key:bookKey(), author:($('bookAuthor').value||'').trim()}, payload);
+    return fetch(BOOK_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    }).then(function(r){ return r.json(); });
+  }
+
+  function applyBook(res){
+    shared={drivers:res.drivers||[], parties:res.parties||[], updated:res.updated||''};
+    bookOnline=true;
+    LS.set('pv24_book_cache', shared);
+    redrawBooks();
+    bookStatus('база подключена: контрагентов '+shared.parties.length+', машин '+shared.drivers.length+
+               (shared.updated? ', обновлена '+shared.updated : ''));
   }
 
   function loadShared(){
+    var cached=LS.get('pv24_book_cache', null);
+    if(cached){ shared=cached; redrawBooks(); }
+
+    if(bookKey()){
+      return bookCall({action:'list'}).then(function(res){
+        if(res && res.ok){ applyBook(res); return; }
+        bookOnline=false;
+        bookStatus(res && res.error ? ('база не пустила: '+res.error) : 'база не ответила, работаем с копией');
+        redrawBooks();
+      }).catch(function(){
+        bookOnline=false;
+        bookStatus('сервер базы недоступен, работаем с последней копией');
+        redrawBooks();
+      });
+    }
+
+    // ключа нет: подхватываем аварийный файл рядом со страницей
     return fetch(SHARED_URL, {cache:'no-store'}).then(function(r){
       if(!r.ok) throw new Error('нет файла');
       return r.json();
     }).then(function(j){
-      shared={drivers:j.drivers||[], parties:j.parties||[], updated:j.updated||''};
+      if(!cached) shared={drivers:j.drivers||[], parties:j.parties||[], updated:j.updated||''};
       redrawBooks();
+      bookStatus('ключ не введён: видите только базовый список и свои записи');
     }).catch(function(){ redrawBooks(); });
   }
 
@@ -667,35 +720,60 @@
   var DRIVER_KEYS=['driverName','driverPhone','driverPassport','vehicle'];
   var PARTY_KEYS=['pName','pInn','pOgrn','pAddress','pPhone','pEmail','pAccount','pBank','pBik','pCorr'];
 
+  // Сохранение: если база подключена - запись уходит всем менеджерам,
+  // если нет - остаётся в этом браузере, чтобы работа не встала
+  function saveRecord(kind, rec, nameForFlash){
+    if(bookKey()){
+      flash('Сохраняю в общую базу…');
+      return bookCall({action:'save', kind:kind, record:rec}).then(function(res){
+        if(res && res.ok){ applyBook(res); flash(nameForFlash+' сохранён в общей базе, видят все менеджеры'); return true; }
+        flash(res && res.error ? ('База не приняла: '+res.error) : 'База не приняла запись');
+        return false;
+      }).catch(function(){ flash('Сервер базы недоступен, сохраняю только у вас'); return false; });
+    }
+    return Promise.resolve(false);
+  }
+
+  function saveLocal(kind, rec){
+    if(kind==='driver'){
+      var i=myDrivers.findIndex(function(x){ return x.driverName===rec.driverName; });
+      if(i>=0) myDrivers[i]=rec; else myDrivers.push(rec);
+      LS.set('pv24_drivers',myDrivers);
+    } else {
+      var j=myParties.findIndex(function(x){ return x.pName===rec.pName; });
+      if(j>=0) myParties[j]=rec; else myParties.push(rec);
+      LS.set('pv24_parties',myParties);
+    }
+    redrawBooks();
+  }
+
+  function deleteRecord(kind, rec, localMatch){
+    if(bookKey()){
+      return bookCall({action:'delete', kind:kind, record:rec}).then(function(res){
+        if(res && res.ok){ applyBook(res); flash('Удалено из общей базы'); return true; }
+        flash(res && res.error ? res.error : 'База не приняла удаление');
+        return false;
+      }).catch(function(){ flash('Сервер базы недоступен'); return false; });
+    }
+    localMatch();
+    return Promise.resolve(false);
+  }
+
   $('btnSaveDriver').addEventListener('click', function(){
     if(!$('driverName').value.trim()){ flash('Сначала впишите ФИО водителя'); return; }
     var rec={}; DRIVER_KEYS.forEach(function(k){ rec[k]=$(k).value; });
-    var i=myDrivers.findIndex(function(x){ return x.driverName===rec.driverName; });
-    if(i>=0) myDrivers[i]=rec; else myDrivers.push(rec);
-    LS.set('pv24_drivers',myDrivers); redrawBooks(); flash('Водитель сохранён в этом браузере');
+    saveRecord('driver', rec, 'Водитель').then(function(inBook){
+      if(!inBook){ saveLocal('driver', rec); flash('Водитель сохранён в этом браузере'); }
+    });
   });
   $('btnDelDriver').addEventListener('click', function(){
     var d=drivers[$('driverPick').value];
     if(!d){ flash('Выберите водителя в списке'); return; }
-    if(d.__shared && !d.__edited){ flash('Это запись общего справочника, её убирает администратор'); return; }
-    myDrivers=myDrivers.filter(function(x){ return x.driverName!==d.driverName; });
-    LS.set('pv24_drivers',myDrivers); redrawBooks(); flash('Удалён из вашего справочника');
+    deleteRecord('driver', {driverName:d.driverName}, function(){
+      myDrivers=myDrivers.filter(function(x){ return x.driverName!==d.driverName; });
+      LS.set('pv24_drivers',myDrivers); redrawBooks(); flash('Удалён из вашего списка');
+    });
   });
-  $('btnShareDriver').addEventListener('click', function(){
-    if(!$('driverName').value.trim()){ flash('Сначала впишите данные водителя'); return; }
-    var rec={}; DRIVER_KEYS.forEach(function(k){ rec[k]=$(k).value; });
-    shareRecord('водителя', rec);
-  });
-
-  // Пока общий справочник только читается, запись идёт через администратора:
-  // форма готовит строку, менеджер отправляет её одним сообщением
-  function shareRecord(what, rec){
-    var text=JSON.stringify(rec, null, 1);
-    var done=function(){ flash('Карточка '+what+' скопирована, отправьте её администратору'); };
-    if(navigator.clipboard && location.protocol!=='file:'){
-      navigator.clipboard.writeText(text).then(done, function(){ prompt('Скопируйте и отправьте администратору:', JSON.stringify(rec)); });
-    } else prompt('Скопируйте и отправьте администратору:', JSON.stringify(rec));
-  }
 
   $('partyPick').addEventListener('change', function(){
     var p=parties[this.value]; if(!p) return;
@@ -706,22 +784,27 @@
   $('btnSaveParty').addEventListener('click', function(){
     if(!$('pName').value.trim()){ flash('Сначала впишите наименование'); return; }
     var rec={}; PARTY_KEYS.forEach(function(k){ rec[k]=$(k).value; });
-    var i=myParties.findIndex(function(x){ return x.pName===rec.pName; });
-    if(i>=0) myParties[i]=rec; else myParties.push(rec);
-    LS.set('pv24_parties',myParties); redrawBooks(); flash('Контрагент сохранён в этом браузере');
+    saveRecord('party', rec, 'Контрагент').then(function(inBook){
+      if(!inBook){ saveLocal('party', rec); flash('Контрагент сохранён в этом браузере'); }
+    });
   });
   $('btnDelParty').addEventListener('click', function(){
     var p=parties[$('partyPick').value];
     if(!p){ flash('Выберите контрагента в списке'); return; }
-    if(p.__shared && !p.__edited){ flash('Это запись общего справочника, её убирает администратор'); return; }
-    myParties=myParties.filter(function(x){ return x.pName!==p.pName; });
-    LS.set('pv24_parties',myParties); redrawBooks(); flash('Удалён из вашего справочника');
+    deleteRecord('party', {pName:p.pName, pInn:p.pInn}, function(){
+      myParties=myParties.filter(function(x){ return x.pName!==p.pName; });
+      LS.set('pv24_parties',myParties); redrawBooks(); flash('Удалён из вашего списка');
+    });
   });
-  $('btnShareParty').addEventListener('click', function(){
-    if(!$('pName').value.trim()){ flash('Сначала впишите наименование'); return; }
-    var rec={}; PARTY_KEYS.forEach(function(k){ rec[k]=$(k).value; });
-    shareRecord('контрагента', rec);
+
+  $('btnBookConnect').addEventListener('click', function(){
+    if(!bookKey()){ flash('Впишите ключ доступа'); return; }
+    LS.set('pv24_book_key', bookKey());
+    LS.set('pv24_book_author', ($('bookAuthor').value||'').trim());
+    loadShared().then(function(){ if(bookOnline) flash('База подключена'); });
   });
+  $('btnBookRefresh').addEventListener('click', function(){ loadShared(); flash('Обновляю базу…'); });
+  $('bookAuthor').addEventListener('change', function(){ LS.set('pv24_book_author', this.value.trim()); });
 
   $('btnResetOur').addEventListener('click', function(){
     Object.keys(OUR_DEFAULT).forEach(function(k){
@@ -783,6 +866,8 @@
     if(!$('date').value) $('date').value=today();
     signature=LS.get('pv24_signature', null);
     showSignature();
+    if(!$('bookKey').value) $('bookKey').value=LS.get('pv24_book_key','') || '';
+    if(!$('bookAuthor').value) $('bookAuthor').value=LS.get('pv24_book_author','') || '';
     loadShared();
     if(!$('number').value){
       var last=parseInt(LS.get('pv24_lastNumber','0'),10);
