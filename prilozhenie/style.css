@@ -91,6 +91,10 @@ button.btn.slim{padding:10px;font-size:14px;margin-top:8px}
 .note{background:var(--warn-bg);border:1px solid #f0e0a8;border-radius:12px;padding:11px 13px;
   font-size:13px;margin-bottom:10px}
 .tiny{font-size:12px;color:var(--dim);margin:8px 0 0}
+/* на какой момент данные: менеджер должен видеть возраст цифр, а не гадать */
+.stamp{font-size:12px;color:var(--dim);background:#eef1f5;border-radius:10px;
+  padding:7px 11px;margin-bottom:10px}
+.stamp.old{background:var(--warn-bg);color:#7a5c00}
 .empty{text-align:center;color:var(--dim);padding:36px 10px;font-size:14px}
 .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fb344;
   margin-right:6px;vertical-align:middle}

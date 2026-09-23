@@ -26,6 +26,7 @@ var state = {
   tab: 'calc',
   screen: 'calc',
   trips: LS.get('pv24_trips_cache', []),
+  syncedAt: LS.get('pv24_synced_at', ''),
   parties: LS.get('pv24_parties_cache', []),
   online: navigator.onLine,
   lastTrip: null,
@@ -72,12 +73,32 @@ function calcTrip(km, days, toll, payFix) {
 }
 
 /* ------------------------------------------------------------- утилиты */
+/**
+ * Число из чего угодно: база хранит ставку и числом (рейс из приложения),
+ * и строкой «61 000 ₽» (рейс пришёл из таблицы). Без разбора строки такие
+ * рейсы показывали прочерк вместо ставки.
+ */
+function toNum(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  if (v === null || v === undefined) return null;
+  var s = String(v).replace(/ /g, ' ').replace(/[^\d,.\-]/g, '').replace(',', '.');
+  if (!s || s === '-' || s === '.') return null;
+  var n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
 function money(v) {
-  if (v === null || v === undefined || v === '' || isNaN(v)) return '-';
-  return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+  var n = toNum(v);
+  if (n === null) return '-';
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
 }
 function money2(v) {
   return isFinite(v) ? v.toFixed(2).replace('.', ',') + ' ₽' : '-';
+}
+/** «1 рейс · 2 рейса · 5 рейсов»: число вместе со словом в нужной форме */
+function plural(n, one, few, many) {
+  var a = Math.abs(n) % 100, b = a % 10;
+  var w = (a > 10 && a < 20) || b === 0 || b > 4 ? many : (b === 1 ? one : few);
+  return n + ' ' + w;
 }
 function esc(s) {
   return String(s === null || s === undefined ? '' : s)
@@ -116,6 +137,8 @@ window.addEventListener('online',  function () { state.online = true;  paint(); 
 window.addEventListener('offline', function () { state.online = false; paint(); });
 
 /* ------------------------------------------------------------- статусы */
+/* Цвета те же, что в таблице учёта: голубой назначен, персиковый в пути,
+   жёлтый завершён, зелёный завершён с деньгами, серый закрыт, красный отменён */
 var STATUS = {
   'назначен':  '#cfe8ff', 'в пути': '#ffd9b3', 'завершён': '#fff3b0',
   'оплачен':   '#c6efce', 'закрыт': '#dcdfe4', 'отменён': '#ffc7ce'
@@ -124,9 +147,28 @@ var LINE = {
   'назначен': '#7bb6ef', 'в пути': '#f0a860', 'завершён': '#e8c53c',
   'оплачен': '#5cb85c', 'закрыт': '#b4b9c0', 'отменён': '#e07b7b'
 };
+var UNKNOWN = { bg: '#e6e8ec', line: '#9aa0a8', text: 'статус неизвестен' };
+
+/**
+ * Статус рейса или null, если базa прислала пустое либо незнакомое значение.
+ *
+ * Раньше здесь стояло «не знаю - значит назначен», и менеджер видел
+ * правдоподобную ложь: закрытые рейсы выглядели только что назначенными.
+ * Пробел показываем пробелом.
+ */
 function statusOf(t) {
-  var s = (t.status || '').toLowerCase();
-  return STATUS[s] ? s : 'назначен';
+  var s = String((t && t.status) || '').trim().toLowerCase();
+  return STATUS[s] ? s : null;
+}
+/** Цвет полоски и фона пилюли для известного и неизвестного статуса */
+function statusLine(st) { return st ? LINE[st] : UNKNOWN.line; }
+function statusPill(st, raw) {
+  if (st) {
+    return '<span class="pill" style="background:' + STATUS[st] + '">' + st + '</span>';
+  }
+  var s = String(raw || '').trim();
+  return '<span class="pill" style="background:' + UNKNOWN.bg + ';color:#4a5058">' +
+         UNKNOWN.text + (s ? ': «' + esc(s) + '»' : '') + '</span>';
 }
 
 /* =====================================================================
@@ -312,14 +354,14 @@ SCREENS.trips = {
     if (!state.trips.length) {
       return '<div class="empty">Рейсов пока нет.<br>Посчитай в калькуляторе и заведи первый</div>';
     }
-    var h = '';
+    var h = freshness();
     state.trips.forEach(function (t) {
       var st = statusOf(t);
       h += '<div class="trip" data-trip="' + esc(t.id) + '" style="border-left-color:' +
-        LINE[st] + '"><div class="top"><span class="id">' + esc(t.id) + '</span>' +
+        statusLine(st) + '"><div class="top"><span class="id">' + esc(t.id) + '</span>' +
         '<span class="sum">' + money(t.price) + '</span></div>' +
         '<div class="rt">' + esc(t.route || 'маршрут не указан') + '</div>' +
-        '<div class="meta"><span class="pill" style="background:' + STATUS[st] + '">' + st + '</span>' +
+        '<div class="meta">' + statusPill(st, t.status) +
         (t.contract ? '<span>договор № ' + esc(t.contract) + '</span>' : '') +
         (t.customer ? '<span>' + esc(t.customer) + '</span>' : '') +
         '</div></div>';
@@ -337,9 +379,24 @@ SCREENS.trips = {
   }
 };
 
-function loadTrips() {
-  if (!state.key || !state.online) return;
+/**
+ * Опрос базы: не чаще раза в 10 секунд и без наложений.
+ *
+ * Отрисовка экрана рейсов вызывает загрузку, а загрузка перерисовывает экран -
+ * без этого тормоза приложение крутило запросы к базе по кругу, пока открыт
+ * список рейсов. Перерисовываем ещё и только когда данные правда изменились.
+ */
+var tripsLoadedAt = 0, tripsLoading = false;
+
+function loadTrips(force) {
+  if (!state.key || !state.online || tripsLoading) return;
+  var now = Date.now();
+  if (!force && now - tripsLoadedAt < 10000) return;
+  tripsLoadedAt = now;
+  tripsLoading = true;
+  var before = JSON.stringify([state.trips, state.syncedAt]);
   apiTrips({ action: 'trip.list' }).then(function (res) {
+    tripsLoading = false;
     if (!res || !res.ok) return;
     var list = res.trips || res.list || [];
     if (!Array.isArray(list)) return;
@@ -348,12 +405,44 @@ function loadTrips() {
       return {
         id: t.trip || t.id || d.id, route: d.route, customer: d.customer,
         price: d.price, status: d.status, contract: t.contract || d.contract,
-        driver: d.driver, vehicle: d.vehicle, date: d.date, customerInn: d.customerInn
+        driver: d.driver, vehicle: d.vehicle, date: d.date, customerInn: d.customerInn,
+        billed: d.billed, credited: d.credited, updatedAt: d.updatedAt, km: d.km, vat: d.vat
       };
     });
+    state.syncedAt = res.syncedAt || '';
     LS.set('pv24_trips_cache', state.trips);
-    if (state.screen === 'trips') paint();
-  }).catch(function () {});
+    LS.set('pv24_synced_at', state.syncedAt);
+    var changed = JSON.stringify([state.trips, state.syncedAt]) !== before;
+    if (changed && (state.screen === 'trips' || state.screen === 'money')) paint();
+  }).catch(function () { tripsLoading = false; });
+}
+
+/** «24.09.2026 14:27» в Date. Формат задаёт база, чужой формат вернёт null */
+function parseStamp(s) {
+  var m = /^(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{2}):(\d{2}))?$/.exec(String(s || '').trim());
+  if (!m) return null;
+  return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
+}
+
+/**
+ * Строка свежести данных. Менеджер должен видеть, на какой момент цифры,
+ * а не догадываться: таблица отправляет рейсы в базу по кнопке или по
+ * расписанию, между отправками статусы в приложении отстают.
+ */
+function freshness() {
+  var s = state.syncedAt;
+  if (!s) {
+    return '<div class="note">Таблица ещё ни разу не отправляла рейсы сюда. ' +
+           'Статусы могут отставать: в таблице меню «Перевал 24» → «Отправить рейсы в приложение»</div>';
+  }
+  var d = parseStamp(s), cls = 'stamp', warn = '';
+  if (d) {
+    var hours = (Date.now() - d.getTime()) / 3600000;
+    if (hours > 24) { cls = 'stamp old'; warn = ' · больше суток назад, статусы могли устареть'; }
+    else if (hours > 4) { cls = 'stamp old'; warn = ' · больше четырёх часов назад'; }
+  }
+  return '<div class="' + cls + '">Данные из таблицы на ' + esc(s.replace(/^(\d{2}\.\d{2})\.\d{4}\s/, '$1 в ')) +
+         warn + '</div>';
 }
 
 SCREENS.trip = {
@@ -363,16 +452,27 @@ SCREENS.trip = {
     state.trips.forEach(function (x) { if (x.id === state.lastTrip) t = x; });
     if (!t) return '<div class="empty">Рейс не найден</div>';
     var st = statusOf(t);
-    var h = '<div class="card">' +
-      row('Рейс', esc(t.id)) + row('Статус', st) +
+    var billed = toNum(t.billed), credited = toNum(t.credited);
+    var h = freshness() + '<div class="card">' +
+      row('Рейс', esc(t.id)) +
+      row('Статус', st || UNKNOWN.text + (t.status ? ': «' + esc(t.status) + '»' : '')) +
       row('Маршрут', esc(t.route || '-')) +
       row('Заказчик', esc(t.customer || '-')) +
       row('Водитель', esc(t.driver || '-')) +
       row('Машина', esc(t.vehicle || '-')) +
       row('Дата', esc(t.date || '-')) +
+      (t.updatedAt ? row('Обновлён', esc(t.updatedAt)) : '') +
       '</div>' +
       '<div class="sect">Деньги</div><div class="tot">' +
-      row('Ставка заказчика', money(t.price)) + '</div>';
+      row('Ставка заказчика', money(t.price)) + '</div>' +
+      '<div class="card">' +
+      row('Выставлено счетами', billed === null ? 'нет данных' : money(billed)) +
+      row('Зачтено', credited === null ? 'нет данных' : money(credited)) +
+      (billed !== null && credited !== null
+        ? row('Ждём оплату', money(Math.max(billed - credited, 0)),
+              billed - credited > 0 ? 'neg' : 'pos')
+        : '') +
+      '</div>';
     if (t.contract) {
       h += '<div class="sect">Документы</div><div class="card">' +
         row('Договор-заявка', '№ ' + esc(t.contract)) + '</div>';
@@ -492,31 +592,53 @@ function saveTrip() {
 
 /* ----------------------------------------------------------- деньги */
 SCREENS.money = {
-  tab: 'money', title: 'Деньги', sub: 'ставки по рейсам',
+  tab: 'money', title: 'Деньги', sub: 'счета и оплаты из таблицы',
   render: function () {
     if (!state.trips.length) return '<div class="empty">Рейсов ещё нет</div>';
-    var waiting = 0, done = 0;
+    // Считаем по счетам листа «Деньги», а не по статусу рейса: статус говорит,
+    // где машина, а не пришли ли деньги. Раньше «ждём оплату» складывалось из
+    // статусов и врало ровно там же, где врал статус
+    var billed = 0, credited = 0, noBill = 0, noBillSum = 0, known = 0;
     state.trips.forEach(function (t) {
-      var st = statusOf(t);
-      if (st === 'оплачен' || st === 'закрыт') done += (t.price || 0);
-      else waiting += (t.price || 0);
+      var b = toNum(t.billed), c = toNum(t.credited);
+      if (b === null && c === null) { noBill++; noBillSum += toNum(t.price) || 0; return; }
+      known++;
+      billed += b || 0;
+      credited += c || 0;
+      if (!b) { noBill++; noBillSum += toNum(t.price) || 0; }
     });
-    var h = '<div class="card">' +
-      row('Ждём оплату', money(waiting)) + row('Закрыто деньгами', money(done)) + '</div>' +
-      '<div class="sect">По рейсам</div>';
+    var h = freshness() + '<div class="card">' +
+      row('Выставлено счетами', money(billed)) +
+      row('Зачтено', money(credited), 'pos') +
+      row('Ждём оплату', money(Math.max(billed - credited, 0)),
+          billed - credited > 0 ? 'neg' : 'pos') +
+      '</div>';
+    if (noBill) {
+      h += '<div class="note">Без счёта: ' + plural(noBill, 'рейс', 'рейса', 'рейсов') +
+           ' на ' + money(noBillSum) +
+           '. Эти деньги ещё не выставлены заказчику, в «ждём оплату» они не входят</div>';
+    }
+    if (!known) {
+      h += '<div class="note">Данных по счетам от таблицы ещё не приходило: ' +
+           'в таблице меню «Перевал 24» → «Отправить рейсы в приложение»</div>';
+    }
+    h += '<div class="sect">По рейсам</div>';
     state.trips.forEach(function (t) {
-      var st = statusOf(t);
-      h += '<div class="trip" style="border-left-color:' + LINE[st] + '">' +
+      var st = statusOf(t), b = toNum(t.billed), c = toNum(t.credited);
+      var tail = b === null ? 'счёт не выставлен'
+        : (c >= b && b > 0 ? 'оплачен' : 'ждём ' + money(Math.max(b - c, 0)));
+      h += '<div class="trip" style="border-left-color:' + statusLine(st) + '">' +
         '<div class="top"><span class="id">' + esc(t.id) + '</span>' +
         '<span class="sum">' + money(t.price) + '</span></div>' +
         '<div class="rt">' + esc(t.customer || 'заказчик не указан') + '</div>' +
-        '<div class="meta"><span class="pill" style="background:' + STATUS[st] + '">' + st + '</span>' +
+        '<div class="meta">' + statusPill(st, t.status) + '<span>' + tail + '</span>' +
         '</div></div>';
     });
-    h += '<p class="tiny">Счета и поступления живут в листе Деньги таблицы. ' +
-         'Здесь видно ставки рейсов и их статус</p>';
+    h += '<p class="tiny">Счета и поступления ведутся в листе Деньги таблицы, ' +
+         'сюда они приходят с синхронизацией</p>';
     return h;
-  }
+  },
+  wire: function () { loadTrips(); }
 };
 
 /* ------------------------------------------------------ справочники */
