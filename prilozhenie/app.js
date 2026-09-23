@@ -442,7 +442,7 @@ function freshness() {
     else if (hours > 4) { cls = 'stamp old'; warn = ' · больше четырёх часов назад'; }
   }
   return '<div class="' + cls + '">Данные из таблицы на ' + esc(s.replace(/^(\d{2}\.\d{2})\.\d{4}\s/, '$1 в ')) +
-         warn + '</div>';
+         warn + ' · нажми, чтобы обновить</div>';
 }
 
 SCREENS.trip = {
@@ -870,7 +870,44 @@ function paint() {
     b.onclick = function () { go(FIRST[t.k]); };
     nav.appendChild(b);
   });
+
+  // строка свежести работает кнопкой: нажал - обновилось сейчас же
+  var stampEl = document.querySelector('.stamp');
+  if (stampEl) {
+    stampEl.style.cursor = 'pointer';
+    stampEl.title = 'Обновить сейчас';
+    stampEl.onclick = function () { refreshNow(); };
+  }
+  watchLive();
 }
+
+/** Обновить немедленно, не дожидаясь ни таймера, ни тормоза в 10 секунд */
+function refreshNow() {
+  if (!state.online) { toast('Нет сети, показываю последнюю копию'); return; }
+  toast('Обновляю…');
+  loadTrips(true);
+}
+
+/**
+ * Пока открыт экран рейсов или денег, данные подтягиваются сами раз в 20
+ * секунд. Таблица шлёт правку в базу сразу, поэтому смена статуса доезжает
+ * до телефона за секунды, а не к следующему открытию экрана.
+ */
+var liveTimer = null;
+function watchLive() {
+  var live = state.screen === 'trips' || state.screen === 'money' || state.screen === 'trip';
+  if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+  if (!live) return;
+  liveTimer = setInterval(function () {
+    if (document.hidden || !state.online) return;
+    loadTrips(true);
+  }, 20000);
+}
+
+// вернулись в приложение с другого экрана телефона - показываем свежее
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) loadTrips(true);
+});
 
 function openGate() {
   $('gate').style.display = 'block';
