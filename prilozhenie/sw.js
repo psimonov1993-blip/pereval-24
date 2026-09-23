@@ -2,9 +2,9 @@
    считает без сети: в рейсе связь пропадает регулярно.
    Запросы к базе не кэшируются никогда - иначе менеджер увидит
    вчерашние рейсы и подумает, что они сегодняшние. */
-var CACHE = 'pv24-app-v2';
+var CACHE = 'pv24-app-v3';
 var SHELL = [
-  './', 'index.html', 'style.css?v=2', 'app.js?v=2',
+  './', 'index.html', 'style.css?v=3', 'app.js?v=3',
   'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-180.png'
 ];
 
