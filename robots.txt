@@ -3,6 +3,7 @@ Allow: /
 Disallow: /_check.html
 Disallow: /ohotnik/
 Disallow: /dogovor-zayavka/
+Disallow: /prilozhenie/
 
 Sitemap: https://pereval24.ru/sitemap.xml
 Host: https://pereval24.ru
