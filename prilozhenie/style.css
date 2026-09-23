@@ -1,0 +1,122 @@
+/* Перевал 24 - рабочее место менеджера. Один экран, пять разделов */
+:root{
+  --bg:#f4f5f7; --card:#fff; --ink:#15181d; --dim:#666e7a; --line:#e2e5ea;
+  --blue:#1f6fd0; --blue-soft:#eaf2fd; --green:#1d8a4a; --red:#c0392b;
+  --warn:#8a6d00; --warn-bg:#fff8e1;
+  --st-naznachen:#cfe8ff; --st-vputi:#ffd9b3; --st-zavershen:#fff3b0;
+  --st-oplachen:#c6efce; --st-zakryt:#dcdfe4; --st-otmenen:#ffc7ce;
+  --tabh:58px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);overscroll-behavior-y:none;
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+
+/* шапка */
+header{position:sticky;top:0;z-index:20;background:var(--card);
+  border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;
+  display:flex;align-items:center;gap:10px;min-height:52px}
+header .back{font-size:24px;color:var(--blue);line-height:1;padding:0 4px;cursor:pointer;
+  background:none;border:0;font-family:inherit}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em;flex:1}
+header .sub{font-size:11px;color:var(--dim);font-weight:400;display:block;margin-top:1px}
+header .act{background:var(--blue-soft);color:var(--blue);border:0;border-radius:9px;
+  padding:7px 11px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+
+main{padding:12px 14px calc(var(--tabh) + env(safe-area-inset-bottom) + 20px);
+  max-width:760px;margin:0 auto}
+
+/* нижние вкладки */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--card);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:7px 2px 8px;font-family:inherit;
+  font-size:10px;color:var(--dim);cursor:pointer;line-height:1.25}
+nav button .ic{display:block;font-size:19px;margin-bottom:1px}
+nav button.on{color:var(--blue);font-weight:700}
+
+/* блоки */
+.sect{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
+  margin:18px 0 6px;font-weight:700}
+.sect:first-child{margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+  margin-bottom:10px}
+
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;
+  border-bottom:1px solid #f0f2f5;font-size:14px}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--dim)}
+.row .v{font-weight:600;text-align:right;white-space:nowrap}
+.v.neg{color:var(--red)} .v.pos{color:var(--green)}
+.tot{background:#eceff3;border-radius:10px;margin:4px 0;padding:2px 10px}
+.tot .row{border-bottom:0}
+.tot .row .k{color:var(--ink);font-weight:700}
+.tot .row .v{font-size:15px}
+
+/* поля */
+label{display:block;font-size:12px;color:var(--dim);margin:10px 0 4px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;font-size:16px;background:#fbfcfd;font-family:inherit;color:inherit;
+  -webkit-appearance:none;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666e7a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+input.bad{border-color:var(--red);background:#fff2f2}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+button.btn{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px;
+  width:100%;font-size:15px;font-weight:600;font-family:inherit;margin-top:12px;cursor:pointer}
+button.btn:disabled{opacity:.5}
+button.btn.ghost{background:var(--blue-soft);color:var(--blue)}
+button.btn.slim{padding:10px;font-size:14px;margin-top:8px}
+
+/* список рейсов */
+.trip{background:var(--card);border:1px solid var(--line);border-left-width:5px;
+  border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.trip .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.trip .id{font-weight:700}
+.trip .sum{font-weight:700;white-space:nowrap}
+.trip .rt{font-size:13px;color:var(--dim);margin-top:2px}
+.trip .meta{font-size:11px;color:var(--dim);margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;
+  align-items:center}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;
+  color:#33383f}
+
+.res{background:var(--blue-soft);border-radius:12px;padding:12px 14px;margin-top:12px}
+.res .lbl{font-size:12px;color:var(--dim)}
+.res .big{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.res.bad{background:#ffe9e9}
+.res.good{background:#eaf7ee}
+.res .big.small{font-size:15px;font-weight:700;line-height:1.35}
+
+.note{background:var(--warn-bg);border:1px solid #f0e0a8;border-radius:12px;padding:11px 13px;
+  font-size:13px;margin-bottom:10px}
+.tiny{font-size:12px;color:var(--dim);margin:8px 0 0}
+.empty{text-align:center;color:var(--dim);padding:36px 10px;font-size:14px}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fb344;
+  margin-right:6px;vertical-align:middle}
+.live.off{background:#c9ced6}
+
+.menu{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.menu button{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;
+  padding:13px 14px;border:0;border-bottom:1px solid var(--line);background:var(--card);
+  font-family:inherit;font-size:15px;color:inherit;text-align:left;cursor:pointer}
+.menu button:last-child{border-bottom:0}
+.menu .cnt{color:var(--dim);font-size:13px;white-space:nowrap}
+
+/* всплывашка */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabh) + 16px);
+  background:#15181d;color:#fff;padding:11px 16px;border-radius:11px;font-size:14px;z-index:60;
+  max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .18s}
+#toast.on{opacity:.96}
+
+/* экран входа */
+#gate{position:fixed;inset:0;background:var(--bg);z-index:80;overflow-y:auto;
+  padding:calc(env(safe-area-inset-top) + 28px) 18px 28px}
+#gate .in{max-width:420px;margin:0 auto}
+#gate h2{font-size:22px;margin:0 0 6px}
+#gate p{color:var(--dim);font-size:14px;margin:0 0 16px}
+
+@media(min-width:760px){
+  nav{max-width:760px;margin:0 auto;border-radius:14px 14px 0 0;border:1px solid var(--line);
+    border-bottom:0;left:50%;transform:translateX(-50%)}
+}
