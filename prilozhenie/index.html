@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Перевал 24 - как будет выглядеть приложение</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --ink:#15181d; --dim:#666e7a; --line:#e2e5ea;
+  --blue:#1f6fd0; --blue-soft:#eaf2fd; --green:#1d8a4a; --red:#c0392b;
+  --st-naznachen:#cfe8ff; --st-vputi:#ffd9b3; --st-zavershen:#fff3b0;
+  --st-oplachen:#c6efce; --st-zakryt:#dcdfe4; --st-otmenen:#ffc7ce;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:30px;line-height:1.2;margin:0 0 10px;letter-spacing:-.02em}
+h2{font-size:22px;margin:44px 0 6px;letter-spacing:-.01em}
+h3{font-size:17px;margin:26px 0 8px}
+p{margin:0 0 12px;max-width:74ch}
+.lead{color:var(--dim);font-size:17px}
+.note{background:#fff8e1;border:1px solid #f0e0a8;border-radius:12px;padding:14px 16px;margin:18px 0}
+.note b{color:#8a6d00}
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:18px 0 6px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.step .n{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-bottom:9px}
+.grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:22px 0}
+.cell{display:flex;flex-direction:column;align-items:center}
+.cap{margin-top:10px;font-size:14px;color:var(--dim);text-align:center;max-width:300px}
+.cap b{color:var(--ink)}
+
+/* ---- телефон ---- */
+.phone{width:300px;height:620px;background:#0e1013;border-radius:36px;padding:9px;
+  box-shadow:0 14px 34px rgba(16,22,34,.22);flex:none}
+.scr{background:var(--card);border-radius:28px;height:100%;overflow:hidden;
+  display:flex;flex-direction:column;position:relative}
+.sb{height:26px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;font-size:11px;color:var(--dim);flex:none}
+.hd{padding:8px 14px 10px;border-bottom:1px solid var(--line);flex:none;
+  display:flex;align-items:center;gap:10px}
+.hd .ttl{font-size:17px;font-weight:700}
+.hd .sub{font-size:11px;color:var(--dim)}
+.back{font-size:19px;color:var(--blue);cursor:pointer;line-height:1}
+.body{flex:1;overflow-y:auto;padding:10px 12px 14px}
+.tabs{flex:none;border-top:1px solid var(--line);display:flex;background:#fafbfc}
+.tab{flex:1;padding:7px 2px 9px;text-align:center;font-size:9.5px;color:var(--dim);cursor:pointer}
+.tab .ic{font-size:17px;display:block;line-height:1.25}
+.tab.on{color:var(--blue);font-weight:600}
+
+/* ---- содержимое экранов ---- */
+.trip{border:1px solid var(--line);border-left-width:5px;border-radius:11px;
+  padding:9px 11px;margin-bottom:8px;cursor:pointer;background:#fff}
+.trip .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.trip .id{font-weight:700;font-size:14px}
+.trip .sum{font-weight:700;font-size:14px;white-space:nowrap}
+.trip .rt{font-size:12.5px;color:var(--dim);margin-top:2px}
+.trip .meta{font-size:11px;color:var(--dim);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:10.5px;font-weight:600;color:#33383f}
+.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;
+  border-bottom:1px solid #f0f2f5;font-size:13px}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--dim)}
+.row .v{font-weight:600;text-align:right}
+.v.neg{color:var(--red)}
+.v.pos{color:var(--green)}
+.sect{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
+  margin:14px 0 5px;font-weight:700}
+.sect:first-child{margin-top:2px}
+.fld{margin-bottom:9px}
+.fld label{display:block;font-size:11px;color:var(--dim);margin-bottom:3px}
+.fld .inp{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;
+  background:#fbfcfd;display:flex;justify-content:space-between;align-items:center}
+.fld .inp.sel::after{content:"⌄";color:var(--dim);font-size:15px;line-height:1}
+.fld input{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;
+  font-size:14px;background:#fbfcfd;font-family:inherit;color:inherit}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:11px;padding:11px;
+  width:100%;font-size:14px;font-weight:600;font-family:inherit;margin-top:6px;cursor:pointer}
+.btn.ghost{background:var(--blue-soft);color:var(--blue)}
+.res{background:var(--blue-soft);border-radius:12px;padding:11px 12px;margin-top:10px}
+.res .big{font-size:23px;font-weight:800;letter-spacing:-.02em}
+.res .lbl{font-size:11px;color:var(--dim)}
+.menu{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.menu div{padding:11px 12px;border-bottom:1px solid var(--line);font-size:13.5px;
+  display:flex;justify-content:space-between;cursor:pointer;background:#fff}
+.menu div:last-child{border-bottom:0}
+.menu .cnt{color:var(--dim);font-size:12px}
+.fab{position:absolute;right:14px;bottom:62px;width:46px;height:46px;border-radius:50%;
+  background:var(--blue);color:#fff;font-size:26px;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 5px 14px rgba(31,111,208,.4);cursor:pointer}
+.tiny{font-size:11px;color:var(--dim);margin-top:8px}
+.dash{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.dash div{background:#f7f9fb;border-radius:11px;padding:9px 10px}
+.dash .n{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.dash .l{font-size:10.5px;color:var(--dim)}
+
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef1f5;font-weight:600}
+.ok{color:var(--green);font-weight:600}
+.no{color:var(--red);font-weight:600}
+footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+@media(max-width:700px){
+  h1{font-size:25px}
+  .wrap{padding:20px 12px 60px}
+  .phone{width:288px;height:600px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Приложение «Перевал 24» - как это будет выглядеть</h1>
+<p class="lead">Макет рабочего места менеджера: принял заявку, посчитал, завёл рейс, выставил счёт. Всё с телефона, теми же данными, что лежат в Google Таблице</p>
+
+<div class="note">
+<b>Что здесь настоящее, а что макет.</b> Цифры рейса Р-001 и статусы рейсов взяты из твоей таблицы на 23.09.2026. Калькулятор ниже считает по-настоящему, формулой метода из боевой формы: <code>9 787 ₽ за день + 46,49 ₽ за км</code>, наценка 25%, УСН внутри цены. Поля, которых я в таблице не видел, стоят прочерком - в рабочем приложении они подтянутся сами
+</div>
+
+<div class="note" style="background:#ffeaea;border-color:#f0c0c0">
+<b style="color:#a33">Попутная находка, её надо решить до приложения.</b> Считалок цены у тебя сейчас две, и они расходятся. Форма на сайте берёт усреднённый фикс 9 787 ₽ в день, а лист «Калькулятор» в таблице собирает себестоимость из ставок конкретного тягача и прицепа по Справочникам. На плече 650 км они сходятся до рубля, а на 254 км форма даёт цену клиенту <b>35 035 ₽ против 37 947 ₽</b> в таблице, то есть занижает на 2 912 ₽. Приложение должно иметь одну считалку, а не третью
+</div>
+
+<h2>Сначала главное: это не программа из магазина приложений</h2>
+<p>Ставить ничего не надо, регистрироваться негде, платить некому. Это страница, которая после одного нажатия ведёт себя как обычное приложение: своя иконка на экране телефона, открывается без браузерной строки, работает без интернета</p>
+
+<div class="steps">
+  <div class="step"><div class="n">1</div><b>Открыл ссылку</b><div class="tiny">Один раз, с телефона. Я пришлю её в Telegram</div></div>
+  <div class="step"><div class="n">2</div><b>«Поделиться» → «На экран Домой»</b><div class="tiny">iPhone и Android делают это одинаково</div></div>
+  <div class="step"><div class="n">3</div><b>Появилась иконка</b><div class="tiny">Дальше запускается как WhatsApp или Сбербанк, вкладок браузера нет</div></div>
+</div>
+<p class="tiny">Обновления приходят сами: я поправил - у всех менеджеров новая версия при следующем запуске. Ничего не скачивать</p>
+
+<h2>Потыкай живьём</h2>
+<p>Это рабочий макет, кнопки внизу переключают разделы. Нажимай рейс в списке, считай в калькуляторе - он честно считает</p>
+
+<div class="cell" style="margin:20px 0 6px">
+  <div class="phone"><div class="scr" id="live"></div></div>
+  <div class="cap">Нижние пять кнопок - это и есть листы твоей таблицы: <b>Рейсы · Калькулятор · Деньги · Справочники · Ещё</b></div>
+</div>
+
+<h2>Все экраны разом</h2>
+<p>Чтобы не искать кнопками, ниже каждый экран отдельно с подписью, зачем он нужен менеджеру</p>
+<div class="grid" id="gallery"></div>
+
+<h2>Какой лист таблицы во что превращается</h2>
+<table>
+<tr><th>Лист в Google Таблице</th><th>Что с ним в приложении</th><th>Кто пользуется</th></tr>
+<tr><td><b>Рейсы</b>, 40 колонок</td><td>Список карточек + карточка рейса. Менеджер видит 6 главных цифр вместо горизонтальной прокрутки</td><td>менеджер, ты</td></tr>
+<tr><td><b>Калькулятор</b></td><td>Отдельный экран, считает при вводе километров. Кнопка «Завести рейс с этим расчётом»</td><td>менеджер на телефоне с клиентом</td></tr>
+<tr><td><b>Деньги</b></td><td>Список счетов, просрочка красным, кнопка «оплачен»</td><td>менеджер, ты</td></tr>
+<tr><td><b>Справочники</b></td><td>Заказчики, водители, тягачи, прицепы, нормативы. Заводятся с телефона и сразу попадают в выпадающие списки</td><td>менеджер</td></tr>
+<tr><td><b>Заправки</b></td><td>Форма с фото чека прямо с камеры</td><td>водитель, менеджер</td></tr>
+<tr><td><b>Расходы</b></td><td>Тип из списка, сумма, фото</td><td>водитель, менеджер</td></tr>
+<tr><td><b>Зарплата</b></td><td>Начислено по рейсам, к выплате, номер чека самозанятого</td><td>ты</td></tr>
+<tr><td>Дашборд, Аналитика, Точки, Инструкция</td><td class="no">не переносим, как ты и сказал</td><td>-</td></tr>
+</table>
+
+<h2>Где при этом живут данные</h2>
+<p>Это самое важное место, и оно решает судьбу всей затеи. Приложение не лезет в таблицу напрямую, оно говорит с базой на твоём сервере - той самой, где уже лежат договоры и документы рейсов. А таблица подключена к той же базе</p>
+
+<table>
+<tr><th>Кто</th><th>Что делает</th></tr>
+<tr><td>Приложение на телефоне</td><td>пишет и читает рейсы, счета, справочники</td></tr>
+<tr><td>База на сервере (n8n, уже работает)</td><td>хранит, раздаёт номера договоров, не даёт двум менеджерам затереть друг друга</td></tr>
+<tr><td>Google Таблица</td><td>остаётся для отчётов, аналитики и выгрузки бухгалтеру. Всё, что завели с телефона, там появляется</td></tr>
+</table>
+
+<p>Почему не наоборот, не «приложение поверх таблицы»: Google даёт скрипту таблицы <b>90 минут работы в сутки</b>, а одна полная пересборка твоей таблицы занимает 3,5 минуты. При одной машине это незаметно, при десяти упрёмся. База такого потолка не имеет, и переезд на неё потом не потребует переделывать приложение</p>
+
+<h2>Чего в приложении не будет</h2>
+<ul>
+<li>машины на карте в реальном времени: для этого нужен трекер в кабине, это другая задача и другие деньги</li>
+<li>графиков и аналитики: ты сам их исключил, смотреть их удобнее на компьютере в таблице</li>
+<li>бухгалтерии: система управленческая, отчётность бухгалтеру уходит выгрузкой</li>
+</ul>
+
+<footer>
+Макет от 23.09.2026 · калькулятор проверен на боевом расчёте Сафоново-Пушкино: 650,4 км дают себестоимость 40 024 ₽ и цену 53 223 ₽ без НДС, ровно как в таблице
+</footer>
+</div>
+
+<script>
+/* ---------- данные: настоящие там, где они известны из таблицы ---------- */
+var STATUS = {
+  'назначен':      {bg:'var(--st-naznachen)', line:'#7bb6ef'},
+  'в пути':        {bg:'var(--st-vputi)',     line:'#f0a860'},
+  'завершён':      {bg:'var(--st-zavershen)', line:'#e8c53c'},
+  'оплачен':       {bg:'var(--st-oplachen)',  line:'#5cb85c'},
+  'закрыт':        {bg:'var(--st-zakryt)',    line:'#b4b9c0'},
+  'отменён':       {bg:'var(--st-otmenen)',   line:'#e07b7b'}
+};
+
+var TRIPS = [
+  {id:'Р-007', st:'назначен', route:'-', cust:'-', rate:null, dog:'-', km:null},
+  {id:'Р-006', st:'в пути',   route:'-', cust:'-', rate:null, dog:'106', km:null},
+  {id:'Р-005', st:'в пути',   route:'-', cust:'-', rate:null, dog:'105', km:null},
+  {id:'Р-004', st:'завершён', route:'-', cust:'-', rate:42000, dog:'104', km:null},
+  {id:'Р-003', st:'завершён', route:'-', cust:'ИП Аргунов', rate:42000, dog:'103', km:null,
+   margin:-4826},
+  {id:'Р-002', st:'закрыт',   route:'-', cust:'-', rate:null, dog:'102', km:null},
+  {id:'Р-001', st:'закрыт',   route:'Москва - Тверь - Сафоново', cust:'-', rate:61000,
+   dog:'101', km:620, cost:44297, usn:3000, margin:2703, rent:'5,4%'}
+];
+
+var money = function(v){
+  if(v===null||v===undefined) return '-';
+  return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ') + ' ₽';
+};
+
+/* ---------- экраны ---------- */
+var S = {};
+
+S.trips = {title:'Рейсы', sub:'7 рейсов · 2 в пути', tab:'trips', fab:'newtrip', body:function(){
+  var h = '<div class="dash"><div><div class="n">2</div><div class="l">в пути</div></div>' +
+          '<div><div class="n">84 000 ₽</div><div class="l">ждём оплату</div></div></div>';
+  TRIPS.forEach(function(t){
+    var s = STATUS[t.st];
+    h += '<div class="trip" style="border-left-color:'+s.line+'" data-go="trip">' +
+      '<div class="top"><span class="id">'+t.id+'</span><span class="sum">'+money(t.rate)+'</span></div>' +
+      '<div class="rt">'+t.route+'</div>' +
+      '<div class="meta"><span class="pill" style="background:'+s.bg+'">'+t.st+'</span>' +
+      '<span>договор № '+t.dog+'</span></div></div>';
+  });
+  return h;
+}};
+
+S.trip = {title:'Рейс Р-001', sub:'закрыт · договор № 101', tab:'trips', back:'trips', body:function(){
+  var t = TRIPS[6];
+  return '<div class="sect">Рейс</div>' +
+    r('Маршрут', t.route) + r('Километраж', '620 км') + r('Статус', 'закрыт') +
+    '<div class="sect">Деньги</div>' +
+    r('Ставка заказчика', money(61000)) + r('НДС внутри', money(11000)) +
+    r('Себестоимость', money(44297)) + r('УСН 6%', money(3000)) +
+    r('Маржа чистая', money(2703), 'pos') + r('Рентабельность', '5,4%') +
+    '<div class="sect">Документы</div>' +
+    r('Договор-заявка', '№ 101') + r('Транспортная накладная', 'фото загружено') +
+    '<button class="btn ghost">Скачать договор в Word</button>' +
+    '<button class="btn ghost">Добавить фото документа</button>' +
+    '<p class="tiny">Маржа 5,4% - рейс продан ниже расчётной цены метода. Такие рейсы приложение подсвечивает само</p>';
+}};
+
+S.newtrip = {title:'Новый рейс', sub:'заявка от клиента', tab:'trips', back:'trips', body:function(){
+  return '<div class="sect">Заказчик</div>' +
+    f('Заказчик', 'ИП Аргунов', true) + f('НДС', 'без НДС', true) + f('Отсрочка', '14 дней') +
+    '<div class="sect">Рейс</div>' +
+    f('Маршрут', 'Подольск - Верховье') + f('Дата старта', '24.09.2026') +
+    f('Километраж', '254 км') + f('Дней рейса', '1') +
+    '<div class="sect">Машина</div>' +
+    f('Тягач', 'из справочника', true) + f('Прицеп', 'из справочника', true) +
+    f('Водитель', 'из справочника', true) +
+    '<div class="sect">Цена</div>' +
+    f('Ставка заказчика', '37 900 ₽') +
+    '<button class="btn">Завести рейс и договор</button>' +
+    '<p class="tiny">Номер договора выдаст база, следующий после 106</p>';
+}};
+
+S.calc = {title:'Калькулятор', sub:'расчёт по методу', tab:'calc', body:function(){
+  return '<div class="fld"><label>Километраж, всего</label>' +
+    '<input id="ckm" type="number" inputmode="numeric" value="650"></div>' +
+    '<div class="fld"><label>Дней рейса</label>' +
+    '<input id="cdays" type="number" inputmode="numeric" value="1"></div>' +
+    '<div class="fld"><label>Ставка НДС</label><div class="inp sel">22%</div></div>' +
+    '<div id="cout"></div>' +
+    '<button class="btn" data-go="newtrip">Завести рейс с этим расчётом</button>' +
+    '<p class="tiny">Километраж берётся из Яндекс.Карт по твоим правилам: свыше 20 т, без платных дорог, в Москву не глубже ТТК</p>';
+}};
+
+S.money = {title:'Деньги', sub:'счета и платежи', tab:'money', body:function(){
+  return '<div class="dash"><div><div class="n">84 000 ₽</div><div class="l">не оплачено</div></div>' +
+    '<div><div class="n">0 ₽</div><div class="l">просрочено</div></div></div>' +
+    inv('СЧ-004','Р-004', 42000, 'ждём оплату', 'завершён') +
+    inv('СЧ-003','Р-003', 42000, 'ждём оплату', 'завершён') +
+    inv('СЧ-001','Р-001', 61000, 'оплачен', 'оплачен') +
+    '<p class="tiny">Просроченный счёт приложение красит красным и показывает, сколько дней прошло</p>';
+}};
+
+S.refs = {title:'Справочники', sub:'общие для всех менеджеров', tab:'refs', body:function(){
+  return '<div class="menu">' +
+    m('Заказчики','ИНН, НДС, отсрочка','refscust') +
+    m('Водители','ИНН, ставки, лимит НПД') +
+    m('Тягачи','госномер, аренда') +
+    m('Полуприцепы','госномер, аренда') +
+    m('Нормативы','топливо, Платон, наценка') +
+    '</div>' +
+    '<p class="tiny">Что внёс один менеджер, сразу видят остальные: справочник лежит на сервере, а не в телефоне</p>';
+}};
+
+S.refscust = {title:'Заказчики', sub:'по данным справочника', tab:'refs', back:'refs', body:function(){
+  return '<div class="menu">' +
+    m('ИП Аргунов','без НДС · отсрочка 14 дней') +
+    m('ЖБИ 24/7','-') +
+    m('КРост','-') +
+    '</div>' +
+    '<button class="btn">Добавить заказчика</button>' +
+    '<div class="sect">Карточка</div>' +
+    r('Название','ИП Аргунов') + r('ИНН','-') + r('НДС','без НДС') +
+    r('Отсрочка','14 дней') + r('Контакт','-');
+}};
+
+S.more = {title:'Ещё', sub:'остальные листы', tab:'more', body:function(){
+  return '<div class="menu">' +
+    m('Заправки','литры, чек, одометр','fuel') +
+    m('Расходы','дороги, мойка, стоянка','exp') +
+    m('Зарплата','начислено и к выплате','pay') +
+    '</div>' +
+    '<p class="tiny">Эти три экрана в основном заполняет водитель со своего телефона, менеджер только проверяет</p>';
+}};
+
+S.fuel = {title:'Заправки', sub:'лист Заправки', tab:'more', back:'more', body:function(){
+  return f('Рейс','Р-005', true) + f('Дата','23.09.2026') + f('АЗС','-') +
+    f('Литры','-') + f('Сумма','-') + f('Одометр','-') +
+    f('Источник','чек наличные', true) +
+    '<button class="btn ghost">📷 Сфотографировать чек</button>' +
+    '<button class="btn">Сохранить</button>' +
+    '<p class="tiny">₽ за литр приложение посчитает само, как формула в таблице</p>';
+}};
+
+S.exp = {title:'Расходы', sub:'лист Расходы', tab:'more', back:'more', body:function(){
+  return f('Рейс','Р-005', true) + f('Тип','платная дорога', true) +
+    f('Сумма','-') + f('Комментарий','-') +
+    '<button class="btn ghost">📷 Фото</button>' +
+    '<button class="btn">Сохранить</button>' +
+    '<p class="tiny">Типы те же, что в таблице: платная дорога, мойка, стоянка, штраф, суточные, ремонт в пути, прочее</p>';
+}};
+
+S.pay = {title:'Зарплата', sub:'лист Зарплата', tab:'more', back:'more', body:function(){
+  return '<div class="sect">Период 14.09 - 13.10</div>' +
+    '<div class="menu">' + m('Водитель','начислено -') + '</div>' +
+    '<div class="sect">Выплата</div>' +
+    r('Начислено по рейсам','-') + r('Удержано','-') + r('К выплате','-') +
+    r('№ чека самозанятого','-') +
+    '<p class="tiny">Без чека самозанятого расход не подтверждён, приложение об этом напомнит. Оно же следит за лимитом НПД 2,4 млн ₽ в год</p>';
+}};
+
+/* ---------- сборщики кусков ---------- */
+function r(k,v,cls){
+  return '<div class="row"><span class="k">'+k+'</span><span class="v '+(cls||'')+'">'+v+'</span></div>';
+}
+function f(label,val,sel){
+  return '<div class="fld"><label>'+label+'</label><div class="inp'+(sel?' sel':'')+'">'+val+'</div></div>';
+}
+function m(t,s,go){
+  return '<div'+(go?' data-go="'+go+'"':'')+'><span>'+t+'</span><span class="cnt">'+s+'</span></div>';
+}
+function inv(no,trip,sum,state,st){
+  var s = STATUS[st];
+  return '<div class="trip" style="border-left-color:'+s.line+'">' +
+    '<div class="top"><span class="id">'+no+'</span><span class="sum">'+money(sum)+'</span></div>' +
+    '<div class="rt">рейс '+trip+'</div>' +
+    '<div class="meta"><span class="pill" style="background:'+s.bg+'">'+state+'</span></div></div>';
+}
+
+var TABS = [
+  {k:'trips', ic:'🚚', t:'Рейсы'},
+  {k:'calc',  ic:'🧮', t:'Калькулятор'},
+  {k:'money', ic:'₽',  t:'Деньги'},
+  {k:'refs',  ic:'📁', t:'Справочники'},
+  {k:'more',  ic:'⋯',  t:'Ещё'}
+];
+
+function render(node, key, live){
+  var s = S[key];
+  var h = '<div class="sb"><span>9:41</span><span>▮▮▮ ⌁</span></div>' +
+    '<div class="hd">' + (s.back ? '<span class="back" data-go="'+s.back+'">‹</span>' : '') +
+    '<div><div class="ttl">'+s.title+'</div><div class="sub">'+s.sub+'</div></div></div>' +
+    '<div class="body">' + s.body() + '</div>' +
+    (s.fab ? '<div class="fab" data-go="'+s.fab+'">+</div>' : '') +
+    '<div class="tabs">';
+  TABS.forEach(function(t){
+    h += '<div class="tab'+(t.k===s.tab?' on':'')+'"'+(live?' data-go="'+t.k+'"':'')+'>' +
+         '<span class="ic">'+t.ic+'</span>'+t.t+'</div>';
+  });
+  h += '</div>';
+  node.innerHTML = h;
+  if(key==='calc') wireCalc(node, live);
+}
+
+/* ---------- честный расчёт по методу ---------- */
+var DAY_RATE=9787, KM_RATE=46.49, MARKUP=1.25, USN=0.94, VAT=1.22;
+function wireCalc(node, live){
+  var km = node.querySelector('#ckm'), days = node.querySelector('#cdays'),
+      out = node.querySelector('#cout');
+  function calc(){
+    var k = parseFloat(km.value)||0, d = parseFloat(days.value)||0;
+    if(!d){
+      out.innerHTML = '<div class="res" style="background:#ffe9e9">' +
+        '<div class="lbl">Не заполнено</div><div class="big" style="font-size:15px">' +
+        'впиши «Дней рейса»</div></div>';
+      return;
+    }
+    var cost = DAY_RATE*d + KM_RATE*k;
+    var price = cost*MARKUP/USN;
+    out.innerHTML = '<div class="res"><div class="lbl">Цена клиенту с НДС 22%</div>' +
+      '<div class="big">'+money(price*VAT)+'</div></div>' +
+      r('Себестоимость', money(cost)) +
+      r('Цена без НДС', money(price)) +
+      r('Маржа после УСН', money(price*USN-cost), 'pos') +
+      r('Рублей за километр', (k? (price*VAT/k).toFixed(2).replace('.',',') : '-')+' ₽');
+  }
+  if(live){ km.addEventListener('input', calc); days.addEventListener('input', calc); }
+  else { km.readOnly = days.readOnly = true; }
+  calc();
+}
+
+/* ---------- живой телефон ---------- */
+var live = document.getElementById('live');
+function go(key){ render(live, key, true); }
+live.addEventListener('click', function(e){
+  var el = e.target.closest('[data-go]');
+  if(el && S[el.getAttribute('data-go')]) go(el.getAttribute('data-go'));
+});
+go('trips');
+
+/* ---------- галерея ---------- */
+var CAPS = [
+  ['trips','<b>Рейсы.</b> Вместо сорока колонок - карточки. Цвет полоски слева тот же, что в таблице: голубой назначен, персиковый в пути, жёлтый завершён без денег, серый закрыт'],
+  ['trip','<b>Карточка рейса.</b> Вся экономика рейса на одном экране плюс договор и фото накладной'],
+  ['calc','<b>Калькулятор.</b> Менеджер говорит с клиентом по телефону и тут же называет цену. Из расчёта одной кнопкой рождается рейс'],
+  ['newtrip','<b>Новый рейс.</b> Заказчик и машина выбираются из справочника, руками не печатаются. Номер договора выдаёт база'],
+  ['money','<b>Деньги.</b> Кто должен, сколько и с какого числа просрочено'],
+  ['refs','<b>Справочники.</b> Пять блоков листа Справочники. Заводятся с телефона, видны всем менеджерам сразу'],
+  ['refscust','<b>Заказчики.</b> ИНН, НДС, отсрочка - то, из чего считается срок оплаты счёта'],
+  ['fuel','<b>Заправки.</b> Чек снимается камерой телефона прямо в форме'],
+  ['exp','<b>Расходы.</b> Те же типы расхода, что в таблице'],
+  ['pay','<b>Зарплата.</b> Начислено из закрытых рейсов, чек самозанятого обязателен'],
+  ['more','<b>Ещё.</b> Три экрана, которые в основном заполняет водитель']
+];
+var g = document.getElementById('gallery');
+CAPS.forEach(function(c){
+  var cell = document.createElement('div'); cell.className = 'cell';
+  var ph = document.createElement('div'); ph.className = 'phone';
+  var scr = document.createElement('div'); scr.className = 'scr';
+  ph.appendChild(scr); cell.appendChild(ph);
+  var cap = document.createElement('div'); cap.className = 'cap'; cap.innerHTML = c[1];
+  cell.appendChild(cap); g.appendChild(cell);
+  render(scr, c[0], false);
+});
+</script>
+</body>
+</html>
