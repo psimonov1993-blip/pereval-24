@@ -69,6 +69,11 @@ p{margin:0 0 12px;max-width:74ch}
 .sect{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
   margin:14px 0 5px;font-weight:700}
 .sect:first-child{margin-top:2px}
+.tot{background:#eceff3;border-radius:8px;margin:3px 0;padding:0 8px}
+.tot .row{border-bottom:0;font-size:13.5px}
+.tot .row .k{color:var(--ink);font-weight:700}
+.live{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fb344;
+  margin-right:5px;vertical-align:middle}
 .fld{margin-bottom:9px}
 .fld label{display:block;font-size:11px;color:var(--dim);margin-bottom:3px}
 .fld .inp{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;
@@ -119,8 +124,8 @@ footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:v
 <b>Что здесь настоящее, а что макет.</b> Цифры рейса Р-001 и статусы рейсов взяты из твоей таблицы на 23.09.2026. Калькулятор ниже считает по-настоящему, формулой метода из боевой формы: <code>9 787 ₽ за день + 46,49 ₽ за км</code>, наценка 25%, УСН внутри цены. Поля, которых я в таблице не видел, стоят прочерком - в рабочем приложении они подтянутся сами
 </div>
 
-<div class="note" style="background:#ffeaea;border-color:#f0c0c0">
-<b style="color:#a33">Попутная находка, её надо решить до приложения.</b> Считалок цены у тебя сейчас две, и они расходятся. Форма на сайте берёт усреднённый фикс 9 787 ₽ в день, а лист «Калькулятор» в таблице собирает себестоимость из ставок конкретного тягача и прицепа по Справочникам. На плече 650 км они сходятся до рубля, а на 254 км форма даёт цену клиенту <b>35 035 ₽ против 37 947 ₽</b> в таблице, то есть занижает на 2 912 ₽. Приложение должно иметь одну считалку, а не третью
+<div class="note" style="background:#eaf7ee;border-color:#bfe3cb">
+<b style="color:#1d6b3a">Правки от 23.09.2026 внесены.</b> Калькулятор разбит на два блока: ввод и расшифровка, где видно все восемь статей себестоимости, наценку, УСН, цену без НДС, НДС и цену с НДС. Добавлен третий блок на случай, когда цену называет клиент. Заказчик заводится с телефона и сразу попадает в общую базу, новый рейс пишется строкой в лист Рейсы
 </div>
 
 <h2>Сначала главное: это не программа из магазина приложений</h2>
@@ -242,30 +247,52 @@ S.trip = {title:'Рейс Р-001', sub:'закрыт · договор № 101',
     '<p class="tiny">Маржа 5,4% - рейс продан ниже расчётной цены метода. Такие рейсы приложение подсвечивает само</p>';
 }};
 
-S.newtrip = {title:'Новый рейс', sub:'заявка от клиента', tab:'trips', back:'trips', body:function(){
-  return '<div class="sect">Заказчик</div>' +
+S.newtrip = {title:'Новый рейс', sub:'строка уйдёт в лист Рейсы', tab:'trips', back:'trips',
+  body:function(){
+  return '<p class="tiny" style="margin-top:0"><span class="live"></span>Сохранение создаёт ' +
+    'строку Р-008 в листе Рейсы. Себестоимость, маржа и рентабельность посчитаются там формулами</p>' +
+    '<div class="sect">Заказчик</div>' +
     f('Заказчик', 'ИП Аргунов', true) + f('НДС', 'без НДС', true) + f('Отсрочка', '14 дней') +
+    '<button class="btn ghost" data-go="newcust">+ Заказчика нет в списке</button>' +
     '<div class="sect">Рейс</div>' +
-    f('Маршрут', 'Подольск - Верховье') + f('Дата старта', '24.09.2026') +
+    f('Откуда', 'Подольск') + f('Куда', 'Верховье') + f('Дата старта', '24.09.2026') +
     f('Километраж', '254 км') + f('Дней рейса', '1') +
     '<div class="sect">Машина</div>' +
     f('Тягач', 'из справочника', true) + f('Прицеп', 'из справочника', true) +
     f('Водитель', 'из справочника', true) +
     '<div class="sect">Цена</div>' +
-    f('Ставка заказчика', '37 900 ₽') +
+    f('Тариф по методу', '37 947 ₽') + f('Ставка заказчика', '37 900 ₽') +
+    f('Ставка НДС', 'без НДС', true) +
     '<button class="btn">Завести рейс и договор</button>' +
-    '<p class="tiny">Номер договора выдаст база, следующий после 106</p>';
+    '<p class="tiny">Номер договора выдаст база, следующий после 106. Статус нового рейса - «назначен»</p>';
 }};
 
-S.calc = {title:'Калькулятор', sub:'расчёт по методу', tab:'calc', body:function(){
-  return '<div class="fld"><label>Километраж, всего</label>' +
+S.calc = {title:'Калькулятор', sub:'блок 1 - ввод', tab:'calc', body:function(){
+  return '<div class="sect">Блок 1 · Ввод</div>' +
+    '<div class="fld"><label>Откуда</label><div class="inp">Подольск</div></div>' +
+    '<div class="fld"><label>Куда</label><div class="inp">Верховье</div></div>' +
+    '<div class="fld"><label>Километраж, всего</label>' +
     '<input id="ckm" type="number" inputmode="numeric" value="650"></div>' +
     '<div class="fld"><label>Дней рейса</label>' +
     '<input id="cdays" type="number" inputmode="numeric" value="1"></div>' +
-    '<div class="fld"><label>Ставка НДС</label><div class="inp sel">22%</div></div>' +
+    '<div class="fld"><label>Платные дороги, ₽</label>' +
+    '<input id="ctoll" type="number" inputmode="numeric" value="0"></div>' +
+    '<div class="fld"><label>Тягач</label><div class="inp sel">из справочника</div></div>' +
+    '<div class="fld"><label>Полуприцеп</label><div class="inp sel">из справочника</div></div>' +
     '<div id="cout"></div>' +
     '<button class="btn" data-go="newtrip">Завести рейс с этим расчётом</button>' +
+    '<button class="btn ghost" data-go="calcclient">Клиент назвал свою цену</button>' +
     '<p class="tiny">Километраж берётся из Яндекс.Карт по твоим правилам: свыше 20 т, без платных дорог, в Москву не глубже ТТК</p>';
+}};
+
+S.calcclient = {title:'Цену назвал клиент', sub:'блок 3 - проверка ставки', tab:'calc',
+  back:'calc', body:function(){
+  return '<div class="sect">Ввод</div>' +
+    '<div class="fld"><label>Цена клиента, ₽</label>' +
+    '<input id="kprice" type="number" inputmode="numeric" value="45000"></div>' +
+    '<div class="fld"><label>НДС в цене клиента</label><div class="inp sel">без НДС</div></div>' +
+    '<div class="sect">Разбор ставки</div><div id="kout"></div>' +
+    '<p class="tiny">Тот же блок, что в таблице справа: НДС «в том числе» вычитается из выручки, УСН берётся с суммы без НДС</p>';
 }};
 
 S.money = {title:'Деньги', sub:'счета и платежи', tab:'money', body:function(){
@@ -288,16 +315,27 @@ S.refs = {title:'Справочники', sub:'общие для всех мен
     '<p class="tiny">Что внёс один менеджер, сразу видят остальные: справочник лежит на сервере, а не в телефоне</p>';
 }};
 
-S.refscust = {title:'Заказчики', sub:'по данным справочника', tab:'refs', back:'refs', body:function(){
+S.refscust = {title:'Заказчики', sub:'общая база менеджеров', tab:'refs', back:'refs', body:function(){
   return '<div class="menu">' +
     m('ИП Аргунов','без НДС · отсрочка 14 дней') +
     m('ЖБИ 24/7','-') +
     m('КРост','-') +
     '</div>' +
-    '<button class="btn">Добавить заказчика</button>' +
-    '<div class="sect">Карточка</div>' +
-    r('Название','ИП Аргунов') + r('ИНН','-') + r('НДС','без НДС') +
-    r('Отсрочка','14 дней') + r('Контакт','-');
+    '<button class="btn" data-go="newcust">+ Новый заказчик</button>' +
+    '<p class="tiny"><span class="live"></span>База общая: что внёс один менеджер, ' +
+    'остальные видят сразу, без пересылки файлов</p>';
+}};
+
+S.newcust = {title:'Новый заказчик', sub:'пишется в Справочники', tab:'refs', back:'refscust',
+  body:function(){
+  return '<p class="tiny" style="margin-top:0">Менеджер заводит контрагента прямо во время ' +
+    'разговора. Запись уходит в лист Справочники и тут же появляется в выпадающих списках рейса</p>' +
+    f('Название','ООО Калужский бетонный') + f('ИНН','4027123456') +
+    f('НДС','с НДС', true) + f('Отсрочка, дней','14') +
+    f('Контакт','Игорь, +7 900 000-00-00') + f('Почта','zakaz@kbz.ru') +
+    '<button class="btn">Сохранить в справочник</button>' +
+    '<p class="tiny">Дубли база ловит по ИНН: если фирму уже завёл другой менеджер, ' +
+    'запись обновится, а не удвоится</p>';
 }};
 
 S.more = {title:'Ещё', sub:'остальные листы', tab:'more', body:function(){
@@ -376,32 +414,105 @@ function render(node, key, live){
   h += '</div>';
   node.innerHTML = h;
   if(key==='calc') wireCalc(node, live);
+  if(key==='calcclient') wireClient(node, live);
 }
 
-/* ---------- честный расчёт по методу ---------- */
-var DAY_RATE=9787, KM_RATE=46.49, MARKUP=1.25, USN=0.94, VAT=1.22;
+/* ---------- расчёт: те же статьи, что в листе «Калькулятор» ----------
+   Нормативы листа Справочники: расход 30 л/100км, топливо 85 ₽/л,
+   Платон 5,19 ₽/км, мочевина 0,80 ₽/км, водитель 2 000 ₽/день и 15 ₽/км,
+   путевой лист 120 ₽/день, аренда сцепки 7 667 ₽/день, наценка 25%,
+   УСН 6% внутри цены, НДС 22% сверху.
+   Проверка: фикс за день 7667+2000+120 = 9 787 ₽,
+   переменные за км 25,50+15+5,19+0,80 = 46,49 ₽ - совпадает с методом  */
+var N = {rent:7667, drvDay:2000, waybill:120, fuelL:30, fuelP:85,
+         drvKm:15, platon:5.19, adblue:0.80, markup:0.25, usn:0.06, vat:0.22};
+
+function costLines(k, d, toll){
+  var fuel = k*N.fuelL/100*N.fuelP;
+  return [
+    ['Аренда тягача и полуприцепа', N.rent*d],
+    ['Водитель за дни', N.drvDay*d],
+    ['Путевой лист', N.waybill*d],
+    ['Топливо', fuel],
+    ['Водитель за км', N.drvKm*k],
+    ['Платон', N.platon*k],
+    ['Мочевина', N.adblue*k],
+    ['Платные дороги', toll]
+  ];
+}
+
 function wireCalc(node, live){
   var km = node.querySelector('#ckm'), days = node.querySelector('#cdays'),
-      out = node.querySelector('#cout');
+      toll = node.querySelector('#ctoll'), out = node.querySelector('#cout');
   function calc(){
-    var k = parseFloat(km.value)||0, d = parseFloat(days.value)||0;
+    var k = parseFloat(km.value)||0, d = parseFloat(days.value)||0,
+        t = parseFloat(toll.value)||0;
     if(!d){
-      out.innerHTML = '<div class="res" style="background:#ffe9e9">' +
-        '<div class="lbl">Не заполнено</div><div class="big" style="font-size:15px">' +
-        'впиши «Дней рейса»</div></div>';
+      out.innerHTML = '<div class="sect">Блок 2 · Расшифровка</div>' +
+        '<div class="res" style="background:#ffe9e9"><div class="lbl">Расчёт остановлен</div>' +
+        '<div class="big" style="font-size:14px;line-height:1.35">впиши «Дней рейса»: без него ' +
+        'из цены выпадут аренда тягача, аренда прицепа и путевой лист</div></div>';
       return;
     }
-    var cost = DAY_RATE*d + KM_RATE*k;
-    var price = cost*MARKUP/USN;
-    out.innerHTML = '<div class="res"><div class="lbl">Цена клиенту с НДС 22%</div>' +
-      '<div class="big">'+money(price*VAT)+'</div></div>' +
-      r('Себестоимость', money(cost)) +
-      r('Цена без НДС', money(price)) +
-      r('Маржа после УСН', money(price*USN-cost), 'pos') +
-      r('Рублей за километр', (k? (price*VAT/k).toFixed(2).replace('.',',') : '-')+' ₽');
+    var lines = costLines(k, d, t), cost = 0;
+    lines.forEach(function(l){ cost += l[1]; });
+    var price = cost*(1+N.markup)/(1-N.usn);
+    var usnSum = price*N.usn, vatSum = price*N.vat, full = price+vatSum;
+
+    var h = '<div class="sect">Блок 2 · Расшифровка</div>';
+    lines.forEach(function(l){ h += r(l[0], money(l[1])); });
+    h += '<div class="tot">' + r('СЕБЕСТОИМОСТЬ', money(cost)) + '</div>' +
+      r('Наценка 25%', money(cost*N.markup)) +
+      r('УСН 6% внутри цены', money(usnSum)) +
+      '<div class="tot">' + r('ЦЕНА БЕЗ НДС', money(price)) + '</div>' +
+      r('НДС 22% сверху', money(vatSum)) +
+      '<div class="tot">' + r('ЦЕНА С НДС', money(full)) + '</div>' +
+      r('Остаётся после УСН', money(price-usnSum-cost), 'pos') +
+      r('За км без НДС', perKm(price, k)) +
+      r('За км с НДС', perKm(full, k)) +
+      '<div class="res"><div class="lbl">Называем клиенту</div>' +
+      '<div class="big">'+money(full)+'</div>' +
+      '<div class="lbl">без НДС '+money(price)+'</div></div>';
+    if(k && d && k/d > 650){
+      h += '<p class="tiny" style="color:#c0392b">Больше 650 км в день: по норме 9 часов ' +
+           'за рулём не успеть, проверь число дней</p>';
+    }
+    out.innerHTML = h;
   }
-  if(live){ km.addEventListener('input', calc); days.addEventListener('input', calc); }
-  else { km.readOnly = days.readOnly = true; }
+  if(live){
+    [km, days, toll].forEach(function(el){ el.addEventListener('input', calc); });
+  } else { km.readOnly = days.readOnly = toll.readOnly = true; }
+  calc();
+}
+
+function perKm(sum, k){
+  return k ? (sum/k).toFixed(2).replace('.', ',') + ' ₽' : '-';
+}
+
+/* блок 3: клиент назвал свою цену */
+function wireClient(node, live){
+  var inp = node.querySelector('#kprice'), out = node.querySelector('#kout');
+  function calc(){
+    var p = parseFloat(inp.value)||0;
+    var cost = 0;
+    costLines(650, 1, 0).forEach(function(l){ cost += l[1]; });
+    var our = cost*(1+N.markup)/(1-N.usn);
+    var net = p, usnSum = net*N.usn, margin = net-usnSum-cost;
+    var verdict = margin < 0 ? ['УБЫТОК, рейс не брать', 'neg']
+      : (net < our ? ['Берём дешевле нашей цены, маржа ниже плановой', '']
+                   : ['Цена клиента не ниже нашей', 'pos']);
+    out.innerHTML =
+      r('Выручка без НДС', money(net)) +
+      r('УСН 6%', money(usnSum)) +
+      r('Себестоимость', money(cost)) +
+      '<div class="tot">' + r('МАРЖА', money(margin), margin<0?'neg':'pos') + '</div>' +
+      r('Рентабельность', net? (margin/net*100).toFixed(1).replace('.',',')+'%' : '-') +
+      r('Против нашей цены', money(net-our), net-our<0?'neg':'pos') +
+      '<div class="res" style="background:'+(margin<0?'#ffe9e9':'#eaf7ee')+'">' +
+      '<div class="lbl">Вывод</div><div class="big" style="font-size:14px;line-height:1.35">' +
+      verdict[0]+'</div></div>';
+  }
+  if(live){ inp.addEventListener('input', calc); } else { inp.readOnly = true; }
   calc();
 }
 
@@ -416,13 +527,16 @@ go('trips');
 
 /* ---------- галерея ---------- */
 var CAPS = [
+  ['calc','<b>Калькулятор, блок 1 - ввод.</b> Откуда, куда, километраж, дни, платные дороги, машина. Ровно то же, что в зелёных ячейках листа «Калькулятор»'],
+  ['calc','<b>Калькулятор, блок 2 - расшифровка.</b> Тот же экран, прокрученный вниз: восемь статей себестоимости, наценка, УСН, цена без НДС, НДС и цена с НДС', 1],
+  ['calcclient','<b>Калькулятор, блок 3.</b> Клиент назвал свою цену - приложение говорит, берём рейс или это убыток'],
   ['trips','<b>Рейсы.</b> Вместо сорока колонок - карточки. Цвет полоски слева тот же, что в таблице: голубой назначен, персиковый в пути, жёлтый завершён без денег, серый закрыт'],
+  ['newtrip','<b>Новый рейс.</b> Менеджер заводит заявку при клиенте, строка уходит в лист Рейсы. Заказчика нет в списке - кнопка прямо здесь'],
   ['trip','<b>Карточка рейса.</b> Вся экономика рейса на одном экране плюс договор и фото накладной'],
-  ['calc','<b>Калькулятор.</b> Менеджер говорит с клиентом по телефону и тут же называет цену. Из расчёта одной кнопкой рождается рейс'],
-  ['newtrip','<b>Новый рейс.</b> Заказчик и машина выбираются из справочника, руками не печатаются. Номер договора выдаёт база'],
+  ['refscust','<b>Заказчики.</b> Общая база: что внёс один менеджер, остальные видят сразу'],
+  ['newcust','<b>Новый заказчик.</b> Заводится во время разговора и тут же попадает в списки рейса. Дубли ловятся по ИНН'],
   ['money','<b>Деньги.</b> Кто должен, сколько и с какого числа просрочено'],
-  ['refs','<b>Справочники.</b> Пять блоков листа Справочники. Заводятся с телефона, видны всем менеджерам сразу'],
-  ['refscust','<b>Заказчики.</b> ИНН, НДС, отсрочка - то, из чего считается срок оплаты счёта'],
+  ['refs','<b>Справочники.</b> Пять блоков листа Справочники, все редактируются с телефона'],
   ['fuel','<b>Заправки.</b> Чек снимается камерой телефона прямо в форме'],
   ['exp','<b>Расходы.</b> Те же типы расхода, что в таблице'],
   ['pay','<b>Зарплата.</b> Начислено из закрытых рейсов, чек самозанятого обязателен'],
@@ -437,6 +551,10 @@ CAPS.forEach(function(c){
   var cap = document.createElement('div'); cap.className = 'cap'; cap.innerHTML = c[1];
   cell.appendChild(cap); g.appendChild(cell);
   render(scr, c[0], false);
+  if(c[2]){
+    var bd = scr.querySelector('.body');
+    if(bd) bd.scrollTop = bd.scrollHeight;
+  }
 });
 </script>
 </body>
