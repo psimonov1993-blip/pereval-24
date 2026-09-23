@@ -466,11 +466,12 @@ SCREENS.trip = {
       '<div class="sect">Деньги</div><div class="tot">' +
       row('Ставка заказчика', money(t.price)) + '</div>' +
       '<div class="card">' +
-      row('Выставлено счетами', billed === null ? 'нет данных' : money(billed)) +
-      row('Зачтено', credited === null ? 'нет данных' : money(credited)) +
-      (billed !== null && credited !== null
-        ? row('Ждём оплату', money(Math.max(billed - credited, 0)),
-              billed - credited > 0 ? 'neg' : 'pos')
+      row('Выставлено счетами', billed === null ? 'данных нет'
+          : (billed ? money(billed) : 'счёт не выставлен')) +
+      row('Зачтено', credited === null ? 'данных нет' : money(credited)) +
+      (billed
+        ? row('Ждём оплату', money(Math.max(billed - (credited || 0), 0)),
+              billed - (credited || 0) > 0 ? 'neg' : 'pos')
         : '') +
       '</div>';
     if (t.contract) {
@@ -624,9 +625,11 @@ SCREENS.money = {
     }
     h += '<div class="sect">По рейсам</div>';
     state.trips.forEach(function (t) {
-      var st = statusOf(t), b = toNum(t.billed), c = toNum(t.credited);
-      var tail = b === null ? 'счёт не выставлен'
-        : (c >= b && b > 0 ? 'оплачен' : 'ждём ' + money(Math.max(b - c, 0)));
+      var st = statusOf(t), b = toNum(t.billed), c = toNum(t.credited) || 0;
+      // ноль и пробел - разные вещи: счёта нет вовсе против счёта на ноль рублей
+      var tail = b === null ? 'данных по счетам нет'
+        : (!b ? 'счёт не выставлен'
+             : (c >= b ? 'оплачен' : 'ждём ' + money(b - c)));
       h += '<div class="trip" style="border-left-color:' + statusLine(st) + '">' +
         '<div class="top"><span class="id">' + esc(t.id) + '</span>' +
         '<span class="sum">' + money(t.price) + '</span></div>' +
