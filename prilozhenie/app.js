@@ -962,6 +962,16 @@ function saveTrip() {
   if (!price) { toast('Впиши ставку заказчика'); return; }
   var clash = state.trips.some(function (t) { return t.id === id; });
   if (clash) { toast('Рейс ' + id + ' уже есть в базе, поменяй номер'); return; }
+  // Лишний ноль уходит прямо в договор заказчику: 24.09.2026 рейс Р-013 на
+  // Обнинск - Лужники завели со ставкой 380 000 ₽. Сверяем с тарифом по методу
+  var km = num('nKm'), days = num('nDays') || 1;
+  if (km) {
+    var c = calcTrip(km, days, parseFloat(state.draft.toll) || 0, parseFloat(state.draft.fix) || 0);
+    var odd = price > c.price * 2.5
+      ? 'в ' + (price / c.price).toFixed(1).replace('.', ',') + ' раза выше тарифа по методу (' + money(c.price) + ')'
+      : (price < c.floor ? 'ниже порога убытка (' + money(c.floor) + ')' : '');
+    if (odd && !window.confirm('Ставка ' + money(price) + ' ' + odd + '. Она уйдёт в договор заказчику. Всё верно?')) return;
+  }
 
   var btn = $('nSave'); btn.disabled = true; btn.textContent = 'Записываю…';
   var data = {
