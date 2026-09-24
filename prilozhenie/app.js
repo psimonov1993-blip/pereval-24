@@ -30,8 +30,27 @@ var state = {
   parties: LS.get('pv24_parties_cache', []),
   online: navigator.onLine,
   lastTrip: null,
-  draft: LS.get('pv24_draft', {})
+  draft: LS.get('pv24_draft', {}),
+  // справочники таблицы: тягачи, прицепы, водители, заказчики и маршруты
+  refs: LS.get('pv24_refs', {}),
+  // фильтры списка рейсов телефон помнит между запусками
+  filter: LS.get('pv24_filter', { status: 'all', date: 'all', from: '', to: '', customer: '', driver: '' }),
+  // недописанная форма нового рейса: переживает уход на экран «новый заказчик»
+  tripForm: null
 };
+
+/** Справочник по виду, всегда массив: пока таблица не прислала, он пустой */
+function refList(kind) {
+  var l = state.refs && state.refs[kind];
+  return Array.isArray(l) ? l : [];
+}
+function setRefs(r) {
+  if (!r || typeof r !== 'object') return false;
+  var before = JSON.stringify(state.refs);
+  state.refs = r;
+  LS.set('pv24_refs', r);
+  return JSON.stringify(r) !== before;
+}
 
 /* -------------------------------------------------------------- метод
    Нормативы листа Справочники на 23.09.2026. Проверка складываемости:
@@ -181,9 +200,18 @@ SCREENS.calc = {
   tab: 'calc', title: 'Калькулятор', sub: 'расчёт по методу',
   render: function () {
     var d = state.draft;
+    var routes = refList('routes');
     return '' +
       '<div class="sect">Блок 1 · Ввод</div>' +
       '<div class="card">' +
+        (routes.length
+          ? '<label for="cRoute">Маршрут из справочника</label><select id="cRoute">' +
+            '<option value="">- новый маршрут -</option>' +
+            routeItems().map(function (it) {
+              return '<option value="' + esc(it.value) + '"' + (it.value === d.route ? ' selected' : '') +
+                     '>' + esc(it.label) + '</option>';
+            }).join('') + '</select>'
+          : '') +
         '<div class="two">' +
           '<div><label for="cFrom">Откуда</label>' +
           '<input id="cFrom" value="' + esc(d.from || 'Подольск') + '"></div>' +
@@ -201,6 +229,7 @@ SCREENS.calc = {
         '<label for="cFix">Зарплата водителя фикс, ₽ (пусто = по нормативу)</label>' +
         '<input id="cFix" type="number" inputmode="numeric" value="' + esc(d.fix || '') + '">' +
         '<button class="btn ghost slim" id="cMap">Открыть маршрут в Яндекс.Картах</button>' +
+        '<button class="btn ghost slim" id="cSaveRoute">Сохранить маршрут в справочник</button>' +
       '</div>' +
       '<div id="cOut"></div>' +
       '<button class="btn" id="cToTrip">Завести рейс с этим расчётом</button>' +
@@ -213,6 +242,13 @@ SCREENS.calc = {
       $(id).addEventListener('input', recalc);
     });
     ['cFrom', 'cTo'].forEach(function (id) { $(id).addEventListener('input', saveDraft); });
+    var cr = $('cRoute');
+    if (cr) cr.addEventListener('change', function () {
+      if (cr.value) { useRoute(routeByName(cr.value)); return; }
+      state.draft.route = '';
+      LS.set('pv24_draft', state.draft);
+    });
+    $('cSaveRoute').addEventListener('click', saveRoute);
     $('cMap').addEventListener('click', function () {
       var a = val('cFrom'), b = val('cTo');
       if (!a || !b) { toast('Впиши «Откуда» и «Куда»'); return; }
@@ -229,11 +265,39 @@ SCREENS.calc = {
 };
 
 function saveDraft() {
+  var old = state.draft || {};
+  var from = val('cFrom'), to = val('cTo');
   state.draft = {
-    from: val('cFrom'), to: val('cTo'), km: val('cKm'),
+    // имя маршрута из справочника держится, пока не переписали «откуда» и «куда»
+    route: old.route && old.from === from && old.to === to ? old.route : '',
+    from: from, to: to, km: val('cKm'),
     days: val('cDays'), toll: val('cToll'), fix: val('cFix')
   };
   LS.set('pv24_draft', state.draft);
+}
+
+/** Маршрут из калькулятора в общий справочник: км сняты с карты, им верим больше */
+function saveRoute() {
+  if (!state.key) { openGate(); return; }
+  saveDraft();
+  var d = state.draft;
+  if (!d.from || !d.to) { toast('Впиши «Откуда» и «Куда»'); return; }
+  if (!num('cKm')) { toast('Сначала километраж с карты'); return; }
+  var name = d.route || (d.from + ' - ' + d.to);
+  var btn = $('cSaveRoute'); btn.disabled = true;
+  apiTrips({ action: 'route.save', route: {
+    route: name, from: d.from, to: d.to, km: num('cKm'), days: num('cDays') || 1, toll: num('cToll')
+  }}).then(function (res) {
+    btn.disabled = false;
+    if (!res || !res.ok) throw new Error((res && res.error) || 'база не приняла маршрут');
+    setRefs(res.refs);
+    state.draft.route = name;
+    LS.set('pv24_draft', state.draft);
+    toast('Маршрут «' + name + '» в справочнике, видят все менеджеры');
+  }).catch(function (e) {
+    btn.disabled = false;
+    toast(state.online ? ('Не вышло: ' + e.message) : 'Нет сети, маршрут не сохранён');
+  });
 }
 
 function recalc() {
@@ -348,22 +412,168 @@ function clientCalc() {
 }
 
 /* ------------------------------------------------------------ рейсы */
+/* ------------------------------------------------------------- даты
+   База хранит даты строкой «24.09.2026». Для фильтра переводим в полночь
+   этого дня, для поля ввода даты - в «2026-09-24», и обратно.            */
+var WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+function dayOf(s) {
+  var d = parseStamp(s);
+  return d ? new Date(d.getFullYear(), d.getMonth(), d.getDate()) : null;
+}
+function dayStart(offset) {
+  var d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + (offset || 0));
+}
+function isoOf(s) {
+  var d = typeof s === 'string' ? dayOf(s) : s;
+  if (!d) return '';
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function fromIso(s) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+  return m ? m[3] + '.' + m[2] + '.' + m[1] : '';
+}
+/** «сегодня, чт 24.09» · «завтра, пт 25.09» · «пн 28.09» */
+function dayLabel(d) {
+  if (!d) return 'дата не указана';
+  var diff = Math.round((d - dayStart(0)) / 86400000);
+  var s = WD[d.getDay()] + ' ' + ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2);
+  if (diff === 0) return 'сегодня, ' + s;
+  if (diff === 1) return 'завтра, ' + s;
+  if (diff === -1) return 'вчера, ' + s;
+  return s + (d.getFullYear() !== new Date().getFullYear() ? '.' + d.getFullYear() : '');
+}
+/** Даты рейса одной строкой: «пт 25.09» или «пт 25.09 - сб 26.09» */
+function tripDates(t) {
+  var a = dayOf(t.date), b = dayOf(t.dateFinish);
+  if (!a) return 'дата не указана';
+  var fmt = function (d) {
+    return WD[d.getDay()] + ' ' + ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2);
+  };
+  return b && b.getTime() !== a.getTime() ? fmt(a) + ' - ' + fmt(b) : fmt(a);
+}
+
+/* ---------------------------------------------------------- фильтры
+   Рейс занимает дни от старта до финиша: рейс 24-25.09 попадает и в
+   «сегодня» 24-го, и в «завтра». Рейс без даты виден только в «все даты». */
+var CLOSED = { 'закрыт': 1, 'отменён': 1 };
+var F_STATUS = [
+  ['active', 'Действующие'], ['all', 'Все'], ['назначен', 'назначен'], ['в пути', 'в пути'],
+  ['завершён', 'завершён'], ['закрыт', 'закрыт'], ['отменён', 'отменён']
+];
+var F_DATE = [['all', 'Все даты'], ['today', 'Сегодня'], ['tomorrow', 'Завтра'],
+              ['week', '7 дней'], ['period', 'Период']];
+
+function dateWindow(f) {
+  if (f.date === 'today') return [dayStart(0), dayStart(0)];
+  if (f.date === 'tomorrow') return [dayStart(1), dayStart(1)];
+  if (f.date === 'week') return [dayStart(0), dayStart(6)];
+  if (f.date === 'period') {
+    var a = dayOf(fromIso(f.from)), b = dayOf(fromIso(f.to));
+    if (!a && !b) return null;
+    return [a || new Date(2000, 0, 1), b || new Date(2100, 0, 1)];
+  }
+  return null;
+}
+
+function passFilter(t, f) {
+  var st = statusOf(t);
+  if (f.status === 'active' && st && CLOSED[st]) return false;
+  if (f.status !== 'active' && f.status !== 'all' && st !== f.status) return false;
+  if (f.customer && String(t.customer || '') !== f.customer) return false;
+  if (f.driver && String(t.driver || '') !== f.driver) return false;
+  var w = dateWindow(f);
+  if (w) {
+    var a = dayOf(t.date);
+    if (!a) return false;
+    var b = dayOf(t.dateFinish) || a;
+    if (b < a) b = a;
+    if (b < w[0] || a > w[1]) return false;
+  }
+  return true;
+}
+
+function setFilter(k, v) {
+  state.filter[k] = v;
+  LS.set('pv24_filter', state.filter);
+  paint();
+}
+
+function uniq(arr) {
+  var seen = {}, out = [];
+  arr.forEach(function (v) { v = String(v || '').trim(); if (v && !seen[v]) { seen[v] = 1; out.push(v); } });
+  return out.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+}
+
+function chips(group, list, cur) {
+  return '<div class="chips">' + list.map(function (c) {
+    return '<button class="chip' + (c[0] === cur ? ' on' : '') + '" data-f="' + group +
+           '" data-v="' + esc(c[0]) + '">' + esc(c[1]) + '</button>';
+  }).join('') + '</div>';
+}
+
+function filterPanel() {
+  var f = state.filter;
+  var custs = uniq(state.trips.map(function (t) { return t.customer; }));
+  var drvs = uniq(state.trips.map(function (t) { return t.driver; }));
+  var opt = function (list, cur, empty) {
+    return '<option value="">' + empty + '</option>' + list.map(function (v) {
+      return '<option' + (v === cur ? ' selected' : '') + ' value="' + esc(v) + '">' + esc(v) + '</option>';
+    }).join('');
+  };
+  return '<div class="filters">' +
+    chips('status', F_STATUS, f.status) +
+    chips('date', F_DATE, f.date) +
+    (f.date === 'period'
+      ? '<div class="two"><div><label for="fFrom">С</label><input id="fFrom" type="date" value="' + esc(f.from) + '"></div>' +
+        '<div><label for="fTo">По</label><input id="fTo" type="date" value="' + esc(f.to) + '"></div></div>'
+      : '') +
+    '<div class="two">' +
+      '<select id="fCust" aria-label="Заказчик">' + opt(custs, f.customer, 'все заказчики') + '</select>' +
+      '<select id="fDrv" aria-label="Водитель">' + opt(drvs, f.driver, 'все водители') + '</select>' +
+    '</div></div>';
+}
+
 SCREENS.trips = {
   tab: 'trips', title: 'Рейсы', sub: 'из общей базы', act: ['+ Рейс', 'newtrip'],
   render: function () {
     if (!state.trips.length) {
       return '<div class="empty">Рейсов пока нет.<br>Посчитай в калькуляторе и заведи первый</div>';
     }
-    var h = freshness();
-    state.trips.forEach(function (t) {
+    var f = state.filter;
+    var shown = state.trips.filter(function (t) { return passFilter(t, f); });
+    // свежие даты сверху, внутри дня - по номеру рейса
+    shown.sort(function (a, b) {
+      var da = dayOf(a.date), db = dayOf(b.date);
+      var ta = da ? da.getTime() : -1, tb = db ? db.getTime() : -1;
+      if (ta !== tb) return tb - ta;
+      return String(b.id).localeCompare(String(a.id), 'ru', { numeric: true });
+    });
+    var h = freshness() + filterPanel();
+    var dirty = f.status !== 'all' || f.date !== 'all' || f.customer || f.driver;
+    h += '<div class="shown">Показано ' + shown.length + ' из ' + state.trips.length +
+         (dirty ? ' · <button class="link" id="fReset">показать все</button>' : '') + '</div>';
+    if (!shown.length) {
+      return h + '<div class="empty">Под эти фильтры рейсов нет</div>';
+    }
+    var day = null;
+    shown.forEach(function (t) {
+      var d = dayOf(t.date), key = d ? d.getTime() : 'none';
+      if (key !== day) {
+        day = key;
+        var lab = dayLabel(d);
+        h += '<div class="day">' + esc(lab.charAt(0).toUpperCase() + lab.slice(1)) + '</div>';
+      }
       var st = statusOf(t);
       h += '<div class="trip" data-trip="' + esc(t.id) + '" style="border-left-color:' +
         statusLine(st) + '"><div class="top"><span class="id">' + esc(t.id) + '</span>' +
         '<span class="sum">' + money(t.price) + '</span></div>' +
+        '<div class="when">📅 ' + esc(tripDates(t)) + '</div>' +
         '<div class="rt">' + esc(t.route || 'маршрут не указан') + '</div>' +
         '<div class="meta">' + statusPill(st, t.status) +
-        (t.contract ? '<span>договор № ' + esc(t.contract) + '</span>' : '') +
         (t.customer ? '<span>' + esc(t.customer) + '</span>' : '') +
+        (t.driver ? '<span>' + esc(t.driver) + '</span>' : '') +
+        (t.contract ? '<span>договор № ' + esc(t.contract) + '</span>' : '') +
         '</div></div>';
     });
     return h;
@@ -374,6 +584,22 @@ SCREENS.trips = {
         state.lastTrip = el.getAttribute('data-trip');
         go('trip');
       });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-f]'), function (el) {
+      el.addEventListener('click', function () {
+        setFilter(el.getAttribute('data-f'), el.getAttribute('data-v'));
+      });
+    });
+    var bind = function (id, key) {
+      var e = $(id);
+      if (e) e.addEventListener('change', function () { setFilter(key, e.value); });
+    };
+    bind('fFrom', 'from'); bind('fTo', 'to'); bind('fCust', 'customer'); bind('fDrv', 'driver');
+    var r = $('fReset');
+    if (r) r.addEventListener('click', function () {
+      state.filter = { status: 'all', date: 'all', from: '', to: '', customer: '', driver: '' };
+      LS.set('pv24_filter', state.filter);
+      paint();
     });
     loadTrips();
   }
@@ -402,18 +628,24 @@ function loadTrips(force) {
     if (!Array.isArray(list)) return;
     state.trips = list.map(function (t) {
       var d = t.trip_data || t.data || t;
+      // у рейсов из таблицы машина приходит строкой «тягач, прицеп»
+      var veh = String(d.vehicle || '').split(',').map(function (s) { return s.trim(); });
       return {
         id: t.trip || t.id || d.id, route: d.route, customer: d.customer,
         price: d.price, status: d.status, contract: t.contract || d.contract,
-        driver: d.driver, vehicle: d.vehicle, date: d.date, customerInn: d.customerInn,
+        driver: d.driver, vehicle: d.vehicle, date: d.date, dateFinish: d.dateFinish,
+        tractor: d.tractor || veh[0] || '', trailer: d.trailer || veh[1] || '',
+        days: d.days, customerInn: d.customerInn,
         billed: d.billed, credited: d.credited, updatedAt: d.updatedAt, km: d.km, vat: d.vat
       };
     });
     state.syncedAt = res.syncedAt || '';
     LS.set('pv24_trips_cache', state.trips);
     LS.set('pv24_synced_at', state.syncedAt);
+    var refsChanged = res.refs ? setRefs(res.refs) : false;
     var changed = JSON.stringify([state.trips, state.syncedAt]) !== before;
     if (changed && (state.screen === 'trips' || state.screen === 'money')) paint();
+    else if (refsChanged && REF_SCREENS[state.screen]) paint();
   }).catch(function () { tripsLoading = false; });
 }
 
@@ -456,11 +688,13 @@ SCREENS.trip = {
     var h = freshness() + '<div class="card">' +
       row('Рейс', esc(t.id)) +
       row('Статус', st || UNKNOWN.text + (t.status ? ': «' + esc(t.status) + '»' : '')) +
+      row('Даты', esc(tripDates(t))) +
       row('Маршрут', esc(t.route || '-')) +
       row('Заказчик', esc(t.customer || '-')) +
       row('Водитель', esc(t.driver || '-')) +
-      row('Машина', esc(t.vehicle || '-')) +
-      row('Дата', esc(t.date || '-')) +
+      row('Тягач', esc(t.tractor || '-')) +
+      row('Прицеп', esc(t.trailer || '-')) +
+      (t.km ? row('Километраж', esc(t.km) + ' км') : '') +
       (t.updatedAt ? row('Обновлён', esc(t.updatedAt)) : '') +
       '</div>' +
       '<div class="sect">Деньги</div><div class="tot">' +
@@ -491,59 +725,219 @@ SCREENS.trip = {
 };
 
 /* -------------------------------------------------------- новый рейс */
+/* ------------------------------------------------ выбор из справочника
+   Список плюс пункт «нет в списке - вписать». Вписанное значение таблица
+   сама заведёт в свой справочник, когда заберёт рейс, поэтому ручной ввод
+   не ломает выпадающие списки листа «Рейсы».                             */
+var OTHER = '__other';
+
+function pick(id, items, cur, empty, noteEmpty) {
+  var found = false;
+  var o = '<option value="">' + esc(empty) + '</option>';
+  items.forEach(function (it) {
+    var sel = cur && it.value === cur;
+    if (sel) found = true;
+    o += '<option value="' + esc(it.value) + '"' + (sel ? ' selected' : '') +
+         (it.data ? ' data-x="' + esc(it.data) + '"' : '') + '>' + esc(it.label) + '</option>';
+  });
+  var other = !!cur && !found;
+  o += '<option value="' + OTHER + '"' + (other || !items.length ? ' selected' : '') +
+       '>нет в списке - вписать</option>';
+  return '<select id="' + id + '">' + o + '</select>' +
+    '<input id="' + id + 'Other" class="other" placeholder="впиши вручную" value="' +
+      esc(other ? cur : '') + '"' + (other || !items.length ? '' : ' style="display:none"') + '>' +
+    (!items.length && noteEmpty ? '<p class="tiny">' + esc(noteEmpty) + '</p>' : '');
+}
+
+/** Значение поля выбора: из списка или вписанное руками */
+function picked(id) {
+  var s = $(id);
+  if (!s) return '';
+  return s.value === OTHER ? val(id + 'Other') : s.value;
+}
+
+function wirePick(id, onChange) {
+  var s = $(id);
+  if (!s) return;
+  s.addEventListener('change', function () {
+    var other = $(id + 'Other');
+    if (other) {
+      other.style.display = s.value === OTHER ? '' : 'none';
+      if (s.value === OTHER) other.focus();
+    }
+    if (onChange) onChange(s);
+  });
+}
+
+var NO_REFS = 'Справочник ещё не пришёл из таблицы: в таблице меню «Перевал 24» → «Отправить справочники в приложение»';
+
+/** Заказчики: сперва из таблицы, затем из справочника менеджеров, без дублей по ИНН и названию */
+function customerItems() {
+  var out = [], seenInn = {}, seenName = {};
+  var nn = function (s) { return String(s || '').toLowerCase().replace(/[«»"']/g, '').replace(/\s+/g, ' ').trim(); };
+  refList('customers').forEach(function (c) {
+    out.push({ value: c.name, label: c.name + (c.vat ? ' · ' + c.vat : ''), data: c.inn || '' });
+    if (c.inn) seenInn[String(c.inn)] = 1;
+    seenName[nn(c.name)] = 1;
+  });
+  state.parties.forEach(function (p) {
+    if ((p.pInn && seenInn[String(p.pInn)]) || seenName[nn(p.pName)]) return;
+    out.push({ value: p.pName, label: p.pName + ' · нет в таблице', data: p.pInn || '' });
+  });
+  return out;
+}
+
+function routeItems() {
+  return refList('routes').map(function (r) {
+    var bits = [];
+    if (r.km) bits.push(r.km + ' км');
+    if (r.days && r.days > 1) bits.push(r.days + ' дн');
+    if (r.uses) bits.push(plural(r.uses, 'рейс', 'рейса', 'рейсов'));
+    return { value: r.route, label: r.route + (bits.length ? ' · ' + bits.join(' · ') : '') };
+  });
+}
+function routeByName(name) {
+  var hit = null;
+  refList('routes').forEach(function (r) { if (r.route === name) hit = r; });
+  return hit;
+}
+
 SCREENS.newtrip = {
   tab: 'trips', title: 'Новый рейс', sub: 'запись в общую базу', back: 'trips',
   render: function () {
     var d = state.draft;
-    var km = parseFloat(d.km) || 0, days = parseFloat(d.days) || 1;
-    var c = km ? calcTrip(km, days, parseFloat(d.toll) || 0, parseFloat(d.fix) || 0) : null;
-    var opts = '<option value="">выбери из справочника</option>';
-    state.parties.forEach(function (p) {
-      opts += '<option value="' + esc(p.pName) + '" data-inn="' + esc(p.pInn || '') + '">' +
-              esc(p.pName) + '</option>';
+    // форма, недописанная до ухода на «нового заказчика», важнее черновика калькулятора
+    var f = state.tripForm || {
+      route: d.route || [d.from, d.to].filter(Boolean).join(' - '),
+      km: d.km || '', days: d.days || 1, date: isoOf(dayStart(0)), dateFinish: ''
+    };
+    var drivers = refList('drivers').map(function (x) {
+      var stop = /стоп/i.test(x.signal || '');
+      return { value: x.name, data: x.signal || '',
+               label: (stop ? '⛔ ' : '') + x.name + (x.phone ? ' · ' + x.phone : '') };
     });
+    var veh = function (list) {
+      return list.map(function (x) {
+        return { value: x.name, label: x.name + (x.brand ? ' · ' + x.brand : '') +
+                 (x.status ? ' · ' + x.status : '') };
+      });
+    };
+    // единственную машину и водителя подставляем сразу: выбирать не из чего
+    var only = function (list, v) { return v || (list.length === 1 ? list[0].name : ''); };
     return '' +
       '<div class="sect">Заказчик</div>' +
-      '<select id="nCust">' + opts + '</select>' +
-      '<button class="btn ghost slim" id="nNewCust">+ Заказчика нет в списке</button>' +
-      '<label for="nInn">ИНН заказчика</label><input id="nInn" inputmode="numeric">' +
-      '<div class="sect">Рейс</div>' +
-      '<label for="nId">Номер рейса</label>' +
-      '<input id="nId" value="' + esc(nextTripId()) + '">' +
-      '<label for="nRoute">Маршрут</label>' +
-      '<input id="nRoute" value="' + esc([d.from, d.to].filter(Boolean).join(' - ')) + '">' +
+      pick('nCust', customerItems(), f.customer, 'выбери заказчика', '') +
+      '<button class="btn ghost slim" id="nNewCust">+ Завести нового заказчика с реквизитами</button>' +
+      '<label for="nInn">ИНН заказчика</label><input id="nInn" inputmode="numeric" value="' + esc(f.inn || '') + '">' +
+      '<div class="sect">Маршрут</div>' +
+      pick('nRoute', routeItems(), f.route, 'выбери маршрут', 'Маршрутов в справочнике пока нет. Впиши вручную или сохрани из калькулятора') +
       '<div class="two">' +
-        '<div><label for="nDate">Дата старта</label>' +
-        '<input id="nDate" value="' + today() + '"></div>' +
         '<div><label for="nKm">Километраж</label>' +
-        '<input id="nKm" type="number" inputmode="decimal" value="' + esc(d.km || '') + '"></div>' +
+        '<input id="nKm" type="number" inputmode="decimal" value="' + esc(f.km) + '"></div>' +
+        '<div><label for="nDays">Дней рейса</label>' +
+        '<input id="nDays" type="number" inputmode="numeric" value="' + esc(f.days) + '"></div>' +
+      '</div>' +
+      '<div class="sect">Даты</div>' +
+      '<div class="two">' +
+        '<div><label for="nDate">Старт</label><input id="nDate" type="date" value="' + esc(f.date) + '"></div>' +
+        '<div><label for="nFinish">Финиш</label><input id="nFinish" type="date" value="' + esc(f.dateFinish) + '"></div>' +
       '</div>' +
       '<div class="sect">Машина и водитель</div>' +
-      '<label for="nVeh">Тягач и прицеп</label><input id="nVeh" placeholder="госномера">' +
-      '<label for="nDrv">Водитель</label><input id="nDrv" placeholder="ФИО">' +
+      '<label for="nDrv">Водитель</label>' +
+      pick('nDrv', drivers, only(refList('drivers'), f.driver), 'выбери водителя', NO_REFS) +
+      '<div id="nDrvNote"></div>' +
+      '<label for="nTr">Тягач</label>' +
+      pick('nTr', veh(refList('tractors')), only(refList('tractors'), f.tractor), 'выбери тягач', '') +
+      '<label for="nTl">Полуприцеп</label>' +
+      pick('nTl', veh(refList('trailers')), only(refList('trailers'), f.trailer), 'выбери полуприцеп', '') +
       '<div class="sect">Цена</div>' +
-      (c ? '<div class="card">' + row('Тариф по методу без НДС', money(c.price)) +
-           row('С НДС ' + Math.round(NORM.vat * 100) + '%', money(c.full)) +
-           row('Нижний порог', money(c.floor)) + '</div>' : '') +
+      '<div id="nTariff"></div>' +
       '<label for="nPrice">Ставка заказчика, ₽</label>' +
-      '<input id="nPrice" type="number" inputmode="numeric" value="' +
-        (c ? Math.round(c.price) : '') + '">' +
+      '<input id="nPrice" type="number" inputmode="numeric" value="' + esc(f.price || '') + '">' +
       '<label for="nVat">Ставка НДС</label>' +
-      '<select id="nVat"><option>без НДС</option><option>22%</option><option>20%</option>' +
-      '<option>10%</option><option>7%</option><option>5%</option></select>' +
+      '<select id="nVat">' + ['без НДС', '22%', '20%', '10%', '7%', '5%'].map(function (v) {
+        return '<option' + (v === f.vat ? ' selected' : '') + '>' + v + '</option>';
+      }).join('') + '</select>' +
+      '<div class="sect">Рейс</div>' +
+      '<label for="nId">Номер рейса</label>' +
+      '<input id="nId" value="' + esc(f.id || nextTripId()) + '">' +
       '<button class="btn" id="nSave">Завести рейс и договор</button>' +
       '<p class="tiny">Рейс уходит в общую базу, номер договора выдаёт она же. ' +
-      'В лист Рейсы строка попадёт по кнопке «Забрать рейсы из базы» в меню таблицы</p>';
+      'Таблица забирает его в лист «Рейсы» и сама заводит в справочник то, что вписано руками</p>';
   },
   wire: function () {
-    $('nNewCust').addEventListener('click', function () { go('newcust'); });
-    $('nCust').addEventListener('change', function () {
-      var o = this.options[this.selectedIndex];
-      if (o) $('nInn').value = o.getAttribute('data-inn') || '';
+    $('nNewCust').addEventListener('click', function () {
+      state.tripForm = tripFormNow();
+      state.afterCust = 'newtrip';
+      go('newcust');
+    });
+    wirePick('nCust', function (s) {
+      var o = s.options[s.selectedIndex];
+      if (o && s.value !== OTHER) $('nInn').value = o.getAttribute('data-x') || '';
+    });
+    wirePick('nRoute', function (s) {
+      var r = routeByName(s.value);
+      if (r) {
+        if (r.km) $('nKm').value = r.km;
+        if (r.days) $('nDays').value = r.days;
+      }
+      tariffBox(true);
+    });
+    wirePick('nDrv', driverNote);
+    wirePick('nTr'); wirePick('nTl');
+    ['nKm', 'nDays'].forEach(function (id) {
+      $(id).addEventListener('input', function () { tariffBox(true); });
+    });
+    $('nDate').addEventListener('change', function () {
+      // финиш не раньше старта: однодневный рейс получает финиш тем же днём
+      var days = num('nDays') || 1;
+      var a = dayOf(fromIso(this.value));
+      if (a && !$('nFinish').value) $('nFinish').value = isoOf(new Date(a.getTime() + (days - 1) * 86400000));
     });
     $('nSave').addEventListener('click', saveTrip);
+    tariffBox(!state.tripForm || !state.tripForm.price);
+    driverNote();
+    state.tripForm = null;
   }
 };
+
+/** Что сейчас в форме: чтобы вернуться к ней после заведения заказчика */
+function tripFormNow() {
+  return {
+    customer: picked('nCust'), inn: val('nInn'), route: picked('nRoute'),
+    km: val('nKm'), days: val('nDays'), date: val('nDate'), dateFinish: val('nFinish'),
+    driver: picked('nDrv'), tractor: picked('nTr'), trailer: picked('nTl'),
+    price: val('nPrice'), vat: val('nVat'), id: val('nId')
+  };
+}
+
+/** Тариф по методу под выбранный маршрут. `setPrice` - подставить его в ставку */
+function tariffBox(setPrice) {
+  var km = num('nKm'), days = num('nDays');
+  var box = $('nTariff');
+  if (!box) return;
+  if (!km || !days) {
+    box.innerHTML = '<p class="tiny">Выбери маршрут или впиши километраж и дни: тариф посчитается сам</p>';
+    return;
+  }
+  var d = state.draft;
+  var c = calcTrip(km, days, parseFloat(d.toll) || 0, parseFloat(d.fix) || 0);
+  box.innerHTML = '<div class="card">' + row('Тариф по методу без НДС', money(c.price)) +
+    row('С НДС ' + Math.round(NORM.vat * 100) + '%', money(c.full)) +
+    row('Нижний порог', money(c.floor)) + '</div>';
+  if (setPrice) $('nPrice').value = Math.round(c.price);
+}
+
+/** Водитель у порога лимита самозанятого: предупреждаем до заведения рейса */
+function driverNote() {
+  var box = $('nDrvNote'), s = $('nDrv');
+  if (!box || !s) return;
+  var o = s.options[s.selectedIndex];
+  var sig = o ? (o.getAttribute('data-x') || '') : '';
+  box.innerHTML = /стоп|внимание/i.test(sig)
+    ? '<div class="note">Лимит самозанятого: «' + esc(sig) + '». Сверь в листе «Справочники» до назначения</div>'
+    : '';
+}
 
 function nextTripId() {
   var max = 0;
@@ -556,16 +950,24 @@ function nextTripId() {
 
 function saveTrip() {
   if (!state.key) { openGate(); return; }
-  var id = val('nId'), cust = val('nCust'), route = val('nRoute'), price = num('nPrice');
+  var id = val('nId'), cust = picked('nCust'), route = picked('nRoute'), price = num('nPrice');
+  var date = fromIso(val('nDate')), finish = fromIso(val('nFinish'));
+  var driver = picked('nDrv'), tractor = picked('nTr'), trailer = picked('nTl');
+  var vehicle = [tractor, trailer].filter(Boolean).join(', ');
   if (!id)    { toast('Впиши номер рейса'); return; }
   if (!cust)  { toast('Выбери заказчика'); return; }
-  if (!route) { toast('Впиши маршрут'); return; }
+  if (!route) { toast('Выбери или впиши маршрут'); return; }
+  if (!date)  { toast('Поставь дату старта'); return; }
+  if (finish && dayOf(finish) < dayOf(date)) { toast('Финиш раньше старта'); return; }
   if (!price) { toast('Впиши ставку заказчика'); return; }
+  var clash = state.trips.some(function (t) { return t.id === id; });
+  if (clash) { toast('Рейс ' + id + ' уже есть в базе, поменяй номер'); return; }
 
   var btn = $('nSave'); btn.disabled = true; btn.textContent = 'Записываю…';
   var data = {
-    date: val('nDate'), dateFinish: '', customer: cust, customerInn: val('nInn'),
-    route: route, driver: val('nDrv'), vehicle: val('nVeh'),
+    date: date, dateFinish: finish || date, days: num('nDays') || '',
+    customer: cust, customerInn: val('nInn'), route: route,
+    driver: driver, tractor: tractor, trailer: trailer, vehicle: vehicle,
     price: price, status: 'назначен', km: num('nKm'), vat: val('nVat'),
     source: 'приложение'
   };
@@ -573,13 +975,14 @@ function saveTrip() {
     if (!res || !res.ok) throw new Error((res && res.error) || 'база не приняла рейс');
     return apiTrips({ action: 'contract.create', trip: id, contract: {
       customerName: cust, customerInn: val('nInn'), route: route,
-      price: price, driverName: val('nDrv'), vehicle: val('nVeh'), date: val('nDate')
+      price: price, driverName: driver, vehicle: vehicle, date: date
     }});
   }).then(function (res) {
     var number = res && res.contract ? res.contract.number : null;
     state.trips.unshift({
       id: id, route: route, customer: cust, price: price, status: 'назначен',
-      contract: number, driver: val('nDrv'), vehicle: val('nVeh'), date: val('nDate')
+      contract: number, driver: driver, vehicle: vehicle, tractor: tractor, trailer: trailer,
+      date: date, dateFinish: finish || date, km: num('nKm')
     });
     LS.set('pv24_trips_cache', state.trips);
     toast(number ? ('Рейс ' + id + ' заведён, договор № ' + number) : ('Рейс ' + id + ' заведён'));
@@ -646,47 +1049,175 @@ SCREENS.money = {
 
 /* ------------------------------------------------------ справочники */
 SCREENS.refs = {
-  tab: 'refs', title: 'Справочники', sub: 'общие для всех менеджеров',
+  tab: 'refs', title: 'Справочники', sub: 'из таблицы учёта и общей базы',
   render: function () {
+    var r = state.refs || {};
     return '<div class="menu">' +
       '<button data-go="parties"><span>Заказчики</span>' +
-      '<span class="cnt">' + state.parties.length + '</span></button>' +
+      '<span class="cnt">' + customerItems().length + '</span></button>' +
+      '<button data-go="drivers"><span>Водители</span>' +
+      '<span class="cnt">' + refList('drivers').length + '</span></button>' +
+      '<button data-go="vehicles"><span>Тягачи и полуприцепы</span>' +
+      '<span class="cnt">' + (refList('tractors').length + refList('trailers').length) + '</span></button>' +
+      '<button data-go="routes"><span>Маршруты</span>' +
+      '<span class="cnt">' + refList('routes').length + '</span></button>' +
       '<button data-go="norms"><span>Нормативы расчёта</span>' +
       '<span class="cnt">метод</span></button>' +
       '</div>' +
       '<p class="tiny"><span class="live' + (state.online ? '' : ' off') + '"></span>' +
       (state.online ? 'База на связи: что внёс один менеджер, видят остальные'
-                    : 'Сети нет, показываю последнюю копию') + '</p>';
+                    : 'Сети нет, показываю последнюю копию') + '</p>' +
+      '<p class="tiny">Водителей, машины и заказчиков ведёт таблица, лист «Справочники»' +
+      (r.syncedAt ? '. Получено из таблицы ' + esc(r.syncedAt) : '. Из таблицы справочник ещё не приходил') +
+      '</p>';
   },
-  wire: wireGo
+  wire: function () { wireGo(); loadRefs(); loadBook(); }
 };
 
 SCREENS.parties = {
-  tab: 'refs', title: 'Заказчики', sub: 'общая база', back: 'refs', act: ['+ Новый', 'newcust'],
+  tab: 'refs', title: 'Заказчики', sub: 'таблица и общая база', back: 'refs', act: ['+ Новый', 'newcust'],
   render: function () {
-    if (!state.parties.length) {
+    var tbl = refList('customers');
+    var items = customerItems();
+    if (!items.length) {
       return '<div class="empty">Справочник пуст или не загружен.<br>' +
              'Добавь заказчика кнопкой вверху</div>';
     }
-    var h = '<div class="menu">';
-    state.parties.forEach(function (p) {
-      h += '<button><span>' + esc(p.pName) + '</span><span class="cnt">' +
-           esc(p.pInn || 'без ИНН') + '</span></button>';
-    });
-    return h + '</div>';
+    var h = '';
+    if (tbl.length) {
+      h += '<div class="sect">Из таблицы учёта</div><div class="menu">';
+      tbl.forEach(function (c) {
+        h += '<button><span>' + esc(c.name) + '</span><span class="cnt">' +
+             esc([c.inn || 'без ИНН', c.vat].filter(Boolean).join(' · ')) + '</span></button>';
+      });
+      h += '</div>';
+    }
+    var rest = items.slice(tbl.length);
+    if (rest.length) {
+      h += '<div class="sect">Только в общей базе</div><div class="menu">';
+      rest.forEach(function (it) {
+        h += '<button><span>' + esc(it.value) + '</span><span class="cnt">' +
+             esc(it.data || 'без ИНН') + '</span></button>';
+      });
+      h += '</div><p class="tiny">В таблицу такой заказчик попадёт вместе с первым рейсом</p>';
+    }
+    return h;
   },
-  wire: loadBook
+  wire: function () { loadBook(); loadRefs(); }
 };
 
+SCREENS.drivers = {
+  tab: 'refs', title: 'Водители', sub: 'лист «Справочники» таблицы', back: 'refs',
+  render: function () {
+    var l = refList('drivers');
+    if (!l.length) return '<div class="empty">' + esc(NO_REFS) + '</div>';
+    return '<div class="menu">' + l.map(function (x) {
+      var warn = /стоп|внимание/i.test(x.signal || '');
+      return '<button' + (x.phone ? ' data-tel="' + esc(x.phone) + '"' : '') + '><span>' +
+        (warn ? '⛔ ' : '') + esc(x.name) +
+        '<span class="subline">' + esc([x.phone, x.type, x.signal].filter(Boolean).join(' · ')) +
+        '</span></span><span class="cnt">' + (x.phone ? 'позвонить' : '') + '</span></button>';
+    }).join('') + '</div><p class="tiny">Новый водитель заводится в таблице, лист «Справочники», блок «Водители»</p>';
+  },
+  wire: function () {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tel]'), function (el) {
+      el.addEventListener('click', function () { location.href = 'tel:' + el.getAttribute('data-tel').replace(/[^\d+]/g, ''); });
+    });
+    loadRefs();
+  }
+};
+
+SCREENS.vehicles = {
+  tab: 'refs', title: 'Машины', sub: 'лист «Справочники» таблицы', back: 'refs',
+  render: function () {
+    var t = refList('tractors'), p = refList('trailers');
+    if (!t.length && !p.length) return '<div class="empty">' + esc(NO_REFS) + '</div>';
+    var list = function (arr) {
+      return '<div class="menu">' + arr.map(function (x) {
+        return '<button><span>' + esc(x.name) + '<span class="subline">' +
+          esc([x.brand, x.own].filter(Boolean).join(' · ')) + '</span></span>' +
+          '<span class="cnt">' + esc(x.status || '') + '</span></button>';
+      }).join('') + '</div>';
+    };
+    return '<div class="sect">Тягачи</div>' + (t.length ? list(t) : '<p class="tiny">нет</p>') +
+           '<div class="sect">Полуприцепы</div>' + (p.length ? list(p) : '<p class="tiny">нет</p>');
+  },
+  wire: loadRefs
+};
+
+SCREENS.routes = {
+  tab: 'refs', title: 'Маршруты', sub: 'нажми, чтобы посчитать', back: 'refs',
+  render: function () {
+    var l = refList('routes');
+    if (!l.length) {
+      return '<div class="empty">Маршрутов пока нет.<br>Посчитай рейс в калькуляторе и нажми ' +
+             '«Сохранить маршрут в справочник»</div>';
+    }
+    return '<div class="menu">' + l.map(function (r) {
+      var bits = [];
+      if (r.km) bits.push(r.km + ' км'); else bits.push('км не сняты');
+      if (r.days) bits.push(plural(Number(r.days), 'день', 'дня', 'дней'));
+      if (r.uses) bits.push(plural(Number(r.uses), 'рейс', 'рейса', 'рейсов'));
+      if (r.lastDate) bits.push('последний ' + r.lastDate);
+      return '<button data-route="' + esc(r.route) + '"><span>' + esc(r.route) +
+        '<span class="subline">' + esc(bits.join(' · ')) + '</span></span>' +
+        '<span class="cnt">' + (r.source === 'калькулятор' ? 'с карты' : 'из рейсов') + '</span></button>';
+    }).join('') + '</div>' +
+    '<p class="tiny">«С карты» - сохранены из калькулятора, км сняты с Яндекс.Карт. ' +
+    '«Из рейсов» - собраны из листа «Рейсы» таблицы</p>';
+  },
+  wire: function () {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-route]'), function (el) {
+      el.addEventListener('click', function () { useRoute(routeByName(el.getAttribute('data-route'))); });
+    });
+    loadRefs();
+  }
+};
+
+/** Экраны, которые можно перерисовать при свежем справочнике: форм ввода на них нет */
+var REF_SCREENS = { refs: 1, parties: 1, drivers: 1, vehicles: 1, routes: 1 };
+
+var refsLoadedAt = 0;
+function loadRefs() {
+  if (!state.key || !state.online || Date.now() - refsLoadedAt < 10000) return;
+  refsLoadedAt = Date.now();
+  apiTrips({ action: 'refs.list' }).then(function (res) {
+    if (res && res.ok && setRefs(res.refs) && REF_SCREENS[state.screen]) paint();
+  }).catch(function () {});
+}
+
+/** Маршрут из справочника в калькулятор: откуда, куда, км и дни */
+function useRoute(r) {
+  if (!r) return;
+  var parts = String(r.route).split(/\s+-\s+|-/).map(function (s) { return s.trim(); }).filter(Boolean);
+  state.draft = Object.assign({}, state.draft, {
+    route: r.route,
+    from: r.from || parts[0] || '',
+    to: r.to || parts.slice(1).join(' - ') || '',
+    km: r.km || '', days: r.days || 1, toll: r.toll || 0
+  });
+  LS.set('pv24_draft', state.draft);
+  go('calc');
+}
+
+/**
+ * Справочник менеджеров. Перерисовка только при изменившихся данных и
+ * запрос не чаще раза в 10 секунд: экран зовёт загрузку при отрисовке, и
+ * без этого тормоза загрузка и отрисовка гоняли друг друга по кругу -
+ * запрос к базе на каждый кадр, а кнопки уезжали из-под пальца.
+ */
+var bookLoadedAt = 0;
 function loadBook() {
-  if (!state.key || !state.online) return;
+  if (!state.key || !state.online || Date.now() - bookLoadedAt < 10000) return;
+  bookLoadedAt = Date.now();
   apiBook({ action: 'list' }).then(function (res) {
     if (!res || !res.ok) return;
     var list = res.parties || (res.book && res.book.parties) || [];
     if (!Array.isArray(list)) return;
+    var changed = JSON.stringify(list) !== JSON.stringify(state.parties);
     state.parties = list;
     LS.set('pv24_parties_cache', list);
-    if (state.screen === 'parties' || state.screen === 'refs') paint();
+    if (changed && REF_SCREENS[state.screen]) paint();
   }).catch(function () {});
 }
 
@@ -727,7 +1258,14 @@ SCREENS.newcust = {
         if (i >= 0) state.parties[i] = rec; else state.parties.push(rec);
         LS.set('pv24_parties_cache', state.parties);
         toast('«' + name + '» в общей базе, видят все менеджеры');
-        go('parties');
+        if (state.afterCust === 'newtrip') {
+          // вернулись в недописанный рейс, новый заказчик уже выбран
+          state.afterCust = null;
+          state.tripForm = Object.assign(state.tripForm || {}, { customer: name, inn: rec.pInn });
+          go('newtrip');
+        } else {
+          go('parties');
+        }
       }).catch(function (e) {
         btn.disabled = false; btn.textContent = 'Сохранить в справочник';
         toast(state.online ? ('Не вышло: ' + e.message) : 'Нет сети, запись не ушла');
@@ -777,7 +1315,7 @@ SCREENS.more = {
       '<span class="cnt">карточка рейса</span></button></div>' +
       '<p class="tiny">Водитель грузит чеки и накладные в карточке рейса, ' +
       'оттуда они уходят в Telegram-группу Перевал24</p>' +
-      '<p class="tiny">Версия 1.0 · 23.09.2026</p>';
+      '<p class="tiny">Версия 1.2 · 24.09.2026</p>';
   },
   wire: function () {
     wireGo();

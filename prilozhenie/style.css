@@ -80,6 +80,26 @@ button.btn.slim{padding:10px;font-size:14px;margin-top:8px}
   align-items:center}
 .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;
   color:#33383f}
+.trip .when{font-size:13px;font-weight:600;margin-top:3px}
+
+/* фильтры списка рейсов */
+.filters{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px;
+  margin-bottom:8px}
+.filters .two{margin-top:6px}
+.filters select,.filters input{padding:8px 10px;font-size:14px}
+.filters select{padding-right:28px}
+.filters label{margin:4px 0 2px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fbfcfd;color:var(--ink);border-radius:99px;
+  padding:6px 12px;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.shown{font-size:12px;color:var(--dim);margin:2px 2px 6px}
+button.link{background:none;border:0;padding:0;color:var(--blue);font:inherit;cursor:pointer;
+  text-decoration:underline}
+.day{font-size:12px;font-weight:700;color:var(--ink);margin:14px 2px 6px}
+.menu .subline{display:block;font-size:12px;color:var(--dim);margin-top:1px}
+input.other{margin-top:6px}
 
 .res{background:var(--blue-soft);border-radius:12px;padding:12px 14px;margin-top:12px}
 .res .lbl{font-size:12px;color:var(--dim)}
