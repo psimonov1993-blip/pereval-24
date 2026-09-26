@@ -1477,6 +1477,25 @@ function initGate() {
   });
 }
 
+/* ------------------------------------------------------------- переезд в CRM
+   26.09.2026 таблица учёта и общая база отключены (решение автора): рейсы, деньги и заказчики ведутся только в CRM.
+   Рейс или заказчик, заведённые здесь, до CRM больше не доедут, поэтому эти экраны ведут в CRM. Калькулятор работает как раньше */
+var CRM_URL = 'https://crm.pereval24.ru/';
+var CRM_NOTE = '<div class="note">С 26.09.2026 рейсы, деньги и заказчики ведутся в CRM: <a href="' + CRM_URL + '" target="_blank" rel="noopener"><b>crm.pereval24.ru</b></a>. ' +
+  'Здесь данные на 26.09 и больше не обновляются. Калькулятор работает как раньше</div>';
+['trips', 'trip', 'money', 'parties'].forEach(function (k) {
+  if (!SCREENS[k]) return;
+  var r = SCREENS[k].render;
+  SCREENS[k].render = function () { return CRM_NOTE + r.apply(this, arguments); };
+});
+['newtrip', 'newcust'].forEach(function (k) {
+  if (!SCREENS[k]) return;
+  SCREENS[k].wire = null;   // кнопок формы больше нет
+  SCREENS[k].render = function () {
+    return CRM_NOTE + '<a class="btn" href="' + CRM_URL + '#/' + (k === 'newtrip' ? 'trips' : 'clients') + '" target="_blank" rel="noopener">' + (k === 'newtrip' ? 'Завести рейс в CRM' : 'Завести заказчика в CRM') + '</a>';
+  };
+});
+
 /* ------------------------------------------------------------- старт */
 initGate();
 if (!state.key) { openGate(); }
