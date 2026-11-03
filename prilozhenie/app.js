@@ -1480,8 +1480,8 @@ function initGate() {
 /* ------------------------------------------------------------- переезд в CRM
    26.09.2026 таблица учёта и общая база отключены (решение автора): рейсы, деньги и заказчики ведутся только в CRM.
    Рейс или заказчик, заведённые здесь, до CRM больше не доедут, поэтому эти экраны ведут в CRM. Калькулятор работает как раньше */
-var CRM_URL = 'https://crm.pereval24.ru/';
-var CRM_NOTE = '<div class="note">С 26.09.2026 рейсы, деньги и заказчики ведутся в CRM: <a href="' + CRM_URL + '" target="_blank" rel="noopener"><b>crm.pereval24.ru</b></a>. ' +
+var CRM_URL = 'https://crm.pereval-24.ru/';
+var CRM_NOTE = '<div class="note">С 26.09.2026 рейсы, деньги и заказчики ведутся в CRM: <a href="' + CRM_URL + '" target="_blank" rel="noopener"><b>crm.pereval-24.ru</b></a>. ' +
   'Здесь данные на 26.09 и больше не обновляются. Калькулятор работает как раньше</div>';
 ['trips', 'trip', 'money', 'parties'].forEach(function (k) {
   if (!SCREENS[k]) return;
