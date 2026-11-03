@@ -1,9 +1,18 @@
+# Поисковики и ИИ-боты пускаем ко всему публичному (03.11.2026). Служебные разделы закрыты для всех
 User-agent: *
+User-agent: YandexBot
+User-agent: Googlebot
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
 Allow: /
 Disallow: /_check.html
 Disallow: /ohotnik/
 Disallow: /dogovor-zayavka/
 Disallow: /prilozhenie/
 
-Sitemap: https://pereval24.ru/sitemap.xml
-Host: https://pereval24.ru
+Sitemap: https://pereval-24.ru/sitemap.xml

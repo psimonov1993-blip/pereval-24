@@ -9,7 +9,7 @@
 
 var API_TRIPS = 'https://terminator.pw/webhook/pv24-reysy';
 var API_BOOK  = 'https://terminator.pw/webhook/pv24-spravochnik';
-var CARD_URL  = 'https://pereval24.ru/dogovor-zayavka/reys.html';
+var CARD_URL  = 'https://pereval-24.ru/dogovor-zayavka/reys.html';
 
 /* ---------------------------------------------------------- хранилище */
 var LS = {
